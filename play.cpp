@@ -44,7 +44,7 @@ struct _introSegment {
 };
 
 vector<struct _introSegment> introSegments;
-bool playIntro = true;
+bool playIntro = false;
 bool playingIntro = false;
 
 void heartbeat()
@@ -323,6 +323,7 @@ int main(int argc, char **argv)
                     if (message[2] < 0x10)    // A marker of less than 0x10 is number of verses
                     {
                         verses = message[2];
+                        playIntro = true;
                     }
                 }
             }

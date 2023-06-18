@@ -38,10 +38,12 @@ class PlayerSync : public guts::PlayerBase {
   inline explicit PlayerSync(output::Abstract* output);
 
   inline void Play();
+  inline void Stop();
   inline void GoToTick(uint32_t dt);
 
  private:
   inline void PlayerLoop();
+  bool _stopped;
 };
 
 }  // namespace player
@@ -59,11 +61,19 @@ PlayerSync::PlayerSync(output::Abstract* output) : guts::PlayerBase(output) {}
 void PlayerSync::Play() {
   if (!output_ || !file_) return;
 
+  _stopped = false;
+
   PlayerLoop();
 }
 
+void PlayerSync::Stop()
+{
+    _stopped = true;
+}
+
+
 void PlayerSync::PlayerLoop() {
-  while (!Finished()) {
+  while (!Finished() && !_stopped) {
     unsigned int track_num = TrackPending();
     unsigned int event_num = player_state_[track_num].track_pointer_;
     uint32_t dt = player_state_[track_num].track_dt_;
@@ -89,11 +99,12 @@ void PlayerSync::PlayerLoop() {
     UpdatePlayerState(track_num, dt);
   }
 
-  if (clbk_fun_finished_) clbk_fun_finished_();
+  if (Finished() && clbk_fun_finished_) clbk_fun_finished_();
 }
 
 void PlayerSync::GoToTick(uint32_t tick)
 {
+  GoTo(std::chrono::microseconds::zero());
   uint32_t dtTotal = 0;
 
   while (!Finished()) {
@@ -102,9 +113,13 @@ void PlayerSync::GoToTick(uint32_t tick)
     uint32_t dt = player_state_[track_num].track_dt_;
 
     Event event = (*file_)[track_num][event_num];
-    if (!event.IsVoiceCategory(Message::kNoteOn) &&
-        !event.IsVoiceCategory(Message::kNoteOff))
-      ExecEvent(event);
+    Message message = event;
+
+    if ((message[0] == Message::kMeta && message[1] == Message::kTempo) ||
+        (message[0] == Message::kMeta && message[1] == Message::kKeySignature))
+        {
+            ExecEvent(event);
+        }
 
     UpdatePlayerState(track_num, dt);
 

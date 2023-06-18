@@ -1,6 +1,6 @@
+#include "./player_sync.hpp"    // Local, modified copy of cxxmidi
 #include <cxxmidi/file.hpp>
 #include <cxxmidi/output/default.hpp>
-#include "./player_sync.hpp"    // Local, modified copy of cxxmidi
 #include <cxxmidi/note.hpp>
 #include <signal.h>
 #include <cstdlib>
@@ -9,6 +9,7 @@
 
 #include <getopt.h>
 #include <iostream>
+#include <iomanip>
 #include <boost/filesystem.hpp>
 
 #include "timer.hpp"
@@ -43,6 +44,8 @@ struct _introSegment {
 };
 
 vector<struct _introSegment> introSegments;
+bool playIntro = true;
+bool playingIntro = false;
 
 void heartbeat()
 {
@@ -53,6 +56,7 @@ void finished()
 {
     int ret = sem_post(&sem);
 }
+
 
 void control_c(int signum)
 {
@@ -133,7 +137,9 @@ int main(int argc, char **argv)
       switch (opt)
       {
       case 'p':   // Prelude/Postlude
-        verses = 2;     // Play 2 verses
+        verses = 2;           // Play 2 verses
+        playIntro = false;    // Don't play introduction
+
         if (optarg) 
         {
             // convert 2-digit number to float and divide by 10
@@ -390,8 +396,9 @@ int main(int argc, char **argv)
   float tempo = player.GetSpeed();
   player.SetSpeed(tempo * speed);
 
-
-#if defined(HEARTBEAT)
+// TODO: Diminish speed gradually when ritardando
+//       At end of introduction and on last verse.
+#if defined(HEARTBEAT)  
   player.SetCallbackHeartbeat(
       [&]() { 
             int64_t count = player.CurrentTimePos().count();
@@ -405,6 +412,68 @@ int main(int argc, char **argv)
 
   player.SetCallbackFinished(finished);
 
+
+  // Event callback
+  //
+  player.SetCallbackEvent(
+    [&](Event& event)->bool 
+    {
+        Message message = event;
+#ifdef DEBUG
+        cout << "Event " << dec << event.Dt() << " ";
+
+        for (Message::iterator iter = message.begin(); iter < message.end(); iter++)
+        {
+            uint8_t byte = *iter;
+            cout << hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+        }
+
+        cout << endl;
+#endif        
+
+        if (playingIntro && message[0] == Message::kMeta && message[1] == Message::kMarker)
+        {
+            if (message[2] == ']')
+            {
+              itintro++;
+
+              if (itintro < introSegments.end())
+              {
+                  uint32_t start = itintro->start;
+
+                  //cout << "Jump to " << dec << start << endl;
+
+                  player.Stop();
+                  player.GoToTick(start);
+                  player.Play();
+              }
+            }
+
+            if (message[2] == '\\')
+            {
+                // TODO: Start ritardando
+            }
+        }
+
+        return true;
+    });
+
+
+  // Play intro
+  if (playIntro)
+  {
+      playingIntro = true;
+      cout << "Playing introduction" << endl;
+      player.Play();
+      ret = sem_wait(&sem);   // Wait on the semaphore
+      playingIntro = false;
+      cout << "Introduction ended" << endl;
+
+      player.GoTo(std::chrono::microseconds::zero());
+      sleep(2);
+  }
+
+  // Play verses
   for (int verse = 0; verse < verses; verse++)
   {
     if (verse > 0) 

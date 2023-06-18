@@ -64,6 +64,7 @@ class PlayerBase {
 
   inline void SetCallbackHeartbeat(const std::function<void()>& callback);
   inline void SetCallbackFinished(const std::function<void()>& callback);
+  inline void SetCallbackEvent(const std::function<bool(Event& event)>& callback);
 
  protected:
   inline bool TrackFinished(size_t track_num) const;
@@ -94,6 +95,7 @@ class PlayerBase {
 
   std::function<void()> clbk_fun_heartbeat_;
   std::function<void()> clbk_fun_finished_;
+  std::function<bool(Event& event)> clbk_fun_event_;
 
  private:
   static inline void SetupWindowsTimers();
@@ -215,6 +217,10 @@ void PlayerBase::SetCallbackFinished(const std::function<void()>& callback) {
   clbk_fun_finished_ = callback;
 }
 
+void PlayerBase::SetCallbackEvent(const std::function<bool(Event& event)>& callback) {
+  clbk_fun_event_ = callback;
+}
+
 bool PlayerBase::TrackFinished(size_t track_num) const {
   return (player_state_[track_num].track_pointer_ >=
           (*file_)[track_num].size());
@@ -251,6 +257,10 @@ void PlayerBase::UpdatePlayerState(unsigned int track_num, unsigned int dt) {
 }
 
 void PlayerBase::ExecEvent(const Event& event) {
+  Event ev(event);
+
+  bool send = clbk_fun_event_(ev);  // Call the event callback
+
   if (event.IsMeta()) {
     if (event.IsMeta(Event::kTempo))
       tempo_ = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
@@ -258,7 +268,7 @@ void PlayerBase::ExecEvent(const Event& event) {
     return;  // ignore other META events (?)
   }
 
-  if (output_) output_->SendMessage(&event);
+  if (output_ && send) output_->SendMessage(&ev);
 }
 
 }  // namespace guts

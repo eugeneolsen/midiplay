@@ -34,6 +34,10 @@ SOFTWARE.
 #include <functional>
 #include <vector>
 
+#include <cxxmidi/note.hpp>
+#include "channel.hpp"
+
+
 namespace cxxmidi {
 namespace output {
 class Abstract;
@@ -49,12 +53,14 @@ class PlayerBase {
   // no virtual destructor: non-poymorphic class
 
   inline void GoTo(const std::chrono::microseconds& pos);
+  inline void GoToTick(uint32_t dt);
   inline std::chrono::microseconds CurrentTimePos() const { return played_us_; }
 
   inline void SetFile(const File* file);
   inline void SetOutput(output::Abstract* output);
   inline output::Abstract* output() { return output_; }
 
+  inline void Stop();
   inline bool Finished() const;
 
   inline bool IsPlaying() const { return is_playing_; }
@@ -72,6 +78,7 @@ class PlayerBase {
 
   uint32_t tempo_;  // [us per quarternote]
   bool is_playing_;
+  bool _stopped;
   float speed_;
   const File* file_;
   std::chrono::microseconds played_us_;
@@ -104,9 +111,9 @@ class PlayerBase {
 }  // namespace guts
 }  // namespace cxxmidi
 
+#include "./file.hpp"           // local, modified copy of cxxmidi
 #include <cxxmidi/converters.hpp>
 #include <cxxmidi/event.hpp>
-#include <cxxmidi/file.hpp>
 #include <cxxmidi/guts/utils.hpp>
 #include <cxxmidi/output/abstract.hpp>
 
@@ -188,6 +195,38 @@ void PlayerBase::GoTo(const std::chrono::microseconds& pos) {
   }
 }
 
+void PlayerBase::GoToTick(uint32_t tick)
+{
+  GoTo(std::chrono::microseconds::zero());
+  uint32_t dtTotal = 0;
+
+  while (!Finished()) 
+  {
+    unsigned int track_num = TrackPending();
+    unsigned int event_num = player_state_[track_num].track_pointer_;
+    uint32_t dt = player_state_[track_num].track_dt_;
+
+    Event event = (*file_)[track_num][event_num];
+    Message message = event;
+
+    if ((message[0] == Message::kMeta && message[1] == Message::kTempo) ||
+        (message[0] == Message::kMeta && message[1] == Message::kKeySignature))
+        {
+            ExecEvent(event);
+        }
+
+    UpdatePlayerState(track_num, dt);
+
+    if (track_num == 0) 
+    {
+        dtTotal += event.Dt();
+    }
+
+    if (dtTotal >= tick) break;
+  }
+}
+
+
 PlayerBase::PlayerStateElem::PlayerStateElem(unsigned int track_ptr,
                                              uint32_t track_dt)
     : track_pointer_(track_ptr), track_dt_(track_dt) {}
@@ -241,6 +280,25 @@ unsigned int PlayerBase::TrackPending() const {
 
   return static_cast<unsigned int>(r);
 }
+
+void PlayerBase::Stop()
+{
+    _stopped = true;
+
+    // Notes Off
+    Event e;
+
+    for (int channel = Channel1; channel <= Channel3; channel++) 
+    {
+        for (int note = Note::kC2; note <= Note::kC7; note++)
+        {
+            e = Event(0, channel | Message::kNoteOn, note, 0); // Note Off
+            output_->SendMessage(&e);
+        }
+    }
+
+}
+
 
 void PlayerBase::UpdatePlayerState(unsigned int track_num, unsigned int dt) {
   for (size_t i = 0; i < player_state_.size(); i++)

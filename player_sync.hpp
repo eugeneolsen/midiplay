@@ -28,6 +28,8 @@ SOFTWARE.
 #include <thread>  // NOLINT() CPP11_INCLUDES
 
 #include "./player_base.hpp"
+#include "channel.hpp"
+#include <cxxmidi/note.hpp>
 
 namespace cxxmidi {
 class File;
@@ -38,19 +40,16 @@ class PlayerSync : public guts::PlayerBase {
   inline explicit PlayerSync(output::Abstract* output);
 
   inline void Play();
-  inline void Stop();
-  inline void GoToTick(uint32_t dt);
 
  private:
   inline void PlayerLoop();
-  bool _stopped;
 };
 
 }  // namespace player
 }  // namespace cxxmidi
 
+#include "./file.hpp"           // local, modified copy of cxxmidi
 #include <cxxmidi/converters.hpp>
-#include <cxxmidi/file.hpp>
 #include <cxxmidi/guts/utils.hpp>
 
 namespace cxxmidi {
@@ -64,11 +63,6 @@ void PlayerSync::Play() {
   _stopped = false;
 
   PlayerLoop();
-}
-
-void PlayerSync::Stop()
-{
-    _stopped = true;
 }
 
 
@@ -100,36 +94,6 @@ void PlayerSync::PlayerLoop() {
   }
 
   if (Finished() && clbk_fun_finished_) clbk_fun_finished_();
-}
-
-void PlayerSync::GoToTick(uint32_t tick)
-{
-  GoTo(std::chrono::microseconds::zero());
-  uint32_t dtTotal = 0;
-
-  while (!Finished()) {
-    unsigned int track_num = TrackPending();
-    unsigned int event_num = player_state_[track_num].track_pointer_;
-    uint32_t dt = player_state_[track_num].track_dt_;
-
-    Event event = (*file_)[track_num][event_num];
-    Message message = event;
-
-    if ((message[0] == Message::kMeta && message[1] == Message::kTempo) ||
-        (message[0] == Message::kMeta && message[1] == Message::kKeySignature))
-        {
-            ExecEvent(event);
-        }
-
-    UpdatePlayerState(track_num, dt);
-
-    if (track_num == 0) 
-    {
-        dtTotal += event.Dt();
-    }
-
-    if (dtTotal >= tick) break;
-  }
 }
 
 }  // namespace player

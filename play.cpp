@@ -316,14 +316,16 @@ int main(int argc, char **argv)
                 cout << "Playing: \"" << title << "\"" << endl;
             }
 
-            // Find number of verses, if present, in a Marker with a length of 1 and value of < 16
-            if (message[1] == Message::kMarker && message.size() == 3)
+            // Find number of verses, if present, in a custom Meta event 0x10
+            if (message[1] == 0x10 /* Default number of verses */) 
             {
                 if (!prepost)
                 {
-                    if (message[2] < 0x10)    // A marker of less than 0x10 is number of verses
+                    char c = static_cast<char>(message[2]);
+
+                    if (isdigit(c))
                     {
-                        verses = message[2];
+                        verses = atoi(&c);
                         playIntro = true;
                     }
                 }

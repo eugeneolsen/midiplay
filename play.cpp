@@ -1,5 +1,5 @@
 #include "./player_sync.hpp"    // Local, modified copy of cxxmidi
-#include <cxxmidi/file.hpp>
+#include "./file.hpp"           // local, modified copy of cxxmidi
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/note.hpp>
 #include <signal.h>
@@ -14,7 +14,6 @@
 
 #include "timer.hpp"
 
-#include "channel.hpp"
 #include "ctx3000.hpp"
 #include "protege.hpp"
 
@@ -25,7 +24,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.2"; 
+static string version = "1.1.3"; 
 
 output::Default outport;
 
@@ -46,6 +45,8 @@ struct _introSegment {
 vector<struct _introSegment> introSegments;
 bool playIntro = false;
 bool playingIntro = false;
+bool ritardando = false;
+bool lastVerse = false;
 
 void heartbeat()
 {
@@ -399,17 +400,21 @@ int main(int argc, char **argv)
 
 // TODO: Diminish speed gradually when ritardando
 //       At end of introduction and on last verse.
-#if defined(HEARTBEAT)  
   player.SetCallbackHeartbeat(
       [&]() { 
-            int64_t count = player.CurrentTimePos().count();
-            if (count % 1000000 == 0)
-            {
-                cout << count << endl; 
-            }
+                if (ritardando)
+                {
+                    int64_t count = player.CurrentTimePos().count();
+                    if (count % 100000 == 0)
+                    {
+                        float t = player.GetSpeed();
+                        t -= .002;
+                        //cout << "Speed: " << t << endl;
+                        player.SetSpeed(t);
+                    }
+                }
         });
   //player.SetCallbackHeartbeat(heartbeat);
-#endif // HEARTBEAT
 
   player.SetCallbackFinished(finished);
 
@@ -449,48 +454,65 @@ int main(int argc, char **argv)
                   player.Play();
               }
             }
+        }
 
-            if (message[2] == '\\')
-            {
-                // TODO: Start ritardando
-            }
+        if ((playingIntro || lastVerse) && message[0] == Message::kMeta && message[1] == Message::kMarker && message[2] == '\\')
+        {
+            // Start ritardando
+            ritardando = true;
+            cout << "  Ritardando" << endl;
         }
 
         return true;
     });
 
 
-  // Play intro
-  if (playIntro)
-  {
-      playingIntro = true;
-      cout << "Playing introduction" << endl;
-      player.Play();
-      ret = sem_wait(&sem);   // Wait on the semaphore
-      playingIntro = false;
-      cout << "Introduction ended" << endl;
-
-      player.GoTo(std::chrono::microseconds::zero());
-      sleep(2);
-  }
-
-  // Play verses
-  for (int verse = 0; verse < verses; verse++)
-  {
-    if (verse > 0) 
+    // Play intro
+    if (playIntro)
     {
-        player.GoTo(std::chrono::microseconds::zero());
+        playingIntro = true;
+        ritardando = false;
 
+        cout << " Playing introduction" << endl;
+
+        player.Play();
+        ret = sem_wait(&sem);   // Wait on the semaphore
+
+        playingIntro = false;
+        cout << " Introduction ended" << endl;
+
+        player.GoTo(std::chrono::microseconds::zero());
         sleep(2);
     }
 
-    //player.GoToTick(5760);
+    // Play verses
+    for (int verse = 0; verse < verses; verse++)
+    {
+        ritardando = false;
+        player.SetSpeed(tempo * speed);
 
-    player.Play();
-    ret = sem_wait(&sem);   // Wait on the semaphore
-}
+        cout <<  " Playing verse " << verse + 1;
 
-  cout << "Fine" << endl << endl;
+        if (verse == verses - 1)
+        {
+            lastVerse = true;
+            cout << ", last verse";
+        }
 
-  ret = sem_destroy(&sem);  // Clean up the semaphore
+        cout << endl;
+
+        if (verse > 0) 
+        {
+            player.GoTo(std::chrono::microseconds::zero());
+
+            sleep(2);
+        }
+
+        player.Play();
+        ret = sem_wait(&sem);   // Wait on the semaphore
+    }
+
+    cout << "Fine" << endl << endl;
+
+    ret = sem_destroy(&sem);  // Clean up the semaphore
 }

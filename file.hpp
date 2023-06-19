@@ -434,6 +434,7 @@ void File::ReadEvent(std::ifstream &file, Event *event, bool *track_continue,
             } break;
             default: {
               // Ignore non-standard Meta events - just pass them through
+              uint8_t strLength = guts::endianness::ReadBe<uint8_t>(file);
               for (int i = 0; i < strLength; i++)
                 event->push_back(guts::endianness::ReadBe<uint8_t>(file));
             } break;

@@ -433,10 +433,9 @@ void File::ReadEvent(std::ifstream &file, Event *event, bool *track_continue,
                 event->push_back(guts::endianness::ReadBe<uint8_t>(file));
             } break;
             default: {
-#ifndef CXXMIDI_QUIET
-              std::cerr << "CxxMidi: unknown meta event 0x" << std::hex
-                        << meta_event_type << std::endl;
-#endif
+              // Ignore non-standard Meta events - just pass them through
+              for (int i = 0; i < strLength; i++)
+                event->push_back(guts::endianness::ReadBe<uint8_t>(file));
             } break;
           }  // switch meta_event_type
           break;

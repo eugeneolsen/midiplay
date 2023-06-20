@@ -66,7 +66,7 @@ void control_c(int signum)
     // Turn all notes off.
     Event e;
 
-    for (int channel = Channel1; channel <= Channel3; channel++)
+    for (int channel = Channel1; channel <= Channel16; channel++)
     {
       for (int note = Note::kC0; note <= Note::kG9; note++)
       {
@@ -81,6 +81,7 @@ void control_c(int signum)
 
     exit(signum);
 }
+
 
 bool isNumeric(const char *str)
 {
@@ -394,17 +395,14 @@ int main(int argc, char **argv)
 
   player::PlayerSync player(&outport);
   player.SetFile(&midifile);
-  //midifile.SaveAs(".~/Music/125o.mid");
-  //return 1;
 
   float tempo = player.GetSpeed();
   player.SetSpeed(tempo * speed);
 
-// TODO: Diminish speed gradually when ritardando
-//       At end of introduction and on last verse.
+
   player.SetCallbackHeartbeat(
       [&]() { 
-                if (ritardando)
+                if (ritardando)   // Diminish speed gradually
                 {
                     int64_t count = player.CurrentTimePos().count();
                     if (count % 100000 == 0)
@@ -416,7 +414,7 @@ int main(int argc, char **argv)
                     }
                 }
         });
-  //player.SetCallbackHeartbeat(heartbeat);
+
 
   player.SetCallbackFinished(finished);
 

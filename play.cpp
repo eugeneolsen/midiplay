@@ -437,22 +437,23 @@ int main(int argc, char **argv)
         cout << endl;
 #endif        
 
-        if (playingIntro && message[0] == Message::kMeta && message[1] == Message::kMarker)
+        if (playingIntro && introSegments.size() > 0 
+            && message[0] == Message::kMeta && message[1] == Message::kMarker)
         {
             if (message[2] == ']')
             {
-              itintro++;
+                itintro++;
 
-              if (itintro < introSegments.end())
-              {
-                  uint32_t start = itintro->start;
+                if (itintro < introSegments.end())
+                {
+                    uint32_t start = itintro->start;
 
-                  //cout << "Jump to " << dec << start << endl;
+                    //cout << "Jump to " << dec << start << endl;
 
-                  player.Stop();
-                  player.GoToTick(start);
-                  player.Play();
-              }
+                    player.Stop();
+                    player.GoToTick(start);
+                    player.Play();
+                }
             }
         }
 
@@ -467,7 +468,7 @@ int main(int argc, char **argv)
     });
 
     // Start the elapsed time timer
-    auto start = std::chrono::high_resolution_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     // Play intro
     if (playIntro)
@@ -475,13 +476,18 @@ int main(int argc, char **argv)
         playingIntro = true;
         ritardando = false;
 
+        if (introSegments.size() > 0) 
+        {
+            itintro = introSegments.begin();
+            player.GoToTick(itintro->start);
+        }
+
         cout << " Playing introduction" << endl;
 
         player.Play();
         ret = sem_wait(&sem);   // Wait on the semaphore
 
         playingIntro = false;
-        cout << " Introduction ended" << endl;
 
         player.GoTo(std::chrono::microseconds::zero());
         sleep(2);
@@ -515,10 +521,10 @@ int main(int argc, char **argv)
     }
 
     // End the timer
-    auto end = std::chrono::high_resolution_clock::now();
+    auto endTime = std::chrono::high_resolution_clock::now();
 
     // Calculate the elapsed time
-    std::chrono::duration<double> elapsed = end - start;
+    std::chrono::duration<double> elapsed = endTime - startTime;
 
     // Convert the elapsed time to minutes and seconds
     int minutes = static_cast<int>(elapsed.count()) / 60;

@@ -60,6 +60,7 @@ class PlayerBase {
   inline void SetOutput(output::Abstract* output);
   inline output::Abstract* output() { return output_; }
 
+  inline void NotesOff();
   inline void Stop();
   inline bool Finished() const;
 
@@ -281,22 +282,29 @@ unsigned int PlayerBase::TrackPending() const {
   return static_cast<unsigned int>(r);
 }
 
+
+void PlayerBase::NotesOff()   // Turn all notes off explicitly, one by one.  Some devices require this.
+{
+    if (!output_) return;
+
+    Event e;
+
+    for (int channel = Channel1; channel <= Channel16; channel++) 
+    {
+        for (int note = Note::kC0; note <= Note::kG9; note++)
+        {
+            e = Event(0, channel | Message::kNoteOn, note, 0); // Note Off message
+            output_->SendMessage(&e);
+        }
+    }
+}
+
+
 void PlayerBase::Stop()
 {
     _stopped = true;
 
-    // Notes Off
-    Event e;
-
-    for (int channel = Channel1; channel <= Channel3; channel++) 
-    {
-        for (int note = Note::kC2; note <= Note::kC7; note++)
-        {
-            e = Event(0, channel | Message::kNoteOn, note, 0); // Note Off
-            output_->SendMessage(&e);
-        }
-    }
-
+    NotesOff();
 }
 
 

@@ -468,6 +468,8 @@ int main(int argc, char **argv)
         return true;
     });
 
+    // Start the elapsed time timer
+    auto start = std::chrono::high_resolution_clock::now();
 
     // Play intro
     if (playIntro)
@@ -514,7 +516,17 @@ int main(int argc, char **argv)
         ret = sem_wait(&sem);   // Wait on the semaphore
     }
 
-    cout << "Fine" << endl << endl;
+    // End the timer
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate the elapsed time
+    std::chrono::duration<double> elapsed = end - start;
+
+    // Convert the elapsed time to minutes and seconds
+    int minutes = static_cast<int>(elapsed.count()) / 60;
+    int seconds = static_cast<int>(elapsed.count()) % 60;
+
+    cout << "Fine - elapsed time " << minutes << ":" << setw(2) << setfill('0') << seconds << endl << endl;
 
     ret = sem_destroy(&sem);  // Clean up the semaphore
 }

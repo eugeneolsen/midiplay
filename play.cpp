@@ -43,15 +43,11 @@ struct _introSegment {
 };
 
 vector<struct _introSegment> introSegments;
-bool playIntro = false;
+bool playIntro = true;    // Play intro by default
 bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
 
-void heartbeat()
-{
-    cout << "thump-thump\n";
-}
 
 void finished()
 {
@@ -116,7 +112,8 @@ int main(int argc, char **argv)
     string title;
     int verses = 1;
     float speed = 1.0;
-    bool prepost = false;   // Is this prelude or postlude?
+    bool prepost = false;   // Is this prelude or postlude?   TODO: change this to be more generic: overridden number of verses
+    int bpm = 120;
 
     vector<struct _introSegment>::iterator itintro;   // iterator for introduction segments
 
@@ -134,7 +131,7 @@ int main(int argc, char **argv)
     int option_index = 0;
 
     // Loop until there are no more options
-    while ((opt = getopt_long(argc, argv, "vp::", long_options, &option_index)) != -1)
+    while ((opt = getopt_long(argc, argv, "vx:n:p::", long_options, &option_index)) != -1)
     {
       switch (opt)
       {
@@ -166,6 +163,15 @@ int main(int argc, char **argv)
         }
 
         prepost = true;
+        break;
+      case 'n':
+      case 'x':
+        // TODO: Convert argument to integer 
+        if (isNumeric(optarg)) 
+        {
+          verses = stoi(string(optarg));
+          prepost = true;
+        }
         break;
       case 'v':
         std::cout << "Version " << version << std::endl;
@@ -284,23 +290,20 @@ int main(int argc, char **argv)
         {
             if (message[1] == Message::kMarker && message.size() == 3)
             {
-                if (!prepost)
+                if (message[2] == '[')    // Beginning of introduction segment
                 {
-                    if (message[2] == '[')    // Beginning of introduction segment
-                    {
-                        struct _introSegment seg;
-                        seg.start = totalTicks;
-                        seg.end = 0;
+                    struct _introSegment seg;
+                    seg.start = totalTicks;
+                    seg.end = 0;
 
-                        introSegments.push_back(seg);
-                    }
+                    introSegments.push_back(seg);
+                }
 
-                    if (message[2] == ']')    // End of introduction segment
-                    {
-                        itintro = introSegments.end();
-                        itintro--;
-                        itintro->end = totalTicks;
-                    }
+                if (message[2] == ']')    // End of introduction segment
+                {
+                    itintro = introSegments.end();
+                    itintro--;
+                    itintro->end = totalTicks;
                 }
             }
         }
@@ -309,12 +312,26 @@ int main(int argc, char **argv)
 
         if (message[0] == Message::kMeta)
         {
+            // Get Time Signature
+            if (message[1] == Message::kTimeSignature && message.size() == 6)
+            {
+                timesig.beatsPerMeasure = message[2];
+                timesig.denominator = message[3];
+                timesig.clocksPerClick = message[4];
+                timesig.n32ndNotesPerQuaver = message[5];
+            }
+            
+            // Get Tempo
+            if (message[1] == Message::kTempo)
+            {
+                // The following works correctly when timesig.denominator == 2
+                bpm = 60000000 / cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
+            }
+
             // Get title
             if (message[1] == Message::kTrackName && title.empty())
             {
                 title = string(message.begin() + 2, message.end());
-
-                cout << "Playing: \"" << title << "\"" << endl;
             }
 
             // Find number of verses, if present, in a custom Meta event 0x10
@@ -330,15 +347,6 @@ int main(int argc, char **argv)
                         playIntro = true;
                     }
                 }
-            }
-
-            // Get Time Signature
-            if (message[1] == Message::kTimeSignature && message.size() == 6)
-            {
-                timesig.beatsPerMeasure = message[2];
-                timesig.denominator = message[3];
-                timesig.clocksPerClick = message[4];
-                timesig.n32ndNotesPerQuaver = message[5];
             }
         }
     }
@@ -398,6 +406,8 @@ int main(int argc, char **argv)
 
   float tempo = player.GetSpeed();
   player.SetSpeed(tempo * speed);
+
+    cout << "Playing: \"" << title << "\"" << " - " << verses << " verses at " << bpm * player.GetSpeed() << " bpm" << endl;
 
 
   player.SetCallbackHeartbeat(

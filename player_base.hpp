@@ -289,9 +289,9 @@ void PlayerBase::NotesOff()   // Turn all notes off explicitly, one by one.  Som
 
     Event e;
 
-    for (int channel = Channel1; channel <= Channel16; channel++) 
+    for (int channel = Channel1; channel <= Channel3; channel++) 
     {
-        for (int note = Note::kC0; note <= Note::kG9; note++)
+        for (int note = Note::kC2; note <= Note::kC7; note++)
         {
             e = Event(0, channel | Message::kNoteOn, note, 0); // Note Off message
             output_->SendMessage(&e);

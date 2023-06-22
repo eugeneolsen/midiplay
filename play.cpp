@@ -24,7 +24,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.3"; 
+static string version = "1.1.4"; 
 
 output::Default outport;
 
@@ -62,9 +62,9 @@ void control_c(int signum)
     // Turn all notes off.
     Event e;
 
-    for (int channel = Channel1; channel <= Channel16; channel++)
+    for (int channel = Channel1; channel <= Channel3; channel++)
     {
-      for (int note = Note::kC0; note <= Note::kG9; note++)
+      for (int note = Note::kC2; note <= Note::kC7; note++)
       {
         e = Event(0, channel | Message::kNoteOn, note, 0); // Note Off
         outport.SendMessage(&e);
@@ -113,7 +113,8 @@ int main(int argc, char **argv)
     int verses = 1;
     float speed = 1.0;
     bool prepost = false;   // Is this prelude or postlude?   TODO: change this to be more generic: overridden number of verses
-    int bpm = 120;
+    int bpm = 0;
+    int uSecPerBeat = 0;
 
     vector<struct _introSegment>::iterator itintro;   // iterator for introduction segments
 
@@ -126,12 +127,13 @@ int main(int argc, char **argv)
     static struct option long_options[] = {
         {"version", no_argument, NULL, 'v'},
         {"prelude", optional_argument, NULL, 'p'},
+        {"tempo", required_argument, NULL, 't'},
         {NULL, 0, NULL, 0}};
 
     int option_index = 0;
 
     // Loop until there are no more options
-    while ((opt = getopt_long(argc, argv, "vx:n:p::", long_options, &option_index)) != -1)
+    while ((opt = getopt_long(argc, argv, "vx:n:p::t:", long_options, &option_index)) != -1)
     {
       switch (opt)
       {
@@ -159,7 +161,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            speed = 0.7;   // Default 70%
+            speed = 0.8;   // Default 80%
         }
 
         prepost = true;
@@ -173,6 +175,18 @@ int main(int argc, char **argv)
           prepost = true;
         }
         break;
+      case 't':
+          if (isNumeric(optarg))
+          {
+              bpm = stoi(optarg);
+              uSecPerBeat = 60000000 / bpm;
+          }
+          else
+          {
+              cout << "Tempo must be numeric.  Exiting program." << endl;
+              exit(1);
+          }
+          break;
       case 'v':
         std::cout << "Version " << version << std::endl;
         return 0;
@@ -324,8 +338,13 @@ int main(int argc, char **argv)
             // Get Tempo
             if (message[1] == Message::kTempo)
             {
-                // The following works correctly when timesig.denominator == 2
-                bpm = 60000000 / cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
+                // The following works correctly when timesig.denominator == 2 - TODO: fix it to also work with 1 and 3
+                int uSecFromFile = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
+                bpm = 60000000 / uSecFromFile;
+                if (uSecPerBeat != 0)
+                {
+                    speed = (float) uSecFromFile / (float) uSecPerBeat;
+                }
             }
 
             // Get title

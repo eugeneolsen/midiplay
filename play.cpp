@@ -24,7 +24,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.4"; 
+static string version = "1.1.5"; 
 
 output::Default outport;
 
@@ -168,7 +168,6 @@ int main(int argc, char **argv)
         break;
       case 'n':
       case 'x':
-        // TODO: Convert argument to integer 
         if (isNumeric(optarg)) 
         {
           verses = stoi(string(optarg));

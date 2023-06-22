@@ -304,7 +304,7 @@ void PlayerBase::Stop()
 {
     _stopped = true;
 
-    NotesOff();
+    //NotesOff();
 }
 
 

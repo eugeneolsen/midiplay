@@ -11,6 +11,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
+                "-I${userHome}/.local/include/",
                 "-lasound",
                 "-lboost_filesystem",
                 "-lboost_system",

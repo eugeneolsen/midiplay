@@ -1,5 +1,5 @@
-#include "./player_sync.hpp"    // Local, modified copy of cxxmidi
-#include "./file.hpp"           // local, modified copy of cxxmidi
+#include <ecomidi/player_sync.hpp>    // modified copy of cxxmidi
+#include <ecomidi/file.hpp>           // modified copy of cxxmidi
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/note.hpp>
 #include <signal.h>

@@ -219,7 +219,8 @@ int main(int argc, char **argv)
       optind++;
     }
 
-    fs::path dir = ("/home/pi/Music/midihymns");
+    fs::path home = getenv("HOME");
+    fs::path dir = ("/Music/midihymns");
     string extension = ".mid";
     if (filename.length() < extension.length())
     {
@@ -234,7 +235,7 @@ int main(int argc, char **argv)
 
     fs::path file = (filename);
 
-    fs::path path = dir / file;
+    fs::path path = home / dir / file;
 
     File midifile(path.c_str());
     vector<Track> &tracks = (vector<Track> &)midifile;

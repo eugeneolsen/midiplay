@@ -24,7 +24,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.5"; 
+static string version = "1.1.6"; 
 
 output::Default outport;
 

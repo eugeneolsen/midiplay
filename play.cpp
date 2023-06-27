@@ -483,6 +483,12 @@ int main(int argc, char **argv)
                     player.GoToTick(start);
                     player.Play();
                 }
+
+                if (itintro >= introSegments.end())
+                {
+                    player.Stop();
+                    player.Finish();
+                }
             }
         }
 
@@ -519,7 +525,7 @@ int main(int argc, char **argv)
         playingIntro = false;
 
         player.GoTo(std::chrono::microseconds::zero());
-        sleep(2);
+        sleep(1);
     }
 
     // Play verses
@@ -542,7 +548,7 @@ int main(int argc, char **argv)
         {
             player.GoTo(std::chrono::microseconds::zero());
 
-            sleep(2);
+            sleep(1);
         }
 
         player.Play();

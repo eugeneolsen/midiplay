@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <unistd.h>
 #include <iostream>
@@ -36,6 +38,34 @@ public:
     Options(int argc, char** argv) {
         _argc = argc;
         _argv = argv;
+    }
+
+    int getBpm() {
+        return _bpm;
+    }
+
+    int getVerses() {
+        return _verses;
+    }
+
+    int get_uSecPerBeat() {
+        return _uSecPerBeat;
+    }
+
+    float getSpeed() {
+        return _speed;
+    }
+
+    bool getPrePost() {
+        return _prepost;
+    }
+
+    bool getPlayIntro() {
+        return _playIntro;
+    }
+
+    std::string getFileName() {
+        return _filename;
     }
 
     int parse(std::string version)

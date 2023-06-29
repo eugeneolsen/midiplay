@@ -7,12 +7,13 @@
 #include <string>
 #include <unistd.h>
 
-#include <getopt.h>
 #include <iostream>
 #include <iomanip>
-#include <boost/filesystem.hpp>
 
 #include "timer.hpp"
+
+#include "utility.hpp"
+#include "options.hpp"
 
 #include "ctx3000.hpp"
 #include "protege.hpp"
@@ -48,14 +49,16 @@ bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
 
-
+// Finished callback
+//
 void finished()
 {
     int ret = sem_post(&sem);
 }
 
-
-void control_c(int signum)
+// Callback for Ctrl+c
+//
+void control_c(int signum)  
 {
     int ret = sem_post(&sem);
 
@@ -79,22 +82,6 @@ void control_c(int signum)
 }
 
 
-bool isNumeric(const char *str)
-{
-    //char *s = const_cast<char *>(str);
-
-    while (*str != '\0')
-    {
-      if (!isdigit(*str))
-      {
-        return false;
-      }
-
-      str++;
-    }
-
-    return true;
-}
 
 int main(int argc, char **argv)
 {
@@ -107,135 +94,24 @@ int main(int argc, char **argv)
 
     int ret = sem_init(&sem, 0, 0);
 
-    //cout << argv[0] << endl;
-
     string title;
-    int verses = 1;
-    float speed = 1.0;
-    bool prepost = false;   // Is this prelude or postlude?   TODO: change this to be more generic: overridden number of verses
-    int bpm = 0;
-    int uSecPerBeat = 0;
 
     vector<struct _introSegment>::iterator itintro;   // iterator for introduction segments
 
     // Get command line arguments
     //
-    int opt;
-    string filename;  // Provided as a command line argument
+    Options options(argc, argv);
+    options.parse(version);
 
-    // Define the "long" command line options
-    static struct option long_options[] = {
-        {"version", no_argument, NULL, 'v'},
-        {"prelude", optional_argument, NULL, 'p'},
-        {"tempo", required_argument, NULL, 't'},
-        {NULL, 0, NULL, 0}};
+    int verses = options.getVerses();
+    float speed = options.getSpeed();
+    bool prepost = options.getPrePost();
+    int bpm = options.getBpm();
+    int uSecPerBeat = options.get_uSecPerBeat();
+    string filename = options.getFileName();  
 
-    int option_index = 0;
 
-    // Loop until there are no more options
-    while ((opt = getopt_long(argc, argv, "vx:n:p::t:", long_options, &option_index)) != -1)
-    {
-      switch (opt)
-      {
-      case 'p':   // Prelude/Postlude
-        verses = 2;           // Play 2 verses
-        playIntro = false;    // Don't play introduction
-
-        if (optarg) 
-        {
-            // convert 2-digit number to float and divide by 10
-            if (isNumeric(optarg))
-            {
-                string s = optarg;
-                float speedOption = stof(s) / 10.0;
-
-                if (speedOption < 0.5 || speedOption > 2.0)
-                {
-                    speed = 1;
-                }
-                else
-                {
-                    speed = speedOption;
-                }
-            }
-        }
-        else
-        {
-            speed = 0.8;   // Default 80%
-        }
-
-        prepost = true;
-        break;
-      case 'n':
-      case 'x':
-        if (isNumeric(optarg)) 
-        {
-          verses = stoi(string(optarg));
-          prepost = true;
-        }
-        break;
-      case 't':
-          if (isNumeric(optarg))
-          {
-              bpm = stoi(optarg);
-              uSecPerBeat = 60000000 / bpm;
-          }
-          else
-          {
-              cout << "Tempo must be numeric.  Exiting program." << endl;
-              exit(1);
-          }
-          break;
-      case 'v':
-        std::cout << "Version " << version << std::endl;
-        return 0;
-      case '?':
-        std::cerr << "Unknown flag. Valid flags are --prelude= (or -p) optionally followed by a number and --version (or -v)" << std::endl;
-        return 1;
-      default:
-        abort();
-      }
-    }
-
-    // If there are still arguments left, they are positional arguments
-    if (optind < argc)
-    { // optind is declared in <getopt.h> as the index of the next non-option
-      filename = argv[optind];
-#if defined(DEBUG)
-      std::cout << "Filename: " << argv[optind] << std::endl;
-#endif
-      optind++;
-    }
-    else
-    {
-      std::cerr << "No filename provided. You must pass an file name to play." << std::endl;
-      return 1;
-    }
-
-    // Handle any remaining arguments (if necessary)
-    while (optind < argc)
-    {
-      std::cerr << "Unrecognized argument: " << argv[optind] << std::endl;
-      optind++;
-    }
-
-    fs::path home = getenv("HOME");
-    fs::path dir = ("/Music/midihymns");
-    string extension = ".mid";
-    if (filename.length() < extension.length())
-    {
-      filename += extension;
-    }
-
-    string filenameEnd = filename.substr(filename.length() - extension.length(), extension.length());
-    if (filenameEnd != extension)
-    {
-      filename += extension;
-    }
-
-    fs::path file = (filename);
-
-    fs::path path = home / dir / file;
+    string path = getFullPath(filename);
 
     File midifile(path.c_str());
     vector<Track> &tracks = (vector<Track> &)midifile;
@@ -243,51 +119,6 @@ int main(int argc, char **argv)
     uint16_t ppq = midifile.TimeDivision();
     Track::iterator it;
 
-#if defined(DEBUG)
-  cout << ppq << " ticks per quarter note" << endl;
-
-  Timer timer;
-  int nEvents = 0;
-  int nTracks = 0;
-
-  // Iterate through all events of all tracks
-  for (vector<Track>::iterator ti = tracks.begin(); ti != tracks.end(); ti++)
-  {
-    // TODO: Look for introduction and ritardando markers in Track 1
-    //       and set up for introduction and ritard at the end of
-    //       the intro and the end of the hymn.
-    for (it = ti->begin(); it != ti->end(); ++it)
-    {
-      Event& event = *it;
-      uint32_t dt = event.Dt();
-      Message& message = static_cast<Message&>(*it);
-
-      /* The following code is to change piano technique to organ technique
-      if ((message[0] & 0xF0) == Message::kNoteOn && message[2] != 0x00) 
-      {
-        if (dt == 0x07) 
-        {
-          it->SetDt(0);
-        }
-      }
-
-      if ((message[0] & 0xF0) == Message::kNoteOn && message[2] == 0x00) 
-      {
-        it->SetDt(dt + 7);
-      }
-      */
-
-      nEvents++;
-    }
-
-    nTracks++;
-  }
-
-  double elapsed = timer.elapsed();
-
-  std::string s = std::to_string(elapsed);
-  cout << "Iterated through " << nEvents << " events in " << nTracks << " tracks in " << s << " seconds." << endl;
-#endif
 
     struct _timesig timesig;
     uint32_t totalTicks = 0;

@@ -130,7 +130,7 @@ public:
                 break;
             case 'v':
                 std::cout << "Version " << version << std::endl;
-                return 0;
+                return -2;
             case '?':
                 std::cerr << "Unknown flag. Valid flags are --prelude= (or -p) optionally followed by a number and --version (or -v)" << std::endl;
                 return 1;

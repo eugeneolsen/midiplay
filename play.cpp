@@ -101,7 +101,14 @@ int main(int argc, char **argv)
     // Get command line arguments
     //
     Options options(argc, argv);
-    options.parse(version);
+    int rc = options.parse(version);
+    if (rc != 0) {
+        if (rc < 0) {
+            exit(0);
+        } else {
+            exit(rc);
+        }
+    }
 
     int verses = options.getVerses();
     float speed = options.getSpeed();

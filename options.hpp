@@ -17,6 +17,7 @@ static struct option long_options[] = {
     {"tempo", required_argument, NULL, 't'},
     {NULL, 0, NULL, 0}};
 
+
 class Options
 {
 private: 
@@ -27,8 +28,8 @@ private:
     int _verses = 1;
     int _uSecPerBeat = 0;
 
-    float _speed;
-    bool _prepost;
+    float _speed = 1.0;
+    bool _prepost = false;
     bool _playIntro = false;
     string _filename;  // Provided as a command line argument
 
@@ -159,5 +160,7 @@ public:
             std::cerr << "Unrecognized argument: " << _argv[optind] << std::endl;
             optind++;
         }
+
+        return 0;
     }
 };

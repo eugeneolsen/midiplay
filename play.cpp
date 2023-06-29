@@ -264,20 +264,22 @@ int main(int argc, char **argv)
     cout << " at " << bpm * player.GetSpeed() << " bpm" << endl;
 
 
-  player.SetCallbackHeartbeat(
-      [&]() { 
-                if (ritardando)   // Diminish speed gradually
-                {
-                    int64_t count = player.CurrentTimePos().count();
-                    if (count % 100000 == 0)
-                    {
-                        float t = player.GetSpeed();
-                        t -= .002;
-                        //cout << "Speed: " << t << endl;
-                        player.SetSpeed(t);
-                    }
-                }
-        });
+    // Heartbeat callback
+    //
+    player.SetCallbackHeartbeat(
+        [&]() { 
+                  if (ritardando)   // Diminish speed gradually
+                  {
+                      int64_t count = player.CurrentTimePos().count();
+                      if (count % 100000 == 0)
+                      {
+                          float t = player.GetSpeed();
+                          t -= .002;
+                          //cout << "Speed: " << t << endl;
+                          player.SetSpeed(t);
+                      }
+                  }
+          });
 
 
   player.SetCallbackFinished(finished);
@@ -290,15 +292,7 @@ int main(int argc, char **argv)
     {
         Message message = event;
 #ifdef DEBUG
-        cout << "Event " << dec << event.Dt() << " ";
-
-        for (Message::iterator iter = message.begin(); iter < message.end(); iter++)
-        {
-            uint8_t byte = *iter;
-            cout << hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
-        }
-
-        cout << endl;
+        dumpEvent(event);
 #endif        
 
         if (playingIntro && introSegments.size() > 0 

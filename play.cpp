@@ -24,7 +24,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.6"; 
+static string version = "1.1.7"; 
 
 output::Default outport;
 
@@ -43,7 +43,7 @@ struct _introSegment {
 };
 
 vector<struct _introSegment> introSegments;
-bool playIntro = true;    // Play intro by default
+bool playIntro = false;    // Don't play intro unless MIDI file specifies verses with Meta event 0x10
 bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
@@ -426,7 +426,11 @@ int main(int argc, char **argv)
   float tempo = player.GetSpeed();
   player.SetSpeed(tempo * speed);
 
-    cout << "Playing: \"" << title << "\"" << " - " << verses << " verses at " << bpm * player.GetSpeed() << " bpm" << endl;
+    cout << "Playing: \"" << title << "\"" << " - " << verses << " verse";
+    if (verses > 1) {
+        cout << "s";
+    }
+    cout << " at " << bpm * player.GetSpeed() << " bpm" << endl;
 
 
   player.SetCallbackHeartbeat(

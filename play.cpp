@@ -25,7 +25,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.7"; 
+static string version = "1.1.8"; 
 
 output::Default outport;
 
@@ -174,11 +174,15 @@ int main(int argc, char **argv)
             }
             
             // Get Tempo
-            if (message[1] == Message::kTempo)
+            if (message[1] == Message::kTempo && bpm == 0)
             {
                 // The following works correctly when timesig.denominator == 2 - TODO: fix it to also work with 1 and 3
                 int uSecFromFile = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
-                bpm = 60000000 / uSecFromFile;
+
+                if (uSecFromFile != 0) {
+                    bpm = 60000000 / uSecFromFile;
+                }
+
                 if (uSecPerBeat != 0)
                 {
                     speed = (float) uSecFromFile / (float) uSecPerBeat;

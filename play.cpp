@@ -25,7 +25,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.8"; 
+static string version = "1.1.9"; 
 
 output::Default outport;
 
@@ -365,7 +365,6 @@ int main(int argc, char **argv)
         playingIntro = false;
 
         player.GoTo(std::chrono::microseconds::zero());
-        sleep(1);
     }
 
     // Play verses
@@ -388,7 +387,6 @@ int main(int argc, char **argv)
         {
             player.GoTo(std::chrono::microseconds::zero());
 
-            sleep(1);
         }
 
         player.Play();

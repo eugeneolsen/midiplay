@@ -39,6 +39,8 @@ public:
     Options(int argc, char** argv) {
         _argc = argc;
         _argv = argv;
+
+        _verses = 1;
     }
 
     int getBpm() {

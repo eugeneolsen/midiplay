@@ -25,7 +25,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.1.9"; 
+static string version = "1.2.0"; 
 
 output::Default outport;
 
@@ -204,7 +204,8 @@ int main(int argc, char **argv)
 
                     if (isdigit(c))
                     {
-                        verses = atoi(&c);
+                        string sVerse{c};
+                        verses = stoi(sVerse);
                         playIntro = true;
                     }
                 }

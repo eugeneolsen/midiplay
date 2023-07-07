@@ -25,7 +25,7 @@ private:
     char** _argv;
 
     int _bpm = 0;
-    int _verses = 1;
+    int _verses = 0;
     int _uSecPerBeat = 0;
 
     float _speed = 1.0;
@@ -40,7 +40,7 @@ public:
         _argc = argc;
         _argv = argv;
 
-        _verses = 1;
+        _verses = 0;
     }
 
     int getBpm() {
@@ -111,11 +111,17 @@ public:
                 _prepost = true;
                 break;
             case 'n':
+                if (isNumeric(optarg))
+                {
+                    _verses = stoi(string(optarg));
+                    _playIntro = true;
+                }
+                break;
             case 'x':
                 if (isNumeric(optarg))
                 {
                     _verses = stoi(string(optarg));
-                    _prepost = true;
+                    _playIntro = false;
                 }
                 break;
             case 't':

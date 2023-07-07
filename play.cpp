@@ -25,7 +25,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.0"; 
+static string version = "1.2.1"; 
 
 output::Default outport;
 
@@ -44,7 +44,7 @@ struct _introSegment {
 };
 
 vector<struct _introSegment> introSegments;
-bool playIntro = false;    // Don't play intro unless MIDI file specifies verses with Meta event 0x10
+bool playIntro = false;    // Don't play intro unless MIDI file specifies verses with Meta event 0x10 or command line indicates
 bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
@@ -110,6 +110,7 @@ int main(int argc, char **argv)
         }
     }
 
+    playIntro = options.getPlayIntro();
     int verses = options.getVerses();
     float speed = options.getSpeed();
     bool prepost = options.getPrePost();
@@ -183,7 +184,7 @@ int main(int argc, char **argv)
                     bpm = 60000000 / uSecFromFile;
                 }
 
-                if (uSecPerBeat != 0)
+                if (uSecPerBeat != 0 && speed == 1.0)
                 {
                     speed = (float) uSecFromFile / (float) uSecPerBeat;
                 }
@@ -198,7 +199,7 @@ int main(int argc, char **argv)
             // Find number of verses, if present, in a custom Meta event 0x10
             if (message[1] == 0x10 /* Default number of verses */) 
             {
-                if (!prepost)
+                if (verses == 0)    // If verses not specified in command line
                 {
                     char c = static_cast<char>(message[2]);
 
@@ -212,6 +213,9 @@ int main(int argc, char **argv)
             }
         }
     }
+
+    if (verses == 0) { verses = 1; }
+
 
     itintro = introSegments.begin();    // Reset intro iterator
 

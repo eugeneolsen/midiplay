@@ -372,6 +372,8 @@ int main(int argc, char **argv)
         player.GoTo(std::chrono::microseconds::zero());
     }
 
+    usleep(20000);      // Sleep for 20 ms so organ's electronics can catch up.
+
     // Play verses
     for (int verse = 0; verse < verses; verse++)
     {

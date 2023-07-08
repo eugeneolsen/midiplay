@@ -20,7 +20,7 @@ class protege
 
         void SetDefaults()
         {
-            Event e = Event(Channel8 | Message::kProgramChange, 0);     // General Setting 1
-            _outport.SendMessage(&e);
+            //Event e = Event(Channel8 | Message::kProgramChange, 0);     // General Setting 1
+            //_outport.SendMessage(&e);
         }
 };

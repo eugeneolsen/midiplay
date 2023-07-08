@@ -19,6 +19,7 @@
 #include "protege.hpp"
 
 #include <semaphore.h>
+#include <cmath>
 
 
 using namespace std;
@@ -177,11 +178,11 @@ int main(int argc, char **argv)
             // Get Tempo
             if (message[1] == Message::kTempo && bpm == 0)
             {
-                // The following works correctly when timesig.denominator == 2 - TODO: fix it to also work with 1 and 3
                 int uSecFromFile = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
 
                 if (uSecFromFile != 0) {
-                    bpm = 60000000 / uSecFromFile;
+                    int qpm = 60000000 / uSecFromFile;  // Quarter notes per minute
+                    bpm = qpm * (pow(2.0, timesig.denominator) / 4);
                 }
 
                 if (uSecPerBeat != 0 && speed == 1.0)

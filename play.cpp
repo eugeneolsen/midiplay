@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.1c"; 
+static string version = "1.2.1d"; 
 
 output::Default outport;
 
@@ -122,7 +122,44 @@ int main(int argc, char **argv)
 
     string path = getFullPath(filename);
 
-    File midifile(path.c_str());
+    File midifile;
+
+    midifile.SetCallbackLoad(
+        [&](Event& event)->bool 
+        {
+            Message message = event;
+
+            uint8_t status = message[0];
+
+            if (event.IsMeta())
+            {
+                uint8_t type = message[1];
+
+                if (0x10 == type)   // Non-standard "number of verses" Meta event type for this sequencer
+                {
+                    // Extract the number of verses, if the event is present in the file, and then throw the event away.
+                    if (verses == 0)    // If verses not specified in command line
+                    {
+                        char c = static_cast<char>(message[2]);
+
+                        if (isdigit(c))
+                        {
+                            string sVerse{c};
+                            verses = stoi(sVerse);
+                            playIntro = true;
+                        }
+                    }
+
+                    return false;   // Don't load the non-standard event.
+                }
+            }
+
+            return true;
+        }
+    );
+
+    midifile.Load(path.c_str());
+
     vector<Track> &tracks = (vector<Track> &)midifile;
 
     uint16_t ppq = midifile.TimeDivision();
@@ -132,6 +169,7 @@ int main(int argc, char **argv)
     struct _timesig timesig;
     uint32_t totalTicks = 0;
 
+    // TODO: Move as much of this to the Load callback, above, as possible so it happens at load time.
     // Scan Meta events in Track 0 at time 0
     for (it = tracks[0].begin(); it != tracks[0].end(); ++it)
     {
@@ -195,22 +233,6 @@ int main(int argc, char **argv)
             if (message[1] == Message::kTrackName && title.empty())
             {
                 title = string(message.begin() + 2, message.end());
-            }
-
-            // Find number of verses, if present, in a custom Meta event 0x10
-            if (message[1] == 0x10 /* Default number of verses */) 
-            {
-                if (verses == 0)    // If verses not specified in command line
-                {
-                    char c = static_cast<char>(message[2]);
-
-                    if (isdigit(c))
-                    {
-                        string sVerse{c};
-                        verses = stoi(sVerse);
-                        playIntro = true;
-                    }
-                }
             }
         }
     }
@@ -314,9 +336,11 @@ int main(int argc, char **argv)
 #endif        
 
         if (playingIntro && introSegments.size() > 0 
-            && message[0] == Message::kMeta && message[1] == Message::kMarker)
+            && message[0] == Message::kMeta)
         {
-            if (message[2] == ']')
+            uint8_t type = message[1];      // Meta event type
+
+            if (type == Message::kMarker && message[2] == ']')
             {
                 itintro++;
 
@@ -372,9 +396,7 @@ int main(int argc, char **argv)
 
         playingIntro = false;
 
-        //usleep(100000);      // Sleep for 100 ms so organ's electronics can catch up.
-        //player.GoTo(std::chrono::microseconds::zero());
-        //usleep(100000);      // Sleep for 100 ms so organ's electronics can catch up.
+        player.Rewind();
     }
 
 
@@ -396,11 +418,10 @@ int main(int argc, char **argv)
 
         cout << endl;
 
-        // if (verse > 0) 
-        // {
-            player.GoTo(std::chrono::microseconds::zero());
-            //usleep(100000);      // Sleep for 100 ms so organ's electronics can catch up.
-        // }
+        if (verse > 0) 
+        {
+            player.Rewind();
+        }
 
         player.Play();
         ret = sem_wait(&sem);   // Wait on the semaphore

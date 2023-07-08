@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.1"; 
+static string version = "1.2.1c"; 
 
 output::Default outport;
 
@@ -248,7 +248,8 @@ int main(int argc, char **argv)
     {
       cout << "No device connected.  Connect a device."
            << endl;
-      usleep(2000000);
+      //usleep(2000000);
+      sleep(2);
       portCount = outport.GetPortCount(); // Try again and see if there's a connection
     }
   }
@@ -332,6 +333,7 @@ int main(int argc, char **argv)
 
                 if (itintro >= introSegments.end())
                 {
+                    // Stop the introduction.  In some hymns, this is not at the end
                     player.Stop();
                     player.Finish();
                 }
@@ -370,10 +372,11 @@ int main(int argc, char **argv)
 
         playingIntro = false;
 
-        player.GoTo(std::chrono::microseconds::zero());
+        //usleep(100000);      // Sleep for 100 ms so organ's electronics can catch up.
+        //player.GoTo(std::chrono::microseconds::zero());
+        //usleep(100000);      // Sleep for 100 ms so organ's electronics can catch up.
     }
 
-    usleep(20000);      // Sleep for 20 ms so organ's electronics can catch up.
 
     // Play verses
     for (int verse = 0; verse < verses; verse++)
@@ -389,13 +392,15 @@ int main(int argc, char **argv)
             cout << ", last verse";
         }
 
+        //cout << " at speed " << speed;
+
         cout << endl;
 
-        if (verse > 0) 
-        {
+        // if (verse > 0) 
+        // {
             player.GoTo(std::chrono::microseconds::zero());
-
-        }
+            //usleep(100000);      // Sleep for 100 ms so organ's electronics can catch up.
+        // }
 
         player.Play();
         ret = sem_wait(&sem);   // Wait on the semaphore

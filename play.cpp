@@ -400,7 +400,8 @@ int main(int argc, char **argv)
         cout << " Playing introduction" << endl;
 
         player.Play();
-        ret = sem_wait(&sem);   // Wait on the semaphore
+        ret = sem_wait(&sem);   // Wait on the semaphore, which is posted in the Finished callback
+        player.NotesOff();
 
         ritardando = false;
         playingIntro = false;

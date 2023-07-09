@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.1d"; 
+static string version = "1.2.2"; 
 
 output::Default outport;
 
@@ -123,6 +123,7 @@ int main(int argc, char **argv)
     string path = getFullPath(filename);
 
     File midifile;
+    struct _timesig timesig;
 
     midifile.SetCallbackLoad(
         [&](Event& event)->bool 
@@ -131,7 +132,7 @@ int main(int argc, char **argv)
 
             uint8_t status = message[0];
 
-            if (event.IsMeta())
+            if (message.IsMeta())
             {
                 uint8_t type = message[1];
 
@@ -152,6 +153,34 @@ int main(int argc, char **argv)
 
                     return false;   // Don't load the non-standard event.
                 }
+
+                if (event.Dt() == 0)    // Processing for Time Zero Meta events
+                {
+                    // Get Time Signature
+                    if (Message::kTimeSignature == type && message.size() == 6)
+                    {
+                        timesig.beatsPerMeasure = message[2];
+                        timesig.denominator = message[3];
+                        timesig.clocksPerClick = message[4];
+                        timesig.n32ndNotesPerQuaver = message[5];
+                    }
+                    
+                    // Get Tempo
+                    if (Message::kTempo == type && bpm == 0)
+                    {
+                        int uSecFromFile = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
+
+                        if (uSecFromFile != 0) {
+                            int qpm = 60000000 / uSecFromFile;  // Quarter notes per minute
+                            bpm = qpm * (pow(2.0, timesig.denominator) / 4);
+                        }
+
+                        if (uSecPerBeat != 0 && speed == 1.0)
+                        {
+                            speed = (float) uSecFromFile / (float) uSecPerBeat;
+                        }
+                    }
+                }
             }
 
             return true;
@@ -166,10 +195,8 @@ int main(int argc, char **argv)
     Track::iterator it;
 
 
-    struct _timesig timesig;
     uint32_t totalTicks = 0;
 
-    // TODO: Move as much of this to the Load callback, above, as possible so it happens at load time.
     // Scan Meta events in Track 0 at time 0
     for (it = tracks[0].begin(); it != tracks[0].end(); ++it)
     {
@@ -178,9 +205,13 @@ int main(int argc, char **argv)
         uint32_t dt = event.Dt();
         totalTicks += dt;
 
-        if (message[0] == Message::kMeta)
+        uint8_t status = message[0];    // Status byte
+
+        if (message.IsMeta())
         {
-            if (message[1] == Message::kMarker && message.size() == 3)
+            uint8_t type = message[1];
+
+            if (Message::kMarker == type && message.size() == 3)
             {
                 if (message[2] == '[')    // Beginning of introduction segment
                 {
@@ -202,35 +233,12 @@ int main(int argc, char **argv)
 
         if (event.Dt() != 0) continue;   // The following code is only for messages at time 0
 
-        if (message[0] == Message::kMeta)
+        if (message.IsMeta())
         {
-            // Get Time Signature
-            if (message[1] == Message::kTimeSignature && message.size() == 6)
-            {
-                timesig.beatsPerMeasure = message[2];
-                timesig.denominator = message[3];
-                timesig.clocksPerClick = message[4];
-                timesig.n32ndNotesPerQuaver = message[5];
-            }
+            uint8_t type = message[1];
             
-            // Get Tempo
-            if (message[1] == Message::kTempo && bpm == 0)
-            {
-                int uSecFromFile = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
-
-                if (uSecFromFile != 0) {
-                    int qpm = 60000000 / uSecFromFile;  // Quarter notes per minute
-                    bpm = qpm * (pow(2.0, timesig.denominator) / 4);
-                }
-
-                if (uSecPerBeat != 0 && speed == 1.0)
-                {
-                    speed = (float) uSecFromFile / (float) uSecPerBeat;
-                }
-            }
-
             // Get title
-            if (message[1] == Message::kTrackName && title.empty())
+            if (Message::kTrackName == type && title.empty())
             {
                 title = string(message.begin() + 2, message.end());
             }
@@ -418,13 +426,11 @@ int main(int argc, char **argv)
 
         cout << endl;
 
-        if (verse > 0) 
-        {
-            player.Rewind();
-        }
 
         player.Play();
-        ret = sem_wait(&sem);   // Wait on the semaphore
+        ret = sem_wait(&sem);   // Wait on the semaphore, which is posted in the Finished callback
+
+        player.Rewind();
     }
 
     // End the timer

@@ -25,7 +25,7 @@ private:
     char** _argv;
 
     int _bpm = 0;
-    int _verses = 0;
+    int _verses;    // Set in constructor
     int _uSecPerBeat = 0;
 
     float _speed = 1.0;

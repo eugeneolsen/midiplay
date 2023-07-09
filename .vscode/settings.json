@@ -3,6 +3,7 @@
         "filesystem": "cpp",
         "chrono": "cpp",
         "iosfwd": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "condition_variable": "cpp"
     }
 }

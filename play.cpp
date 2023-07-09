@@ -409,6 +409,7 @@ int main(int argc, char **argv)
         player.Rewind();
     }
 
+    //usleep(200000);   // Wondering if this might help with the slow Allen Protege organ.
 
     // Play verses
     for (int verse = 0; verse < verses; verse++)

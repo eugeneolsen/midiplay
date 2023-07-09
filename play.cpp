@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.2"; 
+static string version = "1.2.3"; 
 
 output::Default outport;
 
@@ -402,7 +402,9 @@ int main(int argc, char **argv)
         player.Play();
         ret = sem_wait(&sem);   // Wait on the semaphore
 
+        ritardando = false;
         playingIntro = false;
+        player.SetSpeed(tempo * speed);     // Reset speed to starting speed
 
         player.Rewind();
     }

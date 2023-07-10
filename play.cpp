@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.3"; 
+static string version = "1.2.4"; 
 
 output::Default outport;
 
@@ -119,6 +119,9 @@ int main(int argc, char **argv)
     int uSecPerBeat = options.get_uSecPerBeat();
     string filename = options.getFileName();  
 
+    int uSecPerQuarter = 0;     // This comes from the Tempo Meta event from the file.
+    int uSecPerTick = 0;        // Calculated from uSecPerQuarter / File::TimeDivision()
+
 
     string path = getFullPath(filename);
 
@@ -168,16 +171,16 @@ int main(int argc, char **argv)
                     // Get Tempo
                     if (Message::kTempo == type && bpm == 0)
                     {
-                        int uSecFromFile = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
+                        uSecPerQuarter = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
 
-                        if (uSecFromFile != 0) {
-                            int qpm = 60000000 / uSecFromFile;  // Quarter notes per minute
+                        if (uSecPerQuarter != 0) {
+                            int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
                             bpm = qpm * (pow(2.0, timesig.denominator) / 4);
                         }
 
                         if (uSecPerBeat != 0 && speed == 1.0)
                         {
-                            speed = (float) uSecFromFile / (float) uSecPerBeat;
+                            speed = (float) uSecPerQuarter / (float) uSecPerBeat;
                         }
                     }
                 }
@@ -192,6 +195,10 @@ int main(int argc, char **argv)
     vector<Track> &tracks = (vector<Track> &)midifile;
 
     uint16_t ppq = midifile.TimeDivision();
+    uSecPerTick = uSecPerQuarter / ppq;
+
+    int ticksToPause = ppq;     // Default pause = 1 quarter note duration
+
     Track::iterator it;
 
 
@@ -408,6 +415,8 @@ int main(int argc, char **argv)
         player.SetSpeed(tempo * speed);     // Reset speed to starting speed
 
         player.Rewind();
+
+        usleep(ticksToPause * uSecPerTick);     // Pause before starting verse
     }
 
     //usleep(200000);   // Wondering if this might help with the slow Allen Protege organ.
@@ -434,7 +443,13 @@ int main(int argc, char **argv)
         player.Play();
         ret = sem_wait(&sem);   // Wait on the semaphore, which is posted in the Finished callback
 
-        player.Rewind();
+
+        if (!lastVerse)
+        {
+            player.Rewind();
+            
+            usleep(ticksToPause * uSecPerTick);     // Pause before starting next verse
+        }
     }
 
     // End the timer

@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.4"; 
+static string version = "1.2.5"; 
 
 output::Default outport;
 
@@ -122,6 +122,8 @@ int main(int argc, char **argv)
     int uSecPerQuarter = 0;     // This comes from the Tempo Meta event from the file.
     int uSecPerTick = 0;        // Calculated from uSecPerQuarter / File::TimeDivision()
 
+    uint16_t ticksToPause = 0;
+
 
     string path = getFullPath(filename);
 
@@ -138,24 +140,6 @@ int main(int argc, char **argv)
             if (message.IsMeta())
             {
                 uint8_t type = message[1];
-
-                if (0x10 == type)   // Non-standard "number of verses" Meta event type for this sequencer
-                {
-                    // Extract the number of verses, if the event is present in the file, and then throw the event away.
-                    if (verses == 0)    // If verses not specified in command line
-                    {
-                        char c = static_cast<char>(message[2]);
-
-                        if (isdigit(c))
-                        {
-                            string sVerse{c};
-                            verses = stoi(sVerse);
-                            playIntro = true;
-                        }
-                    }
-
-                    return false;   // Don't load the non-standard event.
-                }
 
                 if (event.Dt() == 0)    // Processing for Time Zero Meta events
                 {
@@ -183,6 +167,31 @@ int main(int argc, char **argv)
                             speed = (float) uSecPerQuarter / (float) uSecPerBeat;
                         }
                     }
+
+                    if (0x10 == type)   // Non-standard "number of verses" Meta event type for this sequencer
+                    {
+                        // Extract the number of verses, if the event is present in the file, and then throw the event away.
+                        if (verses == 0)    // If verses not specified in command line
+                        {
+                            char c = static_cast<char>(message[2]);
+
+                            if (isdigit(c))
+                            {
+                                string sVerse{c};
+                                verses = stoi(sVerse);
+                                playIntro = true;
+                            }
+                        }
+
+                        return false;   // Don't load the non-standard event.
+                    }
+
+                    if (0x11 == type)   // Non-standard "pause between verses" Meta event type for this sequencer
+                    {
+                        ticksToPause = (static_cast<uint16_t>(message[2]) << 8) | message[3];
+
+                        return false;   // Don't load the non-standard event.
+                    }
                 }
             }
 
@@ -197,7 +206,9 @@ int main(int argc, char **argv)
     uint16_t ppq = midifile.TimeDivision();
     uSecPerTick = uSecPerQuarter / ppq;
 
-    int ticksToPause = ppq;     // Default pause = 1 quarter note duration
+    if (ticksToPause == 0) {
+        ticksToPause = ppq;     // Default pause = 1 quarter note duration
+    }
 
     Track::iterator it;
 
@@ -419,7 +430,6 @@ int main(int argc, char **argv)
         usleep(ticksToPause * uSecPerTick);     // Pause before starting verse
     }
 
-    //usleep(200000);   // Wondering if this might help with the slow Allen Protege organ.
 
     // Play verses
     for (int verse = 0; verse < verses; verse++)

@@ -12,8 +12,10 @@ using namespace std;
 
 // Define the "long" command line options
 static struct option long_options[] = {
+    {"help", no_argument, NULL, 'h'},
     {"version", no_argument, NULL, 'v'},
     {"prelude", optional_argument, NULL, 'p'},
+    {"start", required_argument, NULL, 's'},
     {"tempo", required_argument, NULL, 't'},
     {NULL, 0, NULL, 0}};
 
@@ -77,7 +79,7 @@ public:
         int option_index = 0;
 
         // Loop until there are no more options
-        while ((opt = getopt_long(_argc, _argv, "vx:n:p::t:", long_options, &option_index)) != -1)
+        while ((opt = getopt_long(_argc, _argv, "vx:hn:p::s:t:?", long_options, &option_index)) != -1)
         {
             switch (opt)
             {
@@ -124,6 +126,14 @@ public:
                     _playIntro = false;
                 }
                 break;
+            case 's':   // Start at...
+                if (isNumeric(optarg))
+                {
+                    // TODO: Go to measure
+                } else {
+                    // TODO: Go to marker
+                }
+
             case 't':
                 if (isNumeric(optarg))
                 {
@@ -139,8 +149,18 @@ public:
             case 'v':
                 std::cout << "Version " << version << std::endl;
                 return -2;
+            case 'h':
             case '?':
-                std::cerr << "Unknown flag. Valid flags are --prelude= (or -p) optionally followed by a number and --version (or -v)" << std::endl;
+                std::cout << "Play MIDI file command\n" << std::endl;
+                std::cout << "Usage:\n" << endl;
+                std::cout << "play <filename> options\n" << std::endl;
+                std::cout << "  --help -h -? This text." << endl;
+                std::cout << "  -n<verses> Number of verses to play after introduction." << endl;
+                std::cout << "  --prelude=<speed> -p<speed> Prelude/postlude.  <speed> is optional, default is 8, which is 80%.  10 is 100%.  Plays 2 verses by default; can be modified by -n<verses>" << endl;
+                std::cout << "  --start=<marker | measure>  -s<marker | measure>   If argument is numeric, start at the measure number; if has alpha, start at marker." << endl;
+                std::cout << "  --tempo=<bpm> -t<bpm>  Force tempo to the specified number of beats per minute." << endl;
+                std::cout << "  --version -v  Version of this command" << endl;
+                std::cout << "  -x<verses> Number of verses to play without introduction.\n" << endl;
                 return 1;
             default:
                 abort();

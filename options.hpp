@@ -6,7 +6,7 @@
 
 #include <getopt.h>
 
-#include "utility.hpp"
+#include <ecocommon/utility.hpp>
 
 using namespace std;
 

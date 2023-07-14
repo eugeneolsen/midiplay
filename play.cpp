@@ -10,9 +10,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include "timer.hpp"
+#include <ecocommon/timer.hpp>
 
-#include "utility.hpp"
+#include <ecocommon/utility.hpp>
 #include "options.hpp"
 
 #include "ctx3000.hpp"

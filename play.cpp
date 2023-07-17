@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.5"; 
+static string version = "1.2.6"; 
 
 output::Default outport;
 
@@ -111,10 +111,10 @@ int main(int argc, char **argv)
         }
     }
 
-    playIntro = options.getPlayIntro();
+    playIntro = options.isPlayIntro();
     int verses = options.getVerses();
     float speed = options.getSpeed();
-    bool prepost = options.getPrePost();
+    bool prepost = options.isPrePost();
     int bpm = options.getBpm();
     int uSecPerBeat = options.get_uSecPerBeat();
     string filename = options.getFileName();  
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     uint16_t ticksToPause = 0;
 
 
-    string path = getFullPath(filename);
+    string path = getFullPath(filename, options.isStaging());
 
     File midifile;
     struct _timesig timesig;

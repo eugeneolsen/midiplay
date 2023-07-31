@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.6"; 
+static string version = "1.2.7"; 
 
 output::Default outport;
 
@@ -49,6 +49,9 @@ bool playIntro = false;    // Don't play intro unless MIDI file specifies verses
 bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
+
+std::chrono::_V2::system_clock::time_point startTime;
+std::chrono::_V2::system_clock::time_point endTime;
 
 // Finished callback
 //
@@ -77,7 +80,16 @@ void control_c(int signum)
 
     ret = sem_destroy(&sem);  // Clean up the semaphore
 
-    cout << endl;
+    endTime = std::chrono::high_resolution_clock::now();
+
+    // Calculate the elapsed time
+    std::chrono::duration<double> elapsed = endTime - startTime;
+
+    // Convert the elapsed time to minutes and seconds
+    int minutes = static_cast<int>(elapsed.count()) / 60;
+    int seconds = static_cast<int>(elapsed.count()) % 60;
+
+    cout << "\nElapsed time " << minutes << ":" << setw(2) << setfill('0') << seconds << endl << endl;
 
     exit(signum);
 }
@@ -401,7 +413,7 @@ int main(int argc, char **argv)
     });
 
     // Start the elapsed time timer
-    auto startTime = std::chrono::high_resolution_clock::now();
+    startTime = std::chrono::high_resolution_clock::now();
 
     // Play intro
     if (playIntro)
@@ -463,7 +475,7 @@ int main(int argc, char **argv)
     }
 
     // End the timer
-    auto endTime = std::chrono::high_resolution_clock::now();
+    endTime = std::chrono::high_resolution_clock::now();
 
     // Calculate the elapsed time
     std::chrono::duration<double> elapsed = endTime - startTime;

@@ -165,17 +165,26 @@ int main(int argc, char **argv)
                     }
                     
                     // Get Tempo
-                    if (message.IsMeta(Message::kTempo) && bpm == 0)
+                    if (message.IsMeta(Message::kTempo))
                     {
+                        // Get tempo from file
                         uSecPerQuarter = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
 
-                        if (uSecPerQuarter != 0) {
+                        if (0 == bpm) {     // If BPM not overridden on command line
+                            if (uSecPerQuarter != 0) {
+                                int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
+                                bpm = qpm * (pow(2.0, timesig.denominator) / 4);
+                            }
+
+                            if (uSecPerBeat != 0 && speed == 1.0)
+                            {
+                                speed = (float) uSecPerQuarter / (float) uSecPerBeat;
+                            }
+                        }
+                        else {
                             int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
                             bpm = qpm * (pow(2.0, timesig.denominator) / 4);
-                        }
 
-                        if (uSecPerBeat != 0 && speed == 1.0)
-                        {
                             speed = (float) uSecPerQuarter / (float) uSecPerBeat;
                         }
                     }

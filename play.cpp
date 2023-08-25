@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.7"; 
+static string version = "1.2.8"; 
 
 output::Default outport;
 
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
                     }
                     
                     // Get Tempo
-                    if (Message::kTempo == type && bpm == 0)
+                    if (message.IsMeta(Message::kTempo) && bpm == 0)
                     {
                         uSecPerQuarter = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
 
@@ -203,6 +203,35 @@ int main(int argc, char **argv)
                         ticksToPause = (static_cast<uint16_t>(message[2]) << 8) | message[3];
 
                         return false;   // Don't load the non-standard event.
+                    }
+
+                    if (0x7F == type) {     // Sequencer-Specific Meta Event
+                        int len = message[2];
+
+                        if (0x7D == message[3]) {   // Prototyping, test, private use and experimentation
+                            if (1 == message[4]){   // Number of verses
+                                // Extract the number of verses, if the event is present in the file, and then throw the event away.
+                                if (verses == 0)    // If verses not specified in command line
+                                {
+                                    char c = static_cast<char>(message[5]);
+
+                                    if (isdigit(c))
+                                    {
+                                        string sVerse{c};
+                                        verses = stoi(sVerse);
+                                        playIntro = true;
+                                    }
+                                }
+
+                                return false;   // Don't load the non-standard event.
+                            }
+
+                            if (2 == message[4]) {  // Pause between verses
+                                ticksToPause = (static_cast<uint16_t>(message[5]) << 8) | message[6];
+
+                                return false;   // Don't load the non-standard event.
+                            }
+                        }
                     }
                 }
             }

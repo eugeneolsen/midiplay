@@ -50,6 +50,8 @@ bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
 
+bool firstTempo = true;
+
 std::chrono::_V2::system_clock::time_point startTime;
 std::chrono::_V2::system_clock::time_point endTime;
 
@@ -170,22 +172,28 @@ int main(int argc, char **argv)
                         // Get tempo from file
                         uSecPerQuarter = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
 
-                        if (0 == bpm) {     // If BPM not overridden on command line
-                            if (uSecPerQuarter != 0) {
+                        if (firstTempo) {
+                            if (0 == bpm) {     // If BPM not overridden on command line
+                                if (uSecPerQuarter != 0) {
+                                    int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
+                                    bpm = qpm * (pow(2.0, timesig.denominator) / 4);
+                                }
+
+                                if (uSecPerBeat != 0 && speed == 1.0)
+                                {
+                                    speed = (float) uSecPerQuarter / (float) uSecPerBeat;
+                                }
+                            }
+                            else {
                                 int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
                                 bpm = qpm * (pow(2.0, timesig.denominator) / 4);
+
+                                if (uSecPerBeat) {
+                                    speed = (float) uSecPerQuarter / (float) uSecPerBeat;
+                                }
                             }
 
-                            if (uSecPerBeat != 0 && speed == 1.0)
-                            {
-                                speed = (float) uSecPerQuarter / (float) uSecPerBeat;
-                            }
-                        }
-                        else {
-                            int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
-                            bpm = qpm * (pow(2.0, timesig.denominator) / 4);
-
-                            speed = (float) uSecPerQuarter / (float) uSecPerBeat;
+                            firstTempo = false;
                         }
                     }
 

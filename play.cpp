@@ -26,7 +26,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.8"; 
+static string version = "1.2.9"; 
 
 output::Default outport;
 
@@ -223,14 +223,17 @@ int main(int argc, char **argv)
                     }
 
                     if (0x7F == type) {     // Sequencer-Specific Meta Event
-                        int len = message[2];
+                        int index = 2;
+                        if (message[index] != 0x7D) {
+                            int len = message[index++];     // This does not conform to the MIDI standard
+                        }
 
-                        if (0x7D == message[3]) {   // Prototyping, test, private use and experimentation
-                            if (1 == message[4]){   // Number of verses
+                        if (0x7D == message[index++]) {   // Prototyping, test, private use and experimentation
+                            if (1 == message[index]){   // Number of verses
                                 // Extract the number of verses, if the event is present in the file, and then throw the event away.
                                 if (verses == 0)    // If verses not specified in command line
                                 {
-                                    char c = static_cast<char>(message[5]);
+                                    char c = static_cast<char>(message[++index]);
 
                                     if (isdigit(c))
                                     {
@@ -243,8 +246,8 @@ int main(int argc, char **argv)
                                 return false;   // Don't load the non-standard event.
                             }
 
-                            if (2 == message[4]) {  // Pause between verses
-                                ticksToPause = (static_cast<uint16_t>(message[5]) << 8) | message[6];
+                            if (2 == message[index]) {  // Pause between verses
+                                ticksToPause = (static_cast<uint16_t>(message[++index]) << 8) | message[++index];
 
                                 return false;   // Don't load the non-standard event.
                             }

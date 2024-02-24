@@ -16,6 +16,7 @@
 #include "options.hpp"
 
 #include "ctx3000.hpp"
+#include "psr-ew425.hpp"
 #include "protege.hpp"
 
 #include <semaphore.h>
@@ -26,7 +27,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.9"; 
+static string version = "1.2.10"; 
 
 output::Default outport;
 
@@ -38,6 +39,12 @@ struct _timesig {
   uint8_t clocksPerClick;   // of metronome
   uint8_t n32ndNotesPerQuaver;
 };
+
+std::string keySignature;
+
+const char * const keys[] = {"Gb", "Db", "Ab", "Eb", "Bb", "F", "C",
+                              "G", "D", "A", "E", "B", "F#", "C#", "G#", "D#", "A#"};
+
 
 struct _introSegment {
   uint32_t start;
@@ -194,6 +201,23 @@ int main(int argc, char **argv)
                             }
 
                             firstTempo = false;
+                        }
+                    }
+
+                    // Get Key Signature
+                    if (message.IsMeta(Message::kKeySignature))
+                    {
+                        int sf = static_cast<int8_t>(static_cast<uint8_t>(message[2]));
+                        int mi = (uint8_t)message[3];
+
+                        if (mi == 0)
+                        {
+                            keySignature = keys[sf + 6];
+                        }
+                        else
+                        {
+                            keySignature = keys[sf + 9]; 
+                            keySignature += " minor";
                         }
                     }
 
@@ -365,17 +389,24 @@ int main(int argc, char **argv)
 
   outport.OpenPort(1);
 
-  if (outport.GetPortName(1).find("CASIO USB") == string::npos) 
-  {
-    // NOT Casio device, probably Allen Protege organ
-    protege* p = new protege(outport);
-    p->SetDefaults();
-  }
-  else
+  std::string portName = outport.GetPortName(1);
+
+  if (portName.find("CASIO USB") == 0)
   {
     // This is a Casio USB MIDI device.
     ctx3000* ctx = new ctx3000(outport);
     ctx->SetDefaults();
+  }
+  else if (portName.find("Digital Keyboard") == 0)
+  {
+    psr_ew425* psr = new psr_ew425(outport);
+    psr->SetDefaults();
+  }
+  else 
+  {
+    // NOT Casio or Yamaha device, probably Allen Protege organ
+    protege* p = new protege(outport);
+    p->SetDefaults();
   }
 
   player::PlayerSync player(&outport);
@@ -384,7 +415,7 @@ int main(int argc, char **argv)
   float tempo = player.GetSpeed();
   player.SetSpeed(tempo * speed);
 
-    cout << "Playing: \"" << title << "\"" << " - " << verses << " verse";
+    cout << "Playing: \"" << title << "\"" << " in " << keySignature << " - " << verses << " verse";
     if (verses > 1) {
         cout << "s";
     }

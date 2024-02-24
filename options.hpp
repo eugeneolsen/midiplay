@@ -36,6 +36,7 @@ private:
     bool _prepost = false;
     bool _playIntro = false;
     string _filename;  // Provided as a command line argument
+    string _urlName;    // Second command line argument
 
 
 public:
@@ -77,6 +78,10 @@ public:
 
     std::string getFileName() {
         return _filename;
+    }
+
+    std::string getUrlName() {
+        return _urlName;
     }
 
     int parse(std::string version)
@@ -191,6 +196,13 @@ public:
         {
             std::cerr << "No filename provided. You must pass an file name to play." << std::endl;
             return 1;
+        }
+
+        // Get urlName, if present
+        if (optind < _argc)
+        {
+            _urlName = _argv[optind];
+            optind++;
         }
 
         // Handle any remaining arguments (if necessary)

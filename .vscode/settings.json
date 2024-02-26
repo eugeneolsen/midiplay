@@ -4,6 +4,7 @@
         "chrono": "cpp",
         "iosfwd": "cpp",
         "vector": "cpp",
-        "condition_variable": "cpp"
+        "condition_variable": "cpp",
+        "utility": "cpp"
     }
 }

@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <string>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include <iostream>
 #include <iomanip>
@@ -27,7 +28,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = boost::filesystem;
 
-static string version = "1.2.10"; 
+static string version = "1.2.11"; 
 
 output::Default outport;
 
@@ -67,6 +68,11 @@ std::chrono::_V2::system_clock::time_point endTime;
 void finished()
 {
     int ret = sem_post(&sem);
+}
+
+inline bool exists(const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
 }
 
 // Callback for Ctrl+c
@@ -284,7 +290,20 @@ int main(int argc, char **argv)
         }
     );
 
-    midifile.Load(path.c_str());
+    // Check to see that the hymn file exists
+    if (false == exists(path)) {
+        std::cout << "Hymn " << filename << " was not found";
+
+        if (options.isStaging()) {
+            std::cout << " in the staging folder.\n" << std::endl;
+        } else {
+            std::cout << ".\n" << std::endl;
+        }
+
+        exit(2);
+    }
+
+    midifile.Load(path.c_str());    // Load up the hymn file
 
     vector<Track> &tracks = (vector<Track> &)midifile;
 

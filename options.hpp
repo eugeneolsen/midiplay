@@ -18,6 +18,7 @@ static struct option long_options[] = {
     {"goto", required_argument, NULL, 'g'},
     {"staging", no_argument, NULL, 's'},
     {"tempo", required_argument, NULL, 't'},
+    {"title", required_argument, NULL, 1},
     {NULL, 0, NULL, 0}};
 
 
@@ -37,6 +38,7 @@ private:
     bool _playIntro = false;
     string _filename;  // Provided as a command line argument
     string _urlName;    // Second command line argument
+    string _title;      // Hymn title
 
 
 public:
@@ -82,6 +84,10 @@ public:
 
     std::string getUrlName() {
         return _urlName;
+    }
+
+    std::string getTitle() {
+        return _title;
     }
 
     int parse(std::string version)
@@ -164,6 +170,9 @@ public:
             case 'v':
                 std::cout << "Version " << version << std::endl;
                 return -2;
+            case 1:
+                _title = optarg;
+                break;
             case 'h':
             case '?':
                 std::cout << "Play MIDI file command\n" << std::endl;

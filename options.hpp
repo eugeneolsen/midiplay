@@ -18,7 +18,7 @@ static struct option long_options[] = {
     {"goto", required_argument, NULL, 'g'},
     {"staging", no_argument, NULL, 's'},
     {"tempo", required_argument, NULL, 't'},
-    {"title", required_argument, NULL, 1},
+    {"title", required_argument, NULL, 'T'},
     {NULL, 0, NULL, 0}};
 
 
@@ -170,7 +170,7 @@ public:
             case 'v':
                 std::cout << "Version " << version << std::endl;
                 return -2;
-            case 1:
+            case 'T':
                 _title = optarg;
                 break;
             case 'h':

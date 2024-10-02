@@ -15,6 +15,7 @@
 
 #include <ecocommon/utility.hpp>
 #include "options.hpp"
+#include "ticks.hpp"
 
 #include "ctx3000.hpp"
 #include "psr-ew425.hpp"
@@ -149,7 +150,7 @@ int main(int argc, char **argv)
     int uSecPerQuarter = 0;     // This comes from the Tempo Meta event from the file.
     int uSecPerTick = 0;        // Calculated from uSecPerQuarter / File::TimeDivision()
 
-    uint16_t ticksToPause = 0;
+    MidiTicks ticksToPause;
 
 
     string path = getFullPath(filename, options.isStaging());
@@ -310,7 +311,7 @@ int main(int argc, char **argv)
     uint16_t ppq = midifile.TimeDivision();
     uSecPerTick = uSecPerQuarter / ppq;
 
-    if (ticksToPause == 0) {
+    if (ticksToPause.isNull()) {
         ticksToPause = ppq;     // Default pause = 1 quarter note duration
     }
 
@@ -538,7 +539,9 @@ int main(int argc, char **argv)
 
         player.Rewind();
 
-        usleep(ticksToPause * uSecPerTick);     // Pause before starting verse
+        if (ticksToPause.has_value()) {
+            usleep(ticksToPause.getTicks().value() * uSecPerTick);     // Pause before starting verse
+        }
     }
 
 
@@ -569,7 +572,9 @@ int main(int argc, char **argv)
         {
             player.Rewind();
             
-            usleep(ticksToPause * uSecPerTick);     // Pause before starting next verse
+            if (ticksToPause.has_value()) {
+                usleep(ticksToPause.getTicks().value() * uSecPerTick);     // Pause before starting next verse
+            }
         }
     }
 

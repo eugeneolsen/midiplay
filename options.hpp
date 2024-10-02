@@ -197,7 +197,7 @@ public:
         { // optind is declared in <getopt.h> as the index of the next non-option
             _filename = _argv[optind];
 #if defined(DEBUG)
-            std::cout << "Filename: " << argv[optind] << std::endl;
+            std::cout << "Filename: " << _argv[optind] << std::endl;
 #endif
             optind++;
         }

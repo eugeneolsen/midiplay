@@ -5,6 +5,7 @@
         "iosfwd": "cpp",
         "vector": "cpp",
         "condition_variable": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "optional": "cpp"
     }
 }

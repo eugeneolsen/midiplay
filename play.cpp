@@ -27,9 +27,9 @@
 
 using namespace std;
 using namespace cxxmidi;
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
-static string version = "1.2.12"; 
+static string version = "1.3.0"; 
 
 output::Default outport;
 
@@ -60,6 +60,8 @@ bool ritardando = false;
 bool lastVerse = false;
 
 bool firstTempo = true;
+
+bool potentialStuckNote = false;
 
 std::chrono::_V2::system_clock::time_point startTime;
 std::chrono::_V2::system_clock::time_point endTime;
@@ -161,9 +163,16 @@ int main(int argc, char **argv)
     midifile.SetCallbackLoad(
         [&](Event& event)->bool 
         {
+            static int track;
+            static int totalTrackTicks;
+            static int lastNoteOn;
+            static int lastNoteOff;
+
             Message message = event;
 
             uint8_t status = message[0];
+
+            totalTrackTicks += event.Dt();
 
             if (message.IsMeta())
             {
@@ -285,6 +294,50 @@ int main(int argc, char **argv)
                         }
                     }
                 }
+            }   // Time 0
+
+            if (track == 0) {   // Track 0-only messages
+                if (event.IsMeta(Message::kMarker) && event.size() == 3) {
+                    if (event[2] == '[')    // Beginning of introduction segment
+                    {
+                        struct _introSegment seg;
+                        seg.start = totalTrackTicks;
+                        seg.end = 0;
+
+                        introSegments.push_back(seg);
+                    }
+
+                    if (event[2] == ']')    // End of introduction segment
+                    {
+                        itintro = introSegments.end();
+                        itintro--;
+                        itintro->end = totalTrackTicks;
+                    }
+                }
+            }   // Track 0-only message handling
+
+            if (event.IsVoiceCategory(Message::kNoteOn) && event[2] != 0) {
+                lastNoteOn = totalTrackTicks;
+            }
+
+            if ((event.IsVoiceCategory(Message::kNoteOn) && event[2] == 0) || event.IsVoiceCategory(Message::kNoteOff)) {
+                lastNoteOff = totalTrackTicks;
+            }
+
+            if (event.IsMeta(Message::MetaType::kEndOfTrack)) {
+                track++;
+
+                itintro = introSegments.end();
+                itintro--;
+                uint32_t endIntro = itintro->end;
+
+                if (totalTrackTicks == endIntro) {
+                    if (lastNoteOff >= endIntro) {
+                        potentialStuckNote = true;
+                    }
+                }
+
+                totalTrackTicks = 0;    // Reset ticks for next track
             }
 
             return true;
@@ -330,41 +383,11 @@ int main(int argc, char **argv)
 
         uint8_t status = message[0];    // Status byte
 
-        if (message.IsMeta())
-        {
-            uint8_t type = message[1];
-
-            if (Message::kMarker == type && message.size() == 3)
-            {
-                if (message[2] == '[')    // Beginning of introduction segment
-                {
-                    struct _introSegment seg;
-                    seg.start = totalTicks;
-                    seg.end = 0;
-
-                    introSegments.push_back(seg);
-                }
-
-                if (message[2] == ']')    // End of introduction segment
-                {
-                    itintro = introSegments.end();
-                    itintro--;
-                    itintro->end = totalTicks;
-                }
-            }
-        }
-
         if (event.Dt() != 0) continue;   // The following code is only for messages at time 0
 
-        if (message.IsMeta())
+        if (message.IsMeta(Message::kTrackName) && title.empty())
         {
-            uint8_t type = message[1];
-            
-            // Get title
-            if (Message::kTrackName == type && title.empty())
-            {
-                title = string(message.begin() + 2, message.end());
-            }
+            title = message.GetText();
         }
     }
 
@@ -498,6 +521,12 @@ int main(int argc, char **argv)
                     // Stop the introduction.  In some hymns, this is not at the end
                     player.Stop();
                     player.Finish();
+
+                    if (potentialStuckNote) {
+                        player.NotesOff();
+
+                        std::cout << "   Warning: Final intro marker not past last NoteOff" << std::endl;
+                    }
                 }
             }
         }
@@ -531,7 +560,6 @@ int main(int argc, char **argv)
 
         player.Play();
         ret = sem_wait(&sem);   // Wait on the semaphore, which is posted in the Finished callback
-        player.NotesOff();
 
         ritardando = false;
         playingIntro = false;

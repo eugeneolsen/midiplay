@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.3.2"; 
+static string version = "1.3.3"; 
 
 output::Default outport;
 
@@ -329,13 +329,15 @@ int main(int argc, char **argv)
             if (event.IsMeta(Message::MetaType::kEndOfTrack)) {
                 track++;
 
-                itintro = introSegments.end();
-                itintro--;
-                uint32_t endIntro = itintro->end;
+                if (introSegments.size()) {
+                    itintro = introSegments.end();
+                    itintro--;
+                    uint32_t endIntro = itintro->end;
 
-                if (totalTrackTicks == endIntro) {
-                    if (lastNoteOff >= endIntro) {
-                        potentialStuckNote = true;
+                    if (totalTrackTicks == endIntro) {
+                        if (lastNoteOff >= endIntro) {
+                            potentialStuckNote = true;
+                        }
                     }
                 }
 

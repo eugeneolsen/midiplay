@@ -19,6 +19,7 @@ static struct option long_options[] = {
     {"staging", no_argument, NULL, 's'},
     {"tempo", required_argument, NULL, 't'},
     {"title", required_argument, NULL, 'T'},
+    {"warnings", no_argument, NULL, 'w'},
     {NULL, 0, NULL, 0}};
 
 
@@ -36,6 +37,7 @@ private:
     bool _staging = false;
     bool _prepost = false;
     bool _playIntro = false;
+    bool _displayWarnings = false;
     string _filename;  // Provided as a command line argument
     string _urlName;    // Second command line argument
     string _title;      // Hymn title
@@ -78,6 +80,10 @@ public:
         return _playIntro;
     }
 
+    bool isDisplayWarnings() {
+        return _displayWarnings;
+    }
+
     std::string getFileName() {
         return _filename;
     }
@@ -96,7 +102,7 @@ public:
         int option_index = 0;
 
         // Loop until there are no more options
-        while ((opt = getopt_long(_argc, _argv, "vx:g:hn:p::st:?", long_options, &option_index)) != -1)
+        while ((opt = getopt_long(_argc, _argv, "vx:g:hn:p::st:w?", long_options, &option_index)) != -1)
         {
             switch (opt)
             {
@@ -172,6 +178,9 @@ public:
                 return -2;
             case 'T':
                 _title = optarg;
+                break;
+            case 'w':
+                _displayWarnings = true;
                 break;
             case 'h':
             case '?':

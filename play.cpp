@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.3.0"; 
+static string version = "1.3.2"; 
 
 output::Default outport;
 
@@ -62,6 +62,7 @@ bool lastVerse = false;
 bool firstTempo = true;
 
 bool potentialStuckNote = false;
+bool displayWarnings = false;
 
 std::chrono::_V2::system_clock::time_point startTime;
 std::chrono::_V2::system_clock::time_point endTime;
@@ -148,6 +149,7 @@ int main(int argc, char **argv)
     int bpm = options.getBpm();
     int uSecPerBeat = options.get_uSecPerBeat();
     string filename = options.getFileName();  
+    displayWarnings = options.isDisplayWarnings();
 
     int uSecPerQuarter = 0;     // This comes from the Tempo Meta event from the file.
     int uSecPerTick = 0;        // Calculated from uSecPerQuarter / File::TimeDivision()
@@ -525,7 +527,9 @@ int main(int argc, char **argv)
                     if (potentialStuckNote) {
                         player.NotesOff();
 
-                        std::cout << "   Warning: Final intro marker not past last NoteOff" << std::endl;
+                        if (displayWarnings) {
+                            std::cout << "   Warning: Final intro marker not past last NoteOff event" << std::endl;
+                        }
                     }
                 }
             }

@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.3.3"; 
+static string version = "1.3.4"; 
 
 output::Default outport;
 
@@ -58,6 +58,7 @@ bool playIntro = false;    // Don't play intro unless MIDI file specifies verses
 bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
+bool alFine = false;
 
 bool firstTempo = true;
 
@@ -415,8 +416,8 @@ int main(int argc, char **argv)
   {
     if (i > 300) 
     {
-      cout << "Device connection timeout.  No device found.  Connect a MIDI device and try again.\n"
-           << endl;
+      std::cout << "Device connection timeout.  No device found.  Connect a MIDI device and try again.\n"
+           << std::endl;
       exit(2);  // Timeout connecting device.
     }
 
@@ -426,8 +427,8 @@ int main(int argc, char **argv)
     }
     else
     {
-      cout << "No device connected.  Connect a device."
-           << endl;
+      std::cout << "No device connected.  Connect a device."
+           << std::endl;
       //usleep(2000000);
       sleep(2);
       portCount = outport.GetPortCount(); // Try again and see if there's a connection
@@ -499,13 +500,11 @@ int main(int argc, char **argv)
 #ifdef DEBUG
         dumpEvent(event);
 #endif        
-
-        if (playingIntro && introSegments.size() > 0 
-            && message[0] == Message::kMeta)
+        if (playingIntro && introSegments.size() && message.IsMeta())
         {
             uint8_t type = message[1];      // Meta event type
 
-            if (type == Message::kMarker && message[2] == ']')
+            if (message.IsMeta(Message::kMarker) && message.GetText() == "]")
             {
                 itintro++;
 
@@ -537,11 +536,26 @@ int main(int argc, char **argv)
             }
         }
 
-        if ((playingIntro || lastVerse) && message[0] == Message::kMeta && message[1] == Message::kMarker && message[2] == '\\')
-        {
+        if ((playingIntro || lastVerse) && message.IsMeta(Message::kMarker) && message.GetText() == "\\") {
             // Start ritardando
             ritardando = true;
-            cout << "  Ritardando" << endl;
+            std::cout << "  Ritardando" << std::endl;
+        }
+
+        if (lastVerse) {
+            if (message.IsMeta(Message::kMarker) &&  message.GetText() == "D.C. al Fine") {
+                std::cout << "  D.C. al Fine" << std::endl;
+                alFine = true;
+                player.Stop();
+                player.Finish();
+                return false;   // Don't send event to output device
+            }
+        }
+
+        if (alFine && message.IsMeta(Message::kMarker) && message.GetText() == "Fine") {
+            player.Stop();
+            player.Finish();
+            return false;   // Don't send event to output device
         }
 
         return true;
@@ -609,6 +623,12 @@ int main(int argc, char **argv)
             if (ticksToPause.has_value()) {
                 usleep(ticksToPause.getTicks().value() * uSecPerTick);     // Pause before starting next verse
             }
+        }
+
+        if (alFine) {
+            player.Rewind();
+            player.Play();
+            ret = sem_wait(&sem);
         }
     }
 

@@ -47,6 +47,11 @@ std::string keySignature;
 const char * const keys[] = {"Gb", "Db", "Ab", "Eb", "Bb", "F", "C",
                               "G", "D", "A", "E", "B", "F#", "C#", "G#", "D#", "A#"};
 
+const std::string INTRO_BEGIN = "[";
+const std::string INTRO_END = "]";
+const std::string RITARDANDO_INDICATOR = R"(\)";
+const std::string D_C_AL_FINE = "D.C. al Fine";
+const std::string FINE_INDICATOR = "Fine";
 
 struct _introSegment {
   uint32_t start;
@@ -301,7 +306,7 @@ int main(int argc, char **argv)
 
             if (track == 0) {   // Track 0-only messages
                 if (event.IsMeta(Message::kMarker) && event.size() == 3) {
-                    if (event[2] == '[')    // Beginning of introduction segment
+                    if (event.GetText() == INTRO_BEGIN)    // Beginning of introduction segment
                     {
                         struct _introSegment seg;
                         seg.start = totalTrackTicks;
@@ -310,7 +315,7 @@ int main(int argc, char **argv)
                         introSegments.push_back(seg);
                     }
 
-                    if (event[2] == ']')    // End of introduction segment
+                    if (event.GetText() == INTRO_END)    // End of introduction segment
                     {
                         itintro = introSegments.end();
                         itintro--;
@@ -502,9 +507,7 @@ int main(int argc, char **argv)
 #endif        
         if (playingIntro && introSegments.size() && message.IsMeta())
         {
-            uint8_t type = message[1];      // Meta event type
-
-            if (message.IsMeta(Message::kMarker) && message.GetText() == "]")
+            if (message.IsMeta(Message::kMarker) && message.GetText() == INTRO_END)
             {
                 itintro++;
 
@@ -536,14 +539,14 @@ int main(int argc, char **argv)
             }
         }
 
-        if ((playingIntro || lastVerse) && message.IsMeta(Message::kMarker) && message.GetText() == R"(\)") {
+        if ((playingIntro || lastVerse) && message.IsMeta(Message::kMarker) && message.GetText() == RITARDANDO_INDICATOR) {
             // Start ritardando
             ritardando = true;
             std::cout << "  Ritardando" << std::endl;
         }
 
         if (lastVerse) {
-            if (message.IsMeta(Message::kMarker) &&  message.GetText() == "D.C. al Fine") {
+            if (message.IsMeta(Message::kMarker) &&  message.GetText() == D_C_AL_FINE) {
                 std::cout << " " << message.GetText() << std::endl;
                 alFine = true;
                 player.Stop();
@@ -552,7 +555,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (alFine && message.IsMeta(Message::kMarker) && message.GetText() == "Fine") {
+        if (alFine && message.IsMeta(Message::kMarker) && message.GetText() == FINE_INDICATOR) {
             player.Stop();
             player.Finish();
             return false;   // Don't send event to output device

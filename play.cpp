@@ -536,7 +536,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if ((playingIntro || lastVerse) && message.IsMeta(Message::kMarker) && message.GetText() == "\\") {
+        if ((playingIntro || lastVerse) && message.IsMeta(Message::kMarker) && message.GetText() == R"(\)") {
             // Start ritardando
             ritardando = true;
             std::cout << "  Ritardando" << std::endl;

@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.3.4"; 
+static string version = "1.3.5"; 
 
 output::Default outport;
 
@@ -544,7 +544,7 @@ int main(int argc, char **argv)
 
         if (lastVerse) {
             if (message.IsMeta(Message::kMarker) &&  message.GetText() == "D.C. al Fine") {
-                std::cout << "  D.C. al Fine" << std::endl;
+                std::cout << " " << message.GetText() << std::endl;
                 alFine = true;
                 player.Stop();
                 player.Finish();

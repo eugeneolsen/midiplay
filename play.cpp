@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.3.5"; 
+static string version = "1.3.6"; 
 
 output::Default outport;
 

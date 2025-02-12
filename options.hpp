@@ -10,13 +10,19 @@
 
 using namespace std;
 
+constexpr float DEFAULT_PRELUDE_SPEED = 0.90;   // 90% of default speed for hymn.
+constexpr float PRELUDE_MIN_SPEED = 0.5;
+constexpr float PRELUDE_MAX_SPEED = 2.0;
+
 // Define the "long" command line options
 static struct option long_options[] = {
     {"help", no_argument, NULL, 'h'},
     {"version", no_argument, NULL, 'v'},
     {"prelude", optional_argument, NULL, 'p'},
     {"goto", required_argument, NULL, 'g'},
+    {"channel", required_argument, NULL, 'c'},  // Force channel to Swell (1) or Great (2)
     {"staging", no_argument, NULL, 's'},
+    {"stops", required_argument, NULL, 'S'},    // --stops=<file name>  JSON file with stop definitions.
     {"tempo", required_argument, NULL, 't'},
     {"title", required_argument, NULL, 'T'},
     {"warnings", no_argument, NULL, 'w'},
@@ -126,7 +132,7 @@ public:
                         string s = optarg;
                         float speedOption = stof(s) / 10.0;
 
-                        if (speedOption < 0.5 || speedOption > 2.0)
+                        if (speedOption < PRELUDE_MIN_SPEED || speedOption > PRELUDE_MAX_SPEED)
                         {
                             _speed = 1;
                         }
@@ -138,11 +144,15 @@ public:
                 }
                 else
                 {
-                    _speed = 0.8; // Default 80%
+                    _speed = DEFAULT_PRELUDE_SPEED;
                 }
 
                 _prepost = true;
                 break;
+            case 'c':   // Channel override: -channel=n where n = 1 or 2 for Swell or Great
+                // TO DO: Implement channel override
+                break;
+
             case 'n':
                 if (isNumeric(optarg))
                 {
@@ -159,6 +169,10 @@ public:
                 break;
             case 's':   // Staging
                 _staging = true;
+                break;
+            
+            case 'S':   // stops=<file name>
+                // TO DO: implement stops override
                 break;
 
             case 't':

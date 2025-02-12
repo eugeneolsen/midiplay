@@ -6,6 +6,8 @@
         "vector": "cpp",
         "condition_variable": "cpp",
         "utility": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "cstdlib": "cpp",
+        "cmath": "cpp"
     }
 }

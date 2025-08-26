@@ -2,7 +2,7 @@
 #include <cxxmidi/message.hpp>
 #include <cxxmidi/event.hpp>
 
-#include <ecomidi/channel.hpp>
+#include <cxxmidi/channel.hpp>
 
 #pragma once
 
@@ -33,7 +33,7 @@ public:
         SelectProgram(Channel2, 32, 19); // "
         SelectProgram(Channel3, 36, 48); // Bank 36, Program 48: Brass and Strings
 
-        Event e = Event(0, Channel3 | Message::kControlChange, 7, 127); // Full volume on Channel 3
+        Event e = Event(0, static_cast<uint8_t>(Channel3) | static_cast<uint8_t>(Message::kControlChange), 7, 127); // Full volume on Channel 3
         _outport.SendMessage(&e);
     }
 };

@@ -22,7 +22,7 @@ static struct option long_options[] = {
     {"goto", required_argument, NULL, 'g'},
     {"channel", required_argument, NULL, 'c'},  // Force channel to Swell (1) or Great (2)
     {"staging", no_argument, NULL, 's'},
-    {"stops", required_argument, NULL, 'S'},    // --stops=<file name>  JSON file with stop definitions.
+    {"stops", required_argument, NULL, 'S'},    // --stops=<file name>  YAML file with stop definitions.
     {"tempo", required_argument, NULL, 't'},
     {"title", required_argument, NULL, 'T'},
     {"warnings", no_argument, NULL, 'w'},
@@ -119,6 +119,8 @@ public:
                 } else {
                     // TODO: Go to marker
                 }
+
+                std::cout << "Goto option not yet implemented. Starting at the beginning." << endl;
                 break;
             case 'p':              // Prelude/Postlude
                 _verses = 2;        // Play 2 verses
@@ -183,7 +185,7 @@ public:
                 }
                 else
                 {
-                    cout << "Tempo must be numeric.  Exiting program." << endl;
+                    std::cout << "Tempo must be numeric.  Exiting program." << endl;
                     exit(1);
                 }
                 break;
@@ -198,14 +200,15 @@ public:
                 break;
             case 'h':
             case '?':
-                std::cout << "Play MIDI file command\n" << std::endl;
+                std::cout << "Organ Pi play MIDI file command, version " << version << std::endl;
+                std::cout << "===============================================\n" << std::endl;
                 std::cout << "Usage:\n" << endl;
                 std::cout << "play <filename> options\n" << std::endl;
-                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   If argument is numeric, start at the measure number; if has alpha, start at marker." << endl;
+                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)" << endl;
                 std::cout << "  --help -h -? This text." << endl;
-                std::cout << "  -n<verses> Number of verses to play after introduction." << endl;
-                std::cout << "  --prelude=<speed> -p<speed> Prelude/postlude.  <speed> is optional, default is 8, which is 80%.  10 is 100%.  Plays 2 verses by default; can be modified by -n<verses>" << endl;
-                std::cout << "  --staging   Play the file from the staging directory." << std::endl;
+                std::cout << "  -n<verses> Play the introduction followed by the specified number of verses." << endl;
+                std::cout << "  --prelude=<speed> -p<speed> Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>" << endl;
+                std::cout << "  --staging   Play the file from the staging directory, if present." << std::endl;
                 std::cout << "  --tempo=<bpm> -t<bpm>  Force tempo to the specified number of beats per minute." << endl;
                 std::cout << "  --version -v  Version of this command" << endl;
                 std::cout << "  -x<verses> Number of verses to play without introduction.\n" << endl;

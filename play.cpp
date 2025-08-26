@@ -1,5 +1,5 @@
-#include <ecomidi/player_sync.hpp>    // modified copy of cxxmidi
-#include <ecomidi/file.hpp>           // modified copy of cxxmidi
+#include <cxxmidi/player/player_sync.hpp>
+#include <cxxmidi/file.hpp>
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/note.hpp>
 #include <signal.h>
@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.3.6"; 
+static string version = "1.4.0"; 
 
 output::Default outport;
 

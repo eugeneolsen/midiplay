@@ -2,7 +2,7 @@
 #include <cxxmidi/message.hpp>
 #include <cxxmidi/event.hpp>
 
-#include <ecomidi/channel.hpp>
+#include <cxxmidi/channel.hpp>
 
 #pragma once
 

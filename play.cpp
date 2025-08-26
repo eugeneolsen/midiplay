@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.4.0"; 
+static string version = "1.4.1"; 
 
 output::Default outport;
 
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
                 if (event.Dt() == 0)    // Processing for Time Zero Meta events
                 {
                     // Get Time Signature
-                    if (Message::kTimeSignature == type && message.size() == 6)
+                    if (message.IsMeta(Message::kTimeSignature) && message.size() == 6)
                     {
                         timesig.beatsPerMeasure = message[2];
                         timesig.denominator = message[3];
@@ -245,6 +245,9 @@ int main(int argc, char **argv)
                         }
                     }
 
+                    // Deprecated non-standard Meta events for verses and pause between verses
+                    // These are superseded by the Sequencer-Specific Meta event below.
+                    //
                     if (0x10 == type)   // Non-standard "number of verses" Meta event type for this sequencer
                     {
                         // Extract the number of verses, if the event is present in the file, and then throw the event away.
@@ -269,8 +272,9 @@ int main(int argc, char **argv)
 
                         return false;   // Don't load the non-standard event.
                     }
+                    // End deprecated non-standard Meta events for verses and pause between verses
 
-                    if (0x7F == type) {     // Sequencer-Specific Meta Event
+                    if (message.IsMeta(Message::MetaType::kSequencerSpecific)) {     // Sequencer-Specific Meta Event
                         int index = 2;
                         if (message[index] != 0x7D) {
                             int len = message[index++];     // This does not conform to the MIDI standard
@@ -306,7 +310,8 @@ int main(int argc, char **argv)
 
             if (track == 0) {   // Track 0-only messages
                 if (event.IsMeta(Message::kMarker) && event.size() == 3) {
-                    if (event.GetText() == INTRO_BEGIN)    // Beginning of introduction segment
+                    std::string text = event.GetText();
+                    if (text == INTRO_BEGIN)    // Beginning of introduction segment
                     {
                         struct _introSegment seg;
                         seg.start = totalTrackTicks;
@@ -315,7 +320,7 @@ int main(int argc, char **argv)
                         introSegments.push_back(seg);
                     }
 
-                    if (event.GetText() == INTRO_END)    // End of introduction segment
+                    if (text == INTRO_END)    // End of introduction segment
                     {
                         itintro = introSegments.end();
                         itintro--;

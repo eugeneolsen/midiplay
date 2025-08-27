@@ -28,6 +28,8 @@ On the Linux or SSH command line, type:
 
 `play` *<filename\>* *options*
 
+*filename* need not include the extension ".mid".  The extension ".mid" is appended if not present in the *filename.*
+
 It is recommended that aliases be added to `~/.bash_aliases` as follows:
 
 `alias p='play'`
@@ -83,5 +85,6 @@ FF 0x10 01 <i>n</i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause Between Verses</b>
 
 >>*tttt* specifies the number of ticks to pause between verses, including between the introduction and the first verse.
+
 ## Release History
-Version 1.4.1 - 2025.08.26 Stabilized custom cxxmidi fork
+Version 1.4.1 - 2025.08.26 Integrate stabilized cxxmidi fork

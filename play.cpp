@@ -16,6 +16,7 @@
 #include <ecocommon/utility.hpp>
 #include "options.hpp"
 #include "ticks.hpp"
+#include "custommessage.hpp"
 
 #include "ctx3000.hpp"
 #include "psr-ew425.hpp"
@@ -27,9 +28,10 @@
 
 using namespace std;
 using namespace cxxmidi;
+using namespace midiplay;
 namespace fs = std::filesystem;
 
-static string version = "1.4.2"; 
+static string version = "1.4.3"; 
 
 output::Default outport;
 
@@ -272,16 +274,17 @@ int main(int argc, char **argv)
 
                         return false;   // Don't load the non-standard event.
                     }
+                    //
                     // End deprecated non-standard Meta events for verses and pause between verses
 
                     if (message.IsMeta(Message::MetaType::SequencerSpecific)) {     // Sequencer-Specific Meta Event
                         int index = 2;
-                        if (message[index] != 0x7D) {
+                        if (message[index] != CustomMessage::Type::Private) {
                             int len = message[index++];     // This does not conform to the MIDI standard
                         }
 
-                        if (0x7D == message[index++]) {   // Prototyping, test, private use and experimentation
-                            if (1 == message[index]){   // Number of verses
+                        if (message[index++] == CustomMessage::Type::Private) {   // Prototyping, test, private use and experimentation
+                            if (message[index] == CustomMessage::PrivateType::NumberOfVerses){   // Number of verses
                                 // Extract the number of verses, if the event is present in the file, and then throw the event away.
                                 if (verses == 0)    // If verses not specified in command line
                                 {
@@ -298,7 +301,7 @@ int main(int argc, char **argv)
                                 return false;   // Don't load the non-standard event.
                             }
 
-                            if (2 == message[index]) {  // Pause between verses
+                            if (message[index] == CustomMessage::PrivateType::PauseBetweenVerses) {  // Pause between verses
                                 ticksToPause = (static_cast<uint16_t>(message[++index]) << 8) | message[++index];
 
                                 return false;   // Don't load the non-standard event.

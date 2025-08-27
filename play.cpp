@@ -29,7 +29,7 @@ using namespace std;
 using namespace cxxmidi;
 namespace fs = std::filesystem;
 
-static string version = "1.4.1"; 
+static string version = "1.4.2"; 
 
 output::Default outport;
 
@@ -98,7 +98,7 @@ void control_c(int signum)
     {
       for (int note = Note::kC2; note <= Note::kC7; note++)
       {
-        e = Event(0, channel | Message::kNoteOn, note, 0); // Note Off
+        e = Event(0, channel | Message::Type::NoteOn, note, 0); // Note Off
         outport.SendMessage(&e);
       }
     }
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
                 if (event.Dt() == 0)    // Processing for Time Zero Meta events
                 {
                     // Get Time Signature
-                    if (message.IsMeta(Message::kTimeSignature) && message.size() == 6)
+                    if (message.IsMeta(Message::MetaType::TimeSignature) && message.size() == 6)
                     {
                         timesig.beatsPerMeasure = message[2];
                         timesig.denominator = message[3];
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
                     }
                     
                     // Get Tempo
-                    if (message.IsMeta(Message::kTempo))
+                    if (message.IsMeta(Message::MetaType::Tempo))
                     {
                         // Get tempo from file
                         uSecPerQuarter = cxxmidi::utils::ExtractTempo(event[2], event[3], event[4]);
@@ -229,7 +229,7 @@ int main(int argc, char **argv)
                     }
 
                     // Get Key Signature
-                    if (message.IsMeta(Message::kKeySignature))
+                    if (message.IsMeta(Message::MetaType::KeySignature))
                     {
                         int sf = static_cast<int8_t>(static_cast<uint8_t>(message[2]));
                         int mi = (uint8_t)message[3];
@@ -274,7 +274,7 @@ int main(int argc, char **argv)
                     }
                     // End deprecated non-standard Meta events for verses and pause between verses
 
-                    if (message.IsMeta(Message::MetaType::kSequencerSpecific)) {     // Sequencer-Specific Meta Event
+                    if (message.IsMeta(Message::MetaType::SequencerSpecific)) {     // Sequencer-Specific Meta Event
                         int index = 2;
                         if (message[index] != 0x7D) {
                             int len = message[index++];     // This does not conform to the MIDI standard
@@ -309,7 +309,7 @@ int main(int argc, char **argv)
             }   // Time 0
 
             if (track == 0) {   // Track 0-only messages
-                if (event.IsMeta(Message::kMarker) && event.size() == 3) {
+                if (event.IsMeta(Message::MetaType::Marker) && event.size() == 3) {
                     std::string text = event.GetText();
                     if (text == INTRO_BEGIN)    // Beginning of introduction segment
                     {
@@ -329,15 +329,15 @@ int main(int argc, char **argv)
                 }
             }   // Track 0-only message handling
 
-            if (event.IsVoiceCategory(Message::kNoteOn) && event[2] != 0) {
+            if (event.IsVoiceCategory(Message::Type::NoteOn) && event[2] != 0) {
                 lastNoteOn = totalTrackTicks;
             }
 
-            if ((event.IsVoiceCategory(Message::kNoteOn) && event[2] == 0) || event.IsVoiceCategory(Message::kNoteOff)) {
+            if ((event.IsVoiceCategory(Message::Type::NoteOn) && event[2] == 0) || event.IsVoiceCategory(Message::Type::NoteOff)) {
                 lastNoteOff = totalTrackTicks;
             }
 
-            if (event.IsMeta(Message::MetaType::kEndOfTrack)) {
+            if (event.IsMeta(Message::MetaType::EndOfTrack)) {
                 track++;
 
                 if (introSegments.size()) {
@@ -400,7 +400,7 @@ int main(int argc, char **argv)
 
         if (event.Dt() != 0) continue;   // The following code is only for messages at time 0
 
-        if (message.IsMeta(Message::kTrackName) && title.empty())
+        if (message.IsMeta(Message::MetaType::TrackName) && title.empty())
         {
             title = message.GetText();
         }
@@ -512,7 +512,7 @@ int main(int argc, char **argv)
 #endif        
         if (playingIntro && introSegments.size() && message.IsMeta())
         {
-            if (message.IsMeta(Message::kMarker) && message.GetText() == INTRO_END)
+            if (message.IsMeta(Message::MetaType::Marker) && message.GetText() == INTRO_END)
             {
                 itintro++;
 
@@ -544,14 +544,14 @@ int main(int argc, char **argv)
             }
         }
 
-        if ((playingIntro || lastVerse) && message.IsMeta(Message::kMarker) && message.GetText() == RITARDANDO_INDICATOR) {
+        if ((playingIntro || lastVerse) && message.IsMeta(Message::MetaType::Marker) && message.GetText() == RITARDANDO_INDICATOR) {
             // Start ritardando
             ritardando = true;
             std::cout << "  Ritardando" << std::endl;
         }
 
         if (lastVerse) {
-            if (message.IsMeta(Message::kMarker) &&  message.GetText() == D_C_AL_FINE) {
+            if (message.IsMeta(Message::MetaType::Marker) &&  message.GetText() == D_C_AL_FINE) {
                 std::cout << " " << message.GetText() << std::endl;
                 alFine = true;
                 player.Stop();
@@ -560,7 +560,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (alFine && message.IsMeta(Message::kMarker) && message.GetText() == FINE_INDICATOR) {
+        if (alFine && message.IsMeta(Message::MetaType::Marker) && message.GetText() == FINE_INDICATOR) {
             player.Stop();
             player.Finish();
             return false;   // Don't send event to output device

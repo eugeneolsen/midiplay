@@ -1,8 +1,8 @@
 # 🎹 Organ Pi 🎜 MIDI File Player
 ## C++ (gnu++20 standard), customized fork of [cxxmidi](https://github.com/eugeneolsen/cxxmidi), standard library.
-## 👀 See a demo video at https://www.raspberrypi.com/news/raspberry-pi-is-this-churchs-new-organist/
+## 👉🏽 See a demo video at https://www.raspberrypi.com/news/raspberry-pi-is-this-churchs-new-organist/
 ## Description
-Plays a MIDI file through MIDI OUT port 1 through a USB-to-MIDI converter.  This program was developed specifically to run on a Raspberry Pi 4B (or better) running Raspberry Pi OS 64-bit (or any Debian Linux derivative, such as Ubuntu) through a USB to MIDI adapter to an Allen Protege-16 organ.  Other organs may be supported in the future.
+The Organ Pi MIDI file player is a software MIDI sequencer that plays a MIDI file through MIDI OUT port 1 through a USB-to-MIDI converter.  This program was developed specifically to run on a Raspberry Pi 4B (or better) running Raspberry Pi OS 64-bit (or any Debian Linux derivative, such as Ubuntu) through a USB to MIDI adapter to an Allen Protégé-16 organ.  Other organs may be supported in the future.
 
 Currently, Casio and Yamaha consumer keyboards are also supported for testing.
 
@@ -19,6 +19,7 @@ This project was created for people with technical aptitude.  A more user-friend
 - 64-bit Debian 12 (Bookworm) or later.  Raspberry Pi OS based on Debian 12 works fine.
 - 4GB RAM (may require less RAM; hasn't been tested with less).
 - NVME SSD recommended but performs respectably with a fast SD card or flash memory.
+- Allen Protégé-16 organ.  Other Allen organ models may work but have not been tested.
 
 ## Installation
 #### 🏗️ Under construction 🚧
@@ -87,4 +88,6 @@ FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause B
 >>*tttt* specifies the number of ticks to pause between verses, including between the introduction and the first verse.
 
 ## Release History
-Version 1.4.1 - 2025.08.26 Integrate stabilized cxxmidi fork
+Version 1.4.4 - 2025.08.29 Play introduction only when introduction markers are present in Track 0.<br>
+Version 1.4.3 - 2025.08.27 Eliminate magic numbers for custom Meta events.<br>
+Version 1.4.1 - 2025.08.26 Integrate stabilized cxxmidi fork.

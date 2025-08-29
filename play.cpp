@@ -31,7 +31,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static string version = "1.4.3"; 
+static string version = "1.4.4"; 
 
 output::Default outport;
 
@@ -413,6 +413,11 @@ int main(int argc, char **argv)
 
 
     itintro = introSegments.begin();    // Reset intro iterator
+
+    if (introSegments.size() == 0)      // If there are no intro markers, don't play intro
+    {
+        playIntro = false;      // Override default or command line option
+    }
 
 
     size_t portCount = outport.GetPortCount();

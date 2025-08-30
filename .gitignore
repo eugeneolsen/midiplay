@@ -1045,7 +1045,12 @@ dkms.conf
 # Raspberry Pi Pico disassembler file
 *.dis
 
+# Context Portal Database
+context_portal/context.db
+
+# MIDI files
 *.mid
 *.midi
 
+# The application binary
 play

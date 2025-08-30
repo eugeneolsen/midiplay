@@ -8,7 +8,6 @@
 
 #include <ecocommon/utility.hpp>
 
-using namespace std;
 
 constexpr float DEFAULT_PRELUDE_SPEED = 0.90;   // 90% of default speed for hymn.
 constexpr float PRELUDE_MIN_SPEED = 0.5;
@@ -44,9 +43,9 @@ private:
     bool _prepost = false;
     bool _playIntro = false;
     bool _displayWarnings = false;
-    string _filename;  // Provided as a command line argument
-    string _urlName;    // Second command line argument
-    string _title;      // Hymn title
+    std::string _filename;  // Provided as a command line argument
+    std::string _urlName;    // Second command line argument
+    std::string _title;      // Hymn title
 
 
 public:
@@ -120,7 +119,7 @@ public:
                     // TODO: Go to marker
                 }
 
-                std::cout << "Goto option not yet implemented. Starting at the beginning." << endl;
+                std::cout << "Goto option not yet implemented. Starting at the beginning." << std::endl;
                 break;
             case 'p':              // Prelude/Postlude
                 _verses = 2;        // Play 2 verses
@@ -131,8 +130,8 @@ public:
                     // convert 2-digit number to float and divide by 10
                     if (isNumeric(optarg))
                     {
-                        string s = optarg;
-                        float speedOption = stof(s) / 10.0;
+                        std::string s = optarg;
+                        float speedOption = std::stof(s) / 10.0;
 
                         if (speedOption < PRELUDE_MIN_SPEED || speedOption > PRELUDE_MAX_SPEED)
                         {
@@ -158,14 +157,14 @@ public:
             case 'n':
                 if (isNumeric(optarg))
                 {
-                    _verses = stoi(string(optarg));
+                    _verses = std::stoi(std::string(optarg));
                     _playIntro = true;
                 }
                 break;
             case 'x':
                 if (isNumeric(optarg))
                 {
-                    _verses = stoi(string(optarg));
+                    _verses = std::stoi(std::string(optarg));
                     _playIntro = false;
                 }
                 break;
@@ -180,12 +179,12 @@ public:
             case 't':
                 if (isNumeric(optarg))
                 {
-                    _bpm = stoi(optarg);
+                    _bpm = std::stoi(optarg);
                     _uSecPerBeat = 60000000 / _bpm;
                 }
                 else
                 {
-                    std::cout << "Tempo must be numeric.  Exiting program." << endl;
+                    std::cout << "Tempo must be numeric.  Exiting program." << std::endl;
                     exit(1);
                 }
                 break;
@@ -202,16 +201,16 @@ public:
             case '?':
                 std::cout << "Organ Pi play MIDI file command, version " << version << std::endl;
                 std::cout << "===============================================\n" << std::endl;
-                std::cout << "Usage:\n" << endl;
+                std::cout << "Usage:\n" << std::endl;
                 std::cout << "play <filename> options\n" << std::endl;
-                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)" << endl;
-                std::cout << "  --help -h -? This text." << endl;
-                std::cout << "  -n<verses> Play the introduction followed by the specified number of verses." << endl;
-                std::cout << "  --prelude=<speed> -p<speed> Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>" << endl;
+                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)" << std::endl;
+                std::cout << "  --help -h -? This text." << std::endl;
+                std::cout << "  -n<verses> Play the introduction followed by the specified number of verses." << std::endl;
+                std::cout << "  --prelude=<speed> -p<speed> Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>" << std::endl;
                 std::cout << "  --staging   Play the file from the staging directory, if present." << std::endl;
-                std::cout << "  --tempo=<bpm> -t<bpm>  Force tempo to the specified number of beats per minute." << endl;
-                std::cout << "  --version -v  Version of this command" << endl;
-                std::cout << "  -x<verses> Number of verses to play without introduction.\n" << endl;
+                std::cout << "  --tempo=<bpm> -t<bpm>  Force tempo to the specified number of beats per minute." << std::endl;
+                std::cout << "  --version -v  Version of this command" << std::endl;
+                std::cout << "  -x<verses> Number of verses to play without introduction.\n" << std::endl;
                 return 1;
             default:
                 abort();

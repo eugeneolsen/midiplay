@@ -1,42 +1,41 @@
+#pragma once
+
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/message.hpp>
 #include <cxxmidi/event.hpp>
 
+#include <cstdint>
 #include <cxxmidi/channel.hpp>
-
-#pragma once
-
-using namespace cxxmidi;
 
 class psr_ew425
 {
 private:
-    output::Default &_outport;
+    cxxmidi::output::Default & _outport;
 
-    void SelectProgram(uint8_t channel, uint8_t bank, uint8_t program)
+    void SelectProgram(std::uint8_t channel, std::uint8_t bank, std::uint8_t program)
     {
-        Event e = Event(0, channel | Message::kControlChange, 0, 0); // Bank Select MSB
+        cxxmidi::Event e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, 0, 0 ); // Bank Select MSB
         _outport.SendMessage(&e);
 
-        e = Event(0, channel | Message::kControlChange, 32, bank); // Bank Select LSB
+        e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, 32, bank); // Bank Select LSB
         _outport.SendMessage(&e);
 
-        e = Event(0, channel | Message::kProgramChange, program); // Program change
+        e = cxxmidi::Event(0, channel | cxxmidi::Message::kProgramChange, program); // Program change
         _outport.SendMessage(&e);
     }
 
 public:
-    psr_ew425(output::Default &outport) : _outport(outport)
+    psr_ew425(cxxmidi::output::Default &outport) : _outport(outport)
     {
     }
 
     void SetDefaults()
     {
-        SelectProgram(Channel1, 113, 20); // Bank 113, Program 20: Chapel Organ
-        SelectProgram(Channel2, 113, 20);   // Bank 0, Program 20: Church Organ 1
-        SelectProgram(Channel3, 112, 4);  // Bank 112, Program 49: Strings
+        SelectProgram(cxxmidi::Channel1, 113, 20); // Bank 113, Program 20: Chapel Organ
+        SelectProgram(cxxmidi::Channel2, 113, 20); // Bank 0, Program 20: Church Organ 1
+        SelectProgram(cxxmidi::Channel3, 112, 4); // Bank 112, Program 4: Strings
 
-        Event e = Event(0, static_cast<uint8_t>(Channel3) | static_cast<uint8_t>(Message::kControlChange), 7, 127); // Full volume on Channel 3
+        cxxmidi::Event e = cxxmidi::Event(0, static_cast<std::uint8_t>(cxxmidi::Channel3) | static_cast<std::uint8_t>(cxxmidi::Message::kControlChange), 7, 127); // Full volume on Channel 3
         _outport.SendMessage(&e);
     }
 };

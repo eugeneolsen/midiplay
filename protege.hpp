@@ -1,20 +1,18 @@
+#pragma once
+
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/message.hpp>
 #include <cxxmidi/event.hpp>
 
 #include <cxxmidi/channel.hpp>
 
-#pragma once
-
-using namespace cxxmidi;
-
 class protege
 {
     private:
-        output::Default& _outport;
+        cxxmidi::output::Default& _outport;
 
-    public: 
-        protege(output::Default& outport) : _outport(outport)
+    public:
+        protege(cxxmidi::output::Default& outport) : _outport(outport)
         {
         }
 

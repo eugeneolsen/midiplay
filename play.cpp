@@ -30,7 +30,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.4.5";
+static std::string version = "1.4.6";
 
 output::Default outport;
 
@@ -60,7 +60,7 @@ struct _introSegment {
 };
 
 std::vector<struct _introSegment> introSegments;
-bool playIntro = false;    // Don't play intro unless MIDI file specifies verses with Meta event 0x10 or command line indicates
+bool playIntro = false;    // Don't play intro unless MIDI file specifies number of verses with Meta event or command line indicates
 bool playingIntro = false;
 bool ritardando = false;
 bool lastVerse = false;
@@ -186,11 +186,33 @@ int main(int argc, char **argv)
 
              totalTrackTicks += event.Dt();
 
+             if (message.IsSysex()) {
+                 return false;    // Throw away SysEx events.  Player doesn't handle them.
+             }
+
+             // Throw away control change messages with specific exceptions:
+             // NRPN (Non-Registered Parameter Number)
+             // Data Entry MSB
+             // Data Entry LSB
+             // These exceptions are used for organ stop settings.
+            if (message.IsVoiceCategory(Message::Type::ControlChange)) {
+                uint8_t controller = message[1];
+
+                // TODO: Add constants for the following "magic numbers" to cxxmidi::Message
+                if (controller != 98 && controller != 99 && controller != 6 && controller != 38) {
+                    return false;   // Throw away most control change messages. Use organ controls instead.
+                }
+            }
+
              if (message.IsMeta())
              {
                  uint8_t type = message[1];
 
-                 if (event.Dt() == 0)    // Processing for Time Zero Meta events
+                 if (message.IsMeta(Message::MetaType::Lyrics)) {
+                    return false;   // Throw away lyrics. Player doesn't handle them.
+                 }
+
+                 if (0 == totalTrackTicks)    // Processing for Time Zero Meta events
                  {
                      // Get Time Signature
                      if (message.IsMeta(Message::MetaType::TimeSignature) && message.size() == 6)

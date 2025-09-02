@@ -32,6 +32,24 @@ namespace fs = std::filesystem;
 
 static std::string version = "1.4.7";
 
+// Constants to replace magic numbers
+constexpr int MAJOR_KEY_OFFSET = 6;
+constexpr int MINOR_KEY_OFFSET = 9;
+constexpr uint8_t META_EVENT_VERSES = 0x10;
+constexpr uint8_t META_EVENT_PAUSE = 0x11;
+constexpr int QUARTER_NOTE_DENOMINATOR = 4;
+constexpr int64_t HEARTBEAT_CHECK_INTERVAL = 100000;
+constexpr float RITARDANDO_DECREMENT = 0.002f;
+constexpr int DEVICE_CONNECTION_TIMEOUT = 300;
+constexpr size_t MIN_PORT_COUNT = 2;
+constexpr int DEVICE_POLL_SLEEP_SECONDS = 2;
+constexpr int MIDI_OUTPUT_PORT_INDEX = 1;
+constexpr int DEFAULT_VERSES = 1;
+constexpr int VERSE_DISPLAY_OFFSET = 1;
+constexpr int SECONDS_PER_MINUTE = 60;
+constexpr int EXIT_FILE_NOT_FOUND = 2;
+constexpr int EXIT_DEVICE_NOT_FOUND = 6;
+
 output::Default outport;
 
 sem_t sem;
@@ -115,8 +133,8 @@ void control_c(int signum)
      std::chrono::duration<double> elapsed = endTime - startTime;
 
      // Convert the elapsed time to minutes and seconds
-     int minutes = static_cast<int>(elapsed.count()) / 60;
-     int seconds = static_cast<int>(elapsed.count()) % 60;
+     int minutes = static_cast<int>(elapsed.count()) / SECONDS_PER_MINUTE;
+     int seconds = static_cast<int>(elapsed.count()) % SECONDS_PER_MINUTE;
 
      std::cout << "\nElapsed time " << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << std::endl << std::endl;
 
@@ -231,8 +249,8 @@ int main(int argc, char **argv)
                          if (firstTempo) {
                              if (0 == bpm) {     // If BPM not overridden on command line
                                  if (uSecPerQuarter != 0) {
-                                     int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
-                                     bpm = qpm * (std::pow(2.0, timesig.denominator) / 4);
+                                     int qpm = MICROSECONDS_PER_MINUTE / uSecPerQuarter;  // Quarter notes per minute
+                                     bpm = qpm * (std::pow(2.0, timesig.denominator) / QUARTER_NOTE_DENOMINATOR);
                                  }
 
                                  if (uSecPerBeat != 0 && speed == 1.0)
@@ -241,8 +259,8 @@ int main(int argc, char **argv)
                                  }
                              }
                              else {
-                                 int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
-                                 bpm = qpm * (std::pow(2.0, timesig.denominator) / 4);
+                                 int qpm = MICROSECONDS_PER_MINUTE / uSecPerQuarter;  // Quarter notes per minute
+                                 bpm = qpm * (std::pow(2.0, timesig.denominator) / QUARTER_NOTE_DENOMINATOR);
 
                                  if (uSecPerBeat) {
                                      speed = (float) uSecPerQuarter / (float) uSecPerBeat;
@@ -261,11 +279,11 @@ int main(int argc, char **argv)
 
                          if (mi == 0)
                          {
-                             keySignature = keys[sf + 6];
+                             keySignature = keys[sf + MAJOR_KEY_OFFSET];
                          }
                          else
                          {
-                             keySignature = keys[sf + 9]; 
+                             keySignature = keys[sf + MINOR_KEY_OFFSET];
                              keySignature += " minor";
                          }
                      }
@@ -273,7 +291,7 @@ int main(int argc, char **argv)
                      // Deprecated non-standard Meta events for verses and pause between verses
                      // These are superseded by the Sequencer-Specific Meta event below.
                      //
-                     if (0x10 == type)   // Non-standard "number of verses" Meta event type for this sequencer
+                     if (META_EVENT_VERSES == type)   // Non-standard "number of verses" Meta event type for this sequencer
                      {
                          // Extract the number of verses, if the event is present in the file, and then throw the event away.
                          if (verses == 0)    // If verses not specified in command line
@@ -291,7 +309,7 @@ int main(int argc, char **argv)
                          return false;   // Don't load the non-standard event.
                      }
 
-                     if (0x11 == type)   // Non-standard "pause between verses" Meta event type for this sequencer
+                     if (META_EVENT_PAUSE == type)   // Non-standard "pause between verses" Meta event type for this sequencer
                      {
                          ticksToPause = (static_cast<uint16_t>(message[2]) << 8) | message[3];
 
@@ -395,7 +413,7 @@ int main(int argc, char **argv)
              std::cout << ".\n" << std::endl;
          }
 
-         exit(2);
+         exit(EXIT_FILE_NOT_FOUND);
      }
 
      midifile.Load(path.c_str());    // Load up the hymn file
@@ -432,7 +450,7 @@ int main(int argc, char **argv)
          }
      }
 
-     if (verses == 0) { verses = 1; }
+     if (verses == 0) { verses = DEFAULT_VERSES; }
 
 
      itintro = introSegments.begin();    // Reset intro iterator
@@ -455,14 +473,14 @@ int main(int argc, char **argv)
 
    for (int i = 0; true; i++)
    {
-     if (i > 300) 
+     if (i > DEVICE_CONNECTION_TIMEOUT)
      {
        std::cout << "Device connection timeout.  No device found.  Connect a MIDI device and try again.\n"
             << std::endl;
-       exit(2);  // Timeout connecting device.
+       exit(EXIT_DEVICE_NOT_FOUND);  // Timeout connecting device.
      }
 
-     if (portCount >= 2)
+     if (portCount >= MIN_PORT_COUNT)
      {
        break;  // We have a device. Open it and play.
      }
@@ -471,14 +489,14 @@ int main(int argc, char **argv)
        std::cout << "No device connected.  Connect a device."
             << std::endl;
        //usleep(2000000);
-       sleep(2);
+       sleep(DEVICE_POLL_SLEEP_SECONDS);
        portCount = outport.GetPortCount(); // Try again and see if there's a connection
      }
    }
 
-   outport.OpenPort(1);
+   outport.OpenPort(MIDI_OUTPUT_PORT_INDEX);
 
-   std::string portName = outport.GetPortName(1);
+   std::string portName = outport.GetPortName(MIDI_OUTPUT_PORT_INDEX);
 
    if (portName.find("CASIO USB") == 0)
    {
@@ -506,7 +524,7 @@ int main(int argc, char **argv)
    player.SetSpeed(tempo * speed);
 
      std::cout << "Playing: \"" << title << "\"" << " in " << keySignature << " - " << verses << " verse";
-     if (verses > 1) {
+     if (verses > DEFAULT_VERSES) {
          std::cout << "s";
      }
      std::cout << " at " << bpm * player.GetSpeed() << " bpm" << std::endl;
@@ -519,10 +537,10 @@ int main(int argc, char **argv)
                    if (ritardando)   // Diminish speed gradually
                    {
                        int64_t count = player.CurrentTimePos().count();
-                       if (count % 100000 == 0)
+                       if (count % HEARTBEAT_CHECK_INTERVAL == 0)
                        {
                            float t = player.GetSpeed();
-                           t -= .002;
+                           t -= RITARDANDO_DECREMENT;
                            //std::cout << "Speed: " << t << std::endl;
                            player.SetSpeed(t);
                        }
@@ -639,9 +657,9 @@ int main(int argc, char **argv)
          ritardando = false;
          player.SetSpeed(tempo * speed);
 
-         std::cout <<  " Playing verse " << verse + 1;
+         std::cout <<  " Playing verse " << verse + VERSE_DISPLAY_OFFSET;
 
-         if (verse == verses - 1)
+         if (verse == verses - VERSE_DISPLAY_OFFSET)
          {
              lastVerse = true;
              std::cout << ", last verse";
@@ -679,8 +697,8 @@ int main(int argc, char **argv)
      std::chrono::duration<double> elapsed = endTime - startTime;
 
      // Convert the elapsed time to minutes and seconds
-     int minutes = static_cast<int>(elapsed.count()) / 60;
-     int seconds = static_cast<int>(elapsed.count()) % 60;
+     int minutes = static_cast<int>(elapsed.count()) / SECONDS_PER_MINUTE;
+     int seconds = static_cast<int>(elapsed.count()) % SECONDS_PER_MINUTE;
 
      std::cout << "Fine - elapsed time " << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << std::endl << std::endl;
 

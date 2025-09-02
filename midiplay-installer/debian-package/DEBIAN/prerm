@@ -1,0 +1,19 @@
+#!/bin/bash
+# Pre-removal script for midiplay
+
+set -e
+
+echo "Removing Organ Pi MIDI File Player..."
+
+# Remove the symlink if it exists
+if [ -L /usr/local/bin/p ]; then
+    rm -f /usr/local/bin/p
+    echo "Removed symlink: /usr/local/bin/p"
+fi
+
+# Note: We don't remove /usr/local/bin from PATH as other programs may use it
+# The binary itself will be removed by dpkg automatically
+
+echo "Pre-removal cleanup completed."
+
+exit 0

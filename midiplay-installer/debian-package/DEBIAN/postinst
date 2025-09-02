@@ -1,0 +1,39 @@
+#!/bin/bash
+# Post-installation script for midiplay
+
+set -e
+
+# Set proper permissions on the binary
+chmod 755 /usr/local/bin/play
+
+# Add /usr/local/bin to PATH if not already present
+if ! echo "$PATH" | grep -q "/usr/local/bin"; then
+    echo "Adding /usr/local/bin to system PATH..."
+    
+    # Add to /etc/environment if it exists
+    if [ -f /etc/environment ]; then
+        if ! grep -q "/usr/local/bin" /etc/environment; then
+            sed -i 's|PATH="\(.*\)"|PATH="/usr/local/bin:\1"|' /etc/environment
+        fi
+    fi
+fi
+
+# Create symlink for common aliases mentioned in README
+if [ ! -L /usr/local/bin/p ]; then
+    ln -s /usr/local/bin/play /usr/local/bin/p
+fi
+
+# Print installation success message
+echo ""
+echo "✅ Organ Pi MIDI File Player (midiplay) installed successfully!"
+echo ""
+echo "Usage: play <filename> [options]"
+echo "   or: p <filename> [options]"
+echo ""
+echo "For help: play --help"
+echo "Version: $(play --version 2>/dev/null || echo '1.4.7')"
+echo ""
+echo "Note: Connect your MIDI device before running the player."
+echo ""
+
+exit 0

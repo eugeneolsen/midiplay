@@ -89,6 +89,7 @@ FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause B
 
 ## Release History
 Version 1.4.6 - 2025.09.01 Throw away SysEx, Lyrics, and most Control Change events.<br>
+Version 1.4.5 - 2025.08.30 Add namespace prefixes to object and function names, remove "using namespace" directives from header files.<br>
 Version 1.4.4 - 2025.08.29 Play introduction only when introduction markers are present in Track 0.<br>
 Version 1.4.3 - 2025.08.27 Eliminate magic numbers for custom Meta events.<br>
 Version 1.4.1 - 2025.08.26 Integrate stabilized cxxmidi fork.

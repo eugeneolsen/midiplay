@@ -1,0 +1,20 @@
+Package: midiplay
+Version: 1.4.7
+Section: sound
+Priority: optional
+Architecture: arm64
+Depends: libasound2 (>= 1.0.16), libc6 (>= 2.17), libgcc-s1 (>= 3.0), libstdc++6 (>= 5.2)
+Maintainer: Eugene Olsen <eugene@example.com>
+Description: Organ Pi MIDI File Player
+ A software MIDI sequencer that plays MIDI files through MIDI OUT port 1
+ through a USB-to-MIDI converter. Developed specifically for Raspberry Pi 4B
+ (or better) running Raspberry Pi OS 64-bit through a USB to MIDI adapter
+ to an Allen Protégé-16 organ.
+ .
+ Features:
+  * Simple Linux command line syntax
+  * Define an introduction using MIDI markers
+  * Play the number of verses defined in the MIDI file or overridden on command line
+  * Command line flags for prelude and postlude without playing the introduction
+  * Support for Casio and Yamaha consumer keyboards for testing
+Homepage: https://github.com/eugeneolsen/midiplay

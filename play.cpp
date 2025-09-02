@@ -21,6 +21,8 @@
 #include "ctx3000.hpp"
 #include "psr-ew425.hpp"
 #include "protege.hpp"
+#include "constants.hpp"
+#include "device_constants.hpp"
 
 #include <semaphore.h>
 #include <cmath>
@@ -30,7 +32,19 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.4.6";
+static std::string version = "1.4.7";
+
+// Constants to replace magic numbers
+constexpr int MAJOR_KEY_OFFSET = 6;
+constexpr int MINOR_KEY_OFFSET = 9;
+constexpr uint8_t DEPRECATED_META_EVENT_VERSES = 0x10;
+constexpr uint8_t DEPRECATED_META_EVENT_PAUSE = 0x11;
+// Play-specific constants (not shared with other modules)
+constexpr int64_t HEARTBEAT_CHECK_INTERVAL = 100000;
+constexpr float RITARDANDO_DECREMENT = 0.002f;
+constexpr int VERSE_DISPLAY_OFFSET = 1;
+
+// Shared constants moved to constants.hpp and device_constants.hpp
 
 output::Default outport;
 
@@ -115,8 +129,8 @@ void control_c(int signum)
      std::chrono::duration<double> elapsed = endTime - startTime;
 
      // Convert the elapsed time to minutes and seconds
-     int minutes = static_cast<int>(elapsed.count()) / 60;
-     int seconds = static_cast<int>(elapsed.count()) % 60;
+     int minutes = static_cast<int>(elapsed.count()) / MidiPlay::SECONDS_PER_MINUTE;
+     int seconds = static_cast<int>(elapsed.count()) % MidiPlay::SECONDS_PER_MINUTE;
 
      std::cout << "\nElapsed time " << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << std::endl << std::endl;
 
@@ -191,15 +205,14 @@ int main(int argc, char **argv)
              }
 
              // Throw away control change messages with specific exceptions:
-             // NRPN (Non-Registered Parameter Number)
-             // Data Entry MSB
-             // Data Entry LSB
+             // NRPN (Non-Registered Parameter Number MSB & LSB)
+             // Data Entry MSB & LSB
              // These exceptions are used for organ stop settings.
-            if (message.IsVoiceCategory(Message::Type::ControlChange)) {
-                uint8_t controller = message[1];
-
-                // TODO: Add constants for the following "magic numbers" to cxxmidi::Message
-                if (controller != 98 && controller != 99 && controller != 6 && controller != 38) {
+            if (message.IsControlChange()) {
+                if (!message.IsControlChange(Message::ControlType::NonRegisteredParameterNumberLsb) 
+                    && !message.IsControlChange(Message::ControlType::NonRegisteredParameterNumberMsb) 
+                    && !message.IsControlChange(Message::ControlType::DataEntryMsb) 
+                    && !message.IsControlChange(Message::ControlType::DataEntryLsb)) {
                     return false;   // Throw away most control change messages. Use organ controls instead.
                 }
             }
@@ -232,8 +245,8 @@ int main(int argc, char **argv)
                          if (firstTempo) {
                              if (0 == bpm) {     // If BPM not overridden on command line
                                  if (uSecPerQuarter != 0) {
-                                     int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
-                                     bpm = qpm * (std::pow(2.0, timesig.denominator) / 4);
+                                     int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerQuarter;  // Quarter notes per minute
+                                     bpm = qpm * (std::pow(2.0, timesig.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
                                  }
 
                                  if (uSecPerBeat != 0 && speed == 1.0)
@@ -242,8 +255,8 @@ int main(int argc, char **argv)
                                  }
                              }
                              else {
-                                 int qpm = 60000000 / uSecPerQuarter;  // Quarter notes per minute
-                                 bpm = qpm * (std::pow(2.0, timesig.denominator) / 4);
+                                 int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerQuarter;  // Quarter notes per minute
+                                 bpm = qpm * (std::pow(2.0, timesig.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
 
                                  if (uSecPerBeat) {
                                      speed = (float) uSecPerQuarter / (float) uSecPerBeat;
@@ -262,11 +275,11 @@ int main(int argc, char **argv)
 
                          if (mi == 0)
                          {
-                             keySignature = keys[sf + 6];
+                             keySignature = keys[sf + MAJOR_KEY_OFFSET];
                          }
                          else
                          {
-                             keySignature = keys[sf + 9]; 
+                             keySignature = keys[sf + MINOR_KEY_OFFSET];
                              keySignature += " minor";
                          }
                      }
@@ -274,7 +287,7 @@ int main(int argc, char **argv)
                      // Deprecated non-standard Meta events for verses and pause between verses
                      // These are superseded by the Sequencer-Specific Meta event below.
                      //
-                     if (0x10 == type)   // Non-standard "number of verses" Meta event type for this sequencer
+                     if (DEPRECATED_META_EVENT_VERSES == type)   // Non-standard "number of verses" Meta event type for this sequencer
                      {
                          // Extract the number of verses, if the event is present in the file, and then throw the event away.
                          if (verses == 0)    // If verses not specified in command line
@@ -292,7 +305,7 @@ int main(int argc, char **argv)
                          return false;   // Don't load the non-standard event.
                      }
 
-                     if (0x11 == type)   // Non-standard "pause between verses" Meta event type for this sequencer
+                     if (DEPRECATED_META_EVENT_PAUSE == type)   // Non-standard "pause between verses" Meta event type for this sequencer
                      {
                          ticksToPause = (static_cast<uint16_t>(message[2]) << 8) | message[3];
 
@@ -396,7 +409,7 @@ int main(int argc, char **argv)
              std::cout << ".\n" << std::endl;
          }
 
-         exit(2);
+         exit(MidiPlay::EXIT_FILE_NOT_FOUND);
      }
 
      midifile.Load(path.c_str());    // Load up the hymn file
@@ -433,7 +446,7 @@ int main(int argc, char **argv)
          }
      }
 
-     if (verses == 0) { verses = 1; }
+     if (verses == 0) { verses = MidiPlay::DEFAULT_VERSES; }
 
 
      itintro = introSegments.begin();    // Reset intro iterator
@@ -456,14 +469,14 @@ int main(int argc, char **argv)
 
    for (int i = 0; true; i++)
    {
-     if (i > 300) 
+     if (i > MidiPlay::Device::CONNECTION_TIMEOUT)
      {
        std::cout << "Device connection timeout.  No device found.  Connect a MIDI device and try again.\n"
             << std::endl;
-       exit(2);  // Timeout connecting device.
+       exit(MidiPlay::EXIT_DEVICE_NOT_FOUND);  // Timeout connecting device.
      }
 
-     if (portCount >= 2)
+     if (portCount >= MidiPlay::Device::MIN_PORT_COUNT)
      {
        break;  // We have a device. Open it and play.
      }
@@ -472,14 +485,14 @@ int main(int argc, char **argv)
        std::cout << "No device connected.  Connect a device."
             << std::endl;
        //usleep(2000000);
-       sleep(2);
+       sleep(MidiPlay::Device::POLL_SLEEP_SECONDS);
        portCount = outport.GetPortCount(); // Try again and see if there's a connection
      }
    }
 
-   outport.OpenPort(1);
+   outport.OpenPort(MidiPlay::Device::OUTPUT_PORT_INDEX);
 
-   std::string portName = outport.GetPortName(1);
+   std::string portName = outport.GetPortName(MidiPlay::Device::OUTPUT_PORT_INDEX);
 
    if (portName.find("CASIO USB") == 0)
    {
@@ -495,6 +508,7 @@ int main(int argc, char **argv)
    else 
    {
      // NOT Casio or Yamaha device, probably Allen Protege organ
+     // TODO: check for "USB MIDI Interface" first.
      protege* p = new protege(outport);
      p->SetDefaults();
    }
@@ -506,7 +520,7 @@ int main(int argc, char **argv)
    player.SetSpeed(tempo * speed);
 
      std::cout << "Playing: \"" << title << "\"" << " in " << keySignature << " - " << verses << " verse";
-     if (verses > 1) {
+     if (verses > MidiPlay::DEFAULT_VERSES) {
          std::cout << "s";
      }
      std::cout << " at " << bpm * player.GetSpeed() << " bpm" << std::endl;
@@ -519,10 +533,10 @@ int main(int argc, char **argv)
                    if (ritardando)   // Diminish speed gradually
                    {
                        int64_t count = player.CurrentTimePos().count();
-                       if (count % 100000 == 0)
+                       if (count % HEARTBEAT_CHECK_INTERVAL == 0)
                        {
                            float t = player.GetSpeed();
-                           t -= .002;
+                           t -= RITARDANDO_DECREMENT;
                            //std::cout << "Speed: " << t << std::endl;
                            player.SetSpeed(t);
                        }
@@ -639,9 +653,9 @@ int main(int argc, char **argv)
          ritardando = false;
          player.SetSpeed(tempo * speed);
 
-         std::cout <<  " Playing verse " << verse + 1;
+         std::cout <<  " Playing verse " << verse + VERSE_DISPLAY_OFFSET;
 
-         if (verse == verses - 1)
+         if (verse == verses - VERSE_DISPLAY_OFFSET)
          {
              lastVerse = true;
              std::cout << ", last verse";
@@ -679,8 +693,8 @@ int main(int argc, char **argv)
      std::chrono::duration<double> elapsed = endTime - startTime;
 
      // Convert the elapsed time to minutes and seconds
-     int minutes = static_cast<int>(elapsed.count()) / 60;
-     int seconds = static_cast<int>(elapsed.count()) % 60;
+     int minutes = static_cast<int>(elapsed.count()) / MidiPlay::SECONDS_PER_MINUTE;
+     int seconds = static_cast<int>(elapsed.count()) % MidiPlay::SECONDS_PER_MINUTE;
 
      std::cout << "Fine - elapsed time " << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << std::endl << std::endl;
 

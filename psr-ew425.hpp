@@ -7,6 +7,9 @@
 #include <cstdint>
 #include <cxxmidi/channel.hpp>
 
+#include "midi_constants.hpp"
+#include "device_constants.hpp"
+
 class psr_ew425
 {
 private:
@@ -14,10 +17,11 @@ private:
 
     void SelectProgram(std::uint8_t channel, std::uint8_t bank, std::uint8_t program)
     {
-        cxxmidi::Event e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, 0, 0 ); // Bank Select MSB
+        using namespace MidiPlay::Midi;
+        cxxmidi::Event e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, CC_BANK_SELECT_MSB, BANK_SELECT_OFF); // Bank Select MSB
         _outport.SendMessage(&e);
 
-        e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, 32, bank); // Bank Select LSB
+        e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, CC_BANK_SELECT_LSB, bank); // Bank Select LSB
         _outport.SendMessage(&e);
 
         e = cxxmidi::Event(0, channel | cxxmidi::Message::kProgramChange, program); // Program change
@@ -31,11 +35,14 @@ public:
 
     void SetDefaults()
     {
-        SelectProgram(cxxmidi::Channel1, 113, 20); // Bank 113, Program 20: Chapel Organ
-        SelectProgram(cxxmidi::Channel2, 113, 20); // Bank 0, Program 20: Church Organ 1
-        SelectProgram(cxxmidi::Channel3, 112, 4); // Bank 112, Program 4: Strings
+        using namespace MidiPlay::Device::Yamaha;
+        using namespace MidiPlay::Midi;
+        
+        SelectProgram(cxxmidi::Channel1, BANK_113, CHAPEL_ORGAN_PROGRAM); // Chapel Organ
+        SelectProgram(cxxmidi::Channel2, BANK_113, CHAPEL_ORGAN_PROGRAM); // Chapel Organ
+        SelectProgram(cxxmidi::Channel3, BANK_112, STRINGS_PROGRAM); // Strings
 
-        cxxmidi::Event e = cxxmidi::Event(0, static_cast<std::uint8_t>(cxxmidi::Channel3) | static_cast<std::uint8_t>(cxxmidi::Message::kControlChange), 7, 127); // Full volume on Channel 3
+        cxxmidi::Event e = cxxmidi::Event(0, static_cast<std::uint8_t>(cxxmidi::Channel3) | static_cast<std::uint8_t>(cxxmidi::Message::kControlChange), CC_VOLUME, VOLUME_FULL); // Full volume on Channel 3
         _outport.SendMessage(&e);
     }
 };

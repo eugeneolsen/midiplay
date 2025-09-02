@@ -212,3 +212,212 @@ The refactoring will follow this sequence:
 This refactoring will transform the codebase from a monolithic script into a well-structured, maintainable application. The magic numbers and strings represent the most immediate opportunity for improvement, followed by structural changes to improve the overall architecture.
 
 The phased approach ensures that changes can be implemented incrementally while maintaining functionality throughout the process.
+
+---
+
+## Modular Architecture Design for play.cpp
+
+### Overview
+
+The current [`play.cpp`](play.cpp) file is 706 lines long and handles multiple responsibilities. This section outlines a comprehensive modular architecture to break it into logical, maintainable components.
+
+### Proposed Module Structure
+
+#### Core Application Files:
+```
+play.cpp                    // Main entry point (~150 lines)
+├── midi_loader.hpp/.cpp    // MIDI file loading and parsing
+├── playback_engine.hpp/.cpp // Playback control and callbacks  
+├── device_manager.hpp/.cpp  // MIDI device detection and setup
+├── timing_manager.hpp/.cpp  // Tempo, timing, and synchronization
+└── signal_handler.hpp/.cpp  // Signal handling (Ctrl+C)
+```
+
+#### Supporting Files:
+```
+types.hpp                   // Common types and structures
+file_utils.hpp/.cpp         // File existence checking, path utilities
+```
+
+#### Constants Organization:
+```
+constants.hpp               // Application-wide shared constants
+midi_constants.hpp          // MIDI protocol constants
+device_constants.hpp        // Device-specific constants
+```
+
+### Detailed Module Breakdown
+
+#### A. `midi_loader.hpp/.cpp` (Lines 193-404)
+**Responsibility**: MIDI file loading, parsing, and meta-event processing
+
+**Key Functions**:
+- Load callback with tempo, key signature, time signature extraction
+- Verse counting and intro segment detection
+- Custom meta-event handling (verses, pause between verses)
+- Key signature processing with major/minor detection
+
+**Constants Used**:
+```cpp
+constexpr int MAJOR_KEY_OFFSET = 6;
+constexpr int MINOR_KEY_OFFSET = 9;
+constexpr uint8_t META_EVENT_VERSES = 0x10;
+constexpr uint8_t META_EVENT_PAUSE = 0x11;
+constexpr int QUARTER_NOTE_DENOMINATOR = 4;
+```
+
+#### B. `playback_engine.hpp/.cpp` (Lines 535-620, 625-691)
+**Responsibility**: Player callbacks, intro/verse management, ritardando control
+
+**Key Functions**:
+- Heartbeat and event callbacks
+- Introduction and verse playback logic
+- Ritardando and musical direction handling (D.C. al Fine, Fine)
+- Intro segment jumping logic
+
+**Constants Used**:
+```cpp
+constexpr int64_t HEARTBEAT_CHECK_INTERVAL = 100000;
+constexpr float RITARDANDO_DECREMENT = 0.002f;
+constexpr int VERSE_DISPLAY_OFFSET = 1;
+```
+
+#### C. `device_manager.hpp/.cpp` (Lines 464-518)
+**Responsibility**: MIDI device detection, connection, and device-specific setup
+
+**Key Functions**:
+- Device timeout and connection logic
+- Casio, Yamaha, and Protege device setup
+- Port management and device identification
+- Device-specific program/bank selection
+
+**Constants Used**:
+```cpp
+constexpr int CONNECTION_TIMEOUT = 300;
+constexpr size_t MIN_PORT_COUNT = 2;
+constexpr int POLL_SLEEP_SECONDS = 2;
+constexpr int OUTPUT_PORT_INDEX = 1;
+```
+
+#### D. `timing_manager.hpp/.cpp` (Lines 622-624, 693-703)
+**Responsibility**: Elapsed time tracking, timing calculations
+
+**Key Functions**:
+- Start/end timer functionality
+- Time display formatting (minutes:seconds)
+- Elapsed time calculation
+
+**Constants Used**:
+```cpp
+constexpr int SECONDS_PER_MINUTE = 60;
+```
+
+#### E. `signal_handler.hpp/.cpp` (Lines 112-142)
+**Responsibility**: Signal handling and emergency cleanup
+
+**Key Functions**:
+- Ctrl+C handling with graceful shutdown
+- Emergency notes-off functionality
+- Semaphore cleanup
+- Elapsed time display on interrupt
+
+### Constants Organization Strategy
+
+#### Layered Constants Architecture:
+
+```cpp
+// constants.hpp - Application-wide shared constants
+namespace MidiPlay {
+    constexpr int MICROSECONDS_PER_MINUTE = 60000000;
+    constexpr int SECONDS_PER_MINUTE = 60;
+    constexpr int QUARTER_NOTE_DENOMINATOR = 4;
+    constexpr int EXIT_FILE_NOT_FOUND = 2;
+    constexpr int EXIT_DEVICE_NOT_FOUND = 6;
+    constexpr int DEFAULT_VERSES = 1;
+}
+
+// midi_constants.hpp - MIDI protocol shared constants
+namespace MidiPlay::Midi {
+    constexpr std::uint8_t CC_BANK_SELECT_MSB = 0;
+    constexpr std::uint8_t CC_BANK_SELECT_LSB = 32;
+    constexpr std::uint8_t CC_VOLUME = 7;
+    constexpr std::uint8_t VOLUME_FULL = 127;
+    constexpr std::uint8_t VOLUME_OFF = 0;
+}
+
+// device_constants.hpp - Device management and device-specific constants
+namespace MidiPlay::Device {
+    // Connection constants
+    constexpr int CONNECTION_TIMEOUT = 300;
+    constexpr size_t MIN_PORT_COUNT = 2;
+    constexpr int POLL_SLEEP_SECONDS = 2;
+    constexpr int OUTPUT_PORT_INDEX = 1;
+    
+    // Device-specific program/bank combinations
+    namespace Casio {
+        constexpr std::uint8_t PIPE_ORGAN_BANK = 32;
+        constexpr std::uint8_t PIPE_ORGAN_PROGRAM = 19;
+        constexpr std::uint8_t BRASS_STRINGS_BANK = 36;
+        constexpr std::uint8_t BRASS_STRINGS_PROGRAM = 48;
+    }
+    
+    namespace Yamaha {
+        constexpr std::uint8_t CHAPEL_ORGAN_BANK = 113;
+        constexpr std::uint8_t CHAPEL_ORGAN_PROGRAM = 20;
+        constexpr std::uint8_t STRINGS_BANK = 112;
+        constexpr std::uint8_t STRINGS_PROGRAM = 4;
+    }
+}
+```
+
+### Benefits of Layered Constants:
+
+1. **Clear Ownership**: Constants live with their primary usage context
+2. **Namespace Separation**: Prevents naming conflicts
+3. **Reduced Dependencies**: Only include what you need
+4. **Easy Migration**: Can move constants as modules evolve
+5. **Eliminates Duplication**: Shared MIDI constants across all device classes
+6. **Better Organization**: Clear separation between protocol constants and device-specific values
+
+### Migration Strategy
+
+#### Phase 1: Create Shared Constants ✅ COMPLETED
+1. ✅ Create `constants.hpp` with application-wide constants
+2. ✅ Create `midi_constants.hpp` with MIDI protocol constants  
+3. ✅ Create `device_constants.hpp` with device-specific values
+4. ✅ Update device classes to use shared constants
+5. ✅ Move `MICROSECONDS_PER_MINUTE` from `options.hpp` to shared constants
+6. ✅ Update all references to use namespaced constants
+
+#### Phase 2: Extract Modules (Future)
+1. `signal_handler.cpp` (smallest, most isolated)
+2. `device_manager.cpp` (now benefits from shared device constants)
+3. `midi_loader.cpp` (complex but well-defined boundaries)
+4. `playback_engine.cpp` and `timing_manager.cpp`
+
+#### Phase 3: Refactor Main (Future)
+- Orchestration-only main function
+- Dependency injection between modules
+- Clean separation of concerns
+
+### Key Architectural Benefits
+
+1. **Single Responsibility**: Each module has one clear purpose
+2. **Testability**: Independent unit testing capability
+3. **Maintainability**: Localized changes and clear boundaries
+4. **Reusability**: Modules could be reused in other MIDI applications
+5. **Clear Constants Strategy**: Avoids both magic numbers and god header files
+6. **Reduced Compilation Dependencies**: Faster builds and cleaner includes
+7. **Device Extensibility**: Easy to add new device types with shared MIDI constants
+
+### Implementation Status
+
+**Phase 1 - COMPLETED**: 
+- ✅ Created shared constants files (`constants.hpp`, `midi_constants.hpp`, `device_constants.hpp`)
+- ✅ Updated `ctx3000.hpp` and `psr-ew425.hpp` to use shared constants
+- ✅ Updated `play.cpp` to use namespaced constants
+- ✅ Updated `options.hpp` to use shared `MICROSECONDS_PER_MINUTE`
+- ✅ Eliminated magic numbers across device classes
+- ✅ Improved code readability with meaningful constant names
+
+This modular architecture transforms the monolithic 706-line file into manageable, focused components while maintaining clear constant ownership and following modern C++ best practices.

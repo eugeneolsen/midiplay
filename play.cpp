@@ -30,7 +30,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.4.6";
+static std::string version = "1.4.7";
 
 output::Default outport;
 
@@ -191,15 +191,14 @@ int main(int argc, char **argv)
              }
 
              // Throw away control change messages with specific exceptions:
-             // NRPN (Non-Registered Parameter Number)
-             // Data Entry MSB
-             // Data Entry LSB
+             // NRPN (Non-Registered Parameter Number MSB & LSB)
+             // Data Entry MSB & LSB
              // These exceptions are used for organ stop settings.
-            if (message.IsVoiceCategory(Message::Type::ControlChange)) {
-                uint8_t controller = message[1];
-
-                // TODO: Add constants for the following "magic numbers" to cxxmidi::Message
-                if (controller != 98 && controller != 99 && controller != 6 && controller != 38) {
+            if (message.IsControlChange()) {
+                if (!message.IsControlChange(Message::ControlType::NonRegisteredParameterNumberLsb) 
+                    && !message.IsControlChange(Message::ControlType::NonRegisteredParameterNumberMsb) 
+                    && !message.IsControlChange(Message::ControlType::DataEntryMsb) 
+                    && !message.IsControlChange(Message::ControlType::DataEntryLsb)) {
                     return false;   // Throw away most control change messages. Use organ controls instead.
                 }
             }
@@ -495,6 +494,7 @@ int main(int argc, char **argv)
    else 
    {
      // NOT Casio or Yamaha device, probably Allen Protege organ
+     // TODO: check for "USB MIDI Interface" first.
      protege* p = new protege(outport);
      p->SetDefaults();
    }

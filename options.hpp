@@ -7,13 +7,12 @@
 #include <getopt.h>
 
 #include <ecocommon/utility.hpp>
-
+#include "constants.hpp"
 
 constexpr float DEFAULT_PRELUDE_SPEED = 0.90;   // 90% of default speed for hymn.
 constexpr float PRELUDE_MIN_SPEED = 0.5;
 constexpr float PRELUDE_MAX_SPEED = 2.0;
 constexpr float PRELUDE_SPEED_DIVISOR = 10.0;   // Divide command line prelude speed by this to get float.
-constexpr int MICROSECONDS_PER_MINUTE = 60000000;
 
 // Define the "long" command line options
 static struct option long_options[] = {
@@ -182,7 +181,7 @@ public:
                 if (isNumeric(optarg))
                 {
                     _bpm = std::stoi(optarg);
-                    _uSecPerBeat = MICROSECONDS_PER_MINUTE / _bpm;
+                    _uSecPerBeat = MidiPlay::MICROSECONDS_PER_MINUTE / _bpm;
                 }
                 else
                 {

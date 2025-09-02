@@ -7,6 +7,9 @@
 #include <cstdint>
 #include <cxxmidi/channel.hpp>
 
+#include "midi_constants.hpp"
+#include "device_constants.hpp"
+
 class ctx3000
 {
 private:
@@ -14,7 +17,8 @@ private:
 
     void SelectProgram(std::uint8_t channel, std::uint8_t bank, std::uint8_t program)
     {
-        cxxmidi::Event e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, 0, bank); // Bank Select MSB
+        using namespace MidiPlay::Midi;
+        cxxmidi::Event e = cxxmidi::Event(0, channel | cxxmidi::Message::kControlChange, CC_BANK_SELECT_MSB, bank); // Bank Select MSB
         _outport.SendMessage(&e);
 
         e = cxxmidi::Event(0, channel | cxxmidi::Message::kProgramChange, program); // Program change
@@ -28,11 +32,14 @@ public:
 
     void SetDefaults()
     {
-        SelectProgram(cxxmidi::Channel1, 32, 19); // Bank 32, Program 19: Pipe Organ 1
-        SelectProgram(cxxmidi::Channel2, 32, 19); // "
-        SelectProgram(cxxmidi::Channel3, 36, 48); // Bank 36, Program 48: Brass and Strings
+        using namespace MidiPlay::Device::Casio;
+        using namespace MidiPlay::Midi;
+        
+        SelectProgram(cxxmidi::Channel1, BANK_32, PIPE_ORGAN_PROGRAM); // Pipe Organ 1
+        SelectProgram(cxxmidi::Channel2, BANK_32, PIPE_ORGAN_PROGRAM); // Pipe Organ 1
+        SelectProgram(cxxmidi::Channel3, BANK_36, BRASS_STRINGS_PROGRAM); // Brass and Strings
 
-        cxxmidi::Event e = cxxmidi::Event(0, static_cast<std::uint8_t>(cxxmidi::Channel3) | static_cast<std::uint8_t>(cxxmidi::Message::kControlChange), 7, 127); // Full volume on Channel 3
+        cxxmidi::Event e = cxxmidi::Event(0, static_cast<std::uint8_t>(cxxmidi::Channel3) | static_cast<std::uint8_t>(cxxmidi::Message::kControlChange), CC_VOLUME, VOLUME_FULL); // Full volume on Channel 3
         _outport.SendMessage(&e);
     }
 };

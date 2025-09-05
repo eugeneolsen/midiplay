@@ -190,7 +190,9 @@ public:
                 }
                 break;
             case 'v':
-                std::cout << "Version " << version << std::endl;
+                std::cout << "Organ Pi play MIDI file command\n";
+                std::cout << "===============================\n";
+                std::cout << "  Version " << version << "\n" << std::endl;
                 return -2;
             case 'T':
                 _title = optarg;

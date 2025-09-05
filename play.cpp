@@ -32,7 +32,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.4.7";
+static std::string version = "1.4.8";
 
 // Constants to replace magic numbers
 constexpr int MAJOR_KEY_OFFSET = 6;
@@ -298,7 +298,6 @@ int main(int argc, char **argv)
                              {
                                  std::string sVerse{c};
                                  verses = std::stoi(sVerse);
-                                 playIntro = true;
                              }
                          }
 
@@ -331,7 +330,6 @@ int main(int argc, char **argv)
                                      {
                                          std::string sVerse{c};
                                          verses = std::stoi(sVerse);
-                                         playIntro = true;
                                      }
                                  }
 

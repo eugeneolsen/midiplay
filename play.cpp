@@ -23,6 +23,7 @@
 #include "protege.hpp"
 #include "constants.hpp"
 #include "device_constants.hpp"
+#include "signal_handler.hpp"
 
 #include <semaphore.h>
 #include <cmath>
@@ -32,7 +33,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.4.8";
+static std::string version = "1.4.9";
 
 // Constants to replace magic numbers
 constexpr int MAJOR_KEY_OFFSET = 6;
@@ -103,50 +104,13 @@ void finished()
 } 
 
 
-// Callback for Ctrl+c
-//
-void control_c(int signum)  
-{
-     int ret = sem_post(&sem);
-
-     // Turn all notes off.
-     Event e;
-
-     for (int channel = Channel1; channel <= Channel3; channel++)
-     {
-       for (int note = Note::kC2; note <= Note::kC7; note++)
-       {
-         e = Event(0, channel | Message::Type::NoteOn, note, 0); // Note Off
-         outport.SendMessage(&e);
-       }
-     }
-
-     ret = sem_destroy(&sem);  // Clean up the semaphore
-
-     endTime = std::chrono::high_resolution_clock::now();
-
-     // Calculate the elapsed time
-     std::chrono::duration<double> elapsed = endTime - startTime;
-
-     // Convert the elapsed time to minutes and seconds
-     int minutes = static_cast<int>(elapsed.count()) / MidiPlay::SECONDS_PER_MINUTE;
-     int seconds = static_cast<int>(elapsed.count()) % MidiPlay::SECONDS_PER_MINUTE;
-
-     std::cout << "\nElapsed time " << minutes << ":" << std::setw(2) << std::setfill('0') << seconds << std::endl << std::endl;
-
-     exit(signum);
-}
+// Signal handling is now handled by the SignalHandler class
 
 
 
 int main(int argc, char **argv)
 {
-     // Set up Ctrl-C interrupt handler
-     struct sigaction sigIntHandler;
-     sigIntHandler.sa_handler = control_c;
-     sigemptyset(&sigIntHandler.sa_mask);
-     sigIntHandler.sa_flags = 0;
-     sigaction(SIGINT, &sigIntHandler, NULL);
+     // Signal handler will be set up after startTime is initialized
 
      int ret = sem_init(&sem, 0, 0);
 
@@ -615,6 +579,10 @@ int main(int argc, char **argv)
 
      // Start the elapsed time timer
      startTime = std::chrono::high_resolution_clock::now();
+     
+     // Set up signal handler now that all dependencies are available
+     MidiPlay::SignalHandler signalHandler(outport, sem, startTime);
+     signalHandler.setupSignalHandler();
 
      // Play intro
      if (playIntro)

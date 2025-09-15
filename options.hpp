@@ -42,7 +42,7 @@ private:
     float _speed = 1.0;
     bool _staging = false;
     bool _prepost = false;
-    bool _playIntro = false;
+    bool _playIntro = true;
     bool _displayWarnings = false;
     std::string _filename;  // Provided as a command line argument
     std::string _urlName;    // Second command line argument

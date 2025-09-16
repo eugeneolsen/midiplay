@@ -16,7 +16,8 @@
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-I${userHome}/.local/include/",
                 "-lasound",
-                "-pthread"
+                "-pthread",
+                "-lyaml-cpp"
             ],
             "options": {
                 "cwd": "${fileDirname}"

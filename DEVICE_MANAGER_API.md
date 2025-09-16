@@ -70,12 +70,65 @@ std::string deviceName = MidiPlay::DeviceManager::getDeviceTypeName(DeviceType::
 // Returns: "Casio CTX-3000 series"
 ```
 
-#### `void loadDevicePresets(const std::string& configPath)`
+#### `bool loadDevicePresets(const std::string& configPath = "")`
 
-**Note:** This method is prepared for future YAML configuration support but not yet implemented.
+Loads device configurations from YAML file with automatic file discovery.
 
 **Parameters:**
-- `configPath` - Path to the YAML configuration file
+- `configPath` - Optional path to specific YAML configuration file. If empty, searches standard locations.
+
+**Returns:**
+- `true` if YAML configuration loaded successfully
+- `false` if no YAML found or parsing failed (falls back to hardcoded defaults)
+
+**File Search Locations (in priority order):**
+1. `~/.config/midiplay/midi_devices.yaml` (user-specific)
+2. `/etc/midiplay/midi_devices.yaml` (system-wide)
+3. `./midi_devices.yaml` (local/development)
+
+**YAML Configuration Structure:**
+```yaml
+version: "1.0"
+
+# Optional connection parameter overrides
+connection:
+  timeout_iterations: 300      # Connection timeout (default: 300)
+  poll_sleep_seconds: 2        # Sleep between retries (default: 2)
+  min_port_count: 2           # Minimum ports required (default: 2)
+  output_port_index: 1        # MIDI output port index (default: 1)
+
+# Device configurations
+devices:
+  casio_ctx3000:
+    name: "Casio CTX-3000 Series"
+    description: "Casio USB MIDI keyboards with organ sounds"
+    detection_strings:
+      - "CASIO USB"
+    channels:
+      1:
+        bank_msb: 32
+        bank_lsb: 0
+        program: 19
+        description: "Pipe Organ"
+      # ... additional channels
+        
+  yamaha_psr_ew425:
+    name: "Yamaha PSR-EW425 Series"
+    detection_strings:
+      - "Digital Keyboard"
+    channels:
+      1:
+        bank_msb: 0
+        bank_lsb: 113
+        program: 20
+        description: "Chapel Organ"
+      # ... additional channels
+      
+  allen_protege:
+    name: "Allen Protege Organ"
+    detection_strings: []       # Empty = fallback device
+    channels: {}                # No channel configuration
+```
 
 ## Enumerations
 
@@ -102,9 +155,9 @@ struct DeviceInfo {
 };
 ```
 
-## Usage Pattern
+## Usage Patterns
 
-The recommended usage pattern follows this sequence:
+### Basic Usage (Hardcoded Defaults)
 
 ```cpp
 #include "device_manager.hpp"
@@ -113,19 +166,54 @@ The recommended usage pattern follows this sequence:
 MidiPlay::DeviceManager deviceManager;
 
 try {
-    // Step 1: Connect and detect device
+    // Connect and configure device using hardcoded defaults
     MidiPlay::DeviceInfo deviceInfo = deviceManager.connectAndDetectDevice(outport);
-    
-    // Step 2: Create and configure device
     deviceManager.createAndConfigureDevice(deviceInfo.type, outport);
     
-    // Step 3: Display connection information
-    std::cout << "Connected to: " << MidiPlay::DeviceManager::getDeviceTypeName(deviceInfo.type) 
+    std::cout << "Connected to: " << MidiPlay::DeviceManager::getDeviceTypeName(deviceInfo.type)
               << " (" << deviceInfo.portName << ")" << std::endl;
-              
 } catch (const std::exception& e) {
     std::cout << e.what() << std::endl;
     exit(MidiPlay::EXIT_DEVICE_NOT_FOUND);
+}
+```
+
+### YAML Configuration Usage (Recommended)
+
+```cpp
+#include "device_manager.hpp"
+
+// Create DeviceManager instance
+MidiPlay::DeviceManager deviceManager;
+
+// Load YAML configuration (searches standard locations automatically)
+bool yamlLoaded = deviceManager.loadDevicePresets();
+if (yamlLoaded) {
+    std::cout << "Using YAML device configuration" << std::endl;
+} else {
+    std::cout << "Using built-in device defaults" << std::endl;
+}
+
+try {
+    // Device management now uses YAML config when available
+    MidiPlay::DeviceInfo deviceInfo = deviceManager.connectAndDetectDevice(outport);
+    deviceManager.createAndConfigureDevice(deviceInfo.type, outport);
+    
+    std::cout << "Connected to: " << MidiPlay::DeviceManager::getDeviceTypeName(deviceInfo.type)
+              << " (" << deviceInfo.portName << ")" << std::endl;
+} catch (const std::exception& e) {
+    std::cout << e.what() << std::endl;
+    exit(MidiPlay::EXIT_DEVICE_NOT_FOUND);
+}
+```
+
+### Custom YAML Path Usage
+
+```cpp
+// Load YAML from specific location
+bool yamlLoaded = deviceManager.loadDevicePresets("/path/to/custom/midi_devices.yaml");
+if (!yamlLoaded) {
+    std::cerr << "Failed to load custom YAML configuration" << std::endl;
 }
 ```
 
@@ -156,24 +244,130 @@ The DeviceManager uses exception-based error handling:
 - **Invalid Device Type:** `std::invalid_argument` for unsupported devices
 - **Null Pointers:** `std::invalid_argument` for null device pointers
 
-## Future YAML Configuration Support
+## YAML Configuration Features
 
-The architecture is designed to support YAML configuration files in the future:
+### Automatic Configuration Discovery
 
+The DeviceManager automatically searches for YAML configuration files in standard Debian locations:
+
+1. **User Configuration**: `~/.config/midiplay/midi_devices.yaml`
+   - User-specific device customizations
+   - Overrides system-wide settings
+   
+2. **System Configuration**: `/etc/midiplay/midi_devices.yaml`
+   - System-wide device configurations
+   - Managed by system administrators
+   
+3. **Local Development**: `./midi_devices.yaml`
+   - Local testing and development
+   - Version-controlled project configurations
+
+### YAML-Driven Device Detection
+
+Device detection uses YAML configuration when available:
+
+**YAML Approach:**
 ```yaml
 devices:
   casio_ctx3000:
-    detection_string: "CASIO USB"
+    detection_strings:
+      - "CASIO USB"
+      - "CTX-3000"    # Multiple detection patterns supported
+```
+
+**Fallback to Hardcoded:**
+- If no YAML found, uses original hardcoded detection strings
+- Maintains backward compatibility with existing deployments
+
+### YAML-Driven Device Configuration
+
+**Channel Configuration via YAML:**
+```yaml
+devices:
+  custom_device:
+    name: "Custom MIDI Keyboard"
+    detection_strings:
+      - "Custom Device Name"
     channels:
-      1: { bank: 32, program: 19 }  # Pipe Organ
-      2: { bank: 32, program: 19 }  # Pipe Organ  
-      3: { bank: 36, program: 48 }  # Brass/Strings
-  yamaha_psr_ew425:
-    detection_string: "Digital Keyboard"
+      1:
+        bank_msb: 10
+        bank_lsb: 20
+        program: 5
+        description: "Custom Sound 1"
+      2:
+        bank_msb: 15
+        bank_lsb: 25
+        program: 10
+        description: "Custom Sound 2"
+```
+
+**Runtime Output:**
+```
+Channel 1: Custom Sound 1 (Bank 10:20, Program 5)
+Channel 2: Custom Sound 2 (Bank 15:25, Program 10)
+```
+
+### Connection Parameter Override
+
+YAML can override connection behavior:
+
+```yaml
+connection:
+  timeout_iterations: 600      # Double the default timeout
+  poll_sleep_seconds: 1        # Faster polling
+  min_port_count: 3           # Require more ports
+  output_port_index: 2        # Use different output port
+```
+
+### Volume Control Philosophy
+
+**Note**: YAML configuration intentionally omits volume settings. Volume control is left to the organist via physical volume pedals, maintaining the traditional organ playing experience.
+
+### Adding New Device Types
+
+To add support for a new device via YAML:
+
+1. **Add device section to YAML:**
+```yaml
+devices:
+  new_device_type:
+    name: "New Device Brand Model"
+    description: "Device description"
+    detection_strings:
+      - "Device USB Name"
     channels:
-      1: { bank: 113, program: 20 }  # Chapel Organ
-      2: { bank: 113, program: 20 }  # Chapel Organ
-      3: { bank: 112, program: 4 }   # Strings
+      1:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 1
+        description: "Default Sound"
+```
+
+2. **No code changes required** - DeviceManager automatically detects and configures new devices from YAML
+
+### Error Handling and Validation
+
+**YAML Parsing Errors:**
+- Comprehensive error reporting via yaml-cpp library
+- Graceful fallback to hardcoded defaults on any YAML error
+- Detailed error messages for troubleshooting
+
+**Example Error Output:**
+```
+YAML parsing error: invalid key "channels" at line 15
+Failed to parse YAML configuration. Using built-in defaults.
+```
+
+### Dependencies
+
+**Required Library:**
+- `yaml-cpp` - Modern C++ YAML parser library
+- Install: `sudo apt install libyaml-cpp-dev` (Debian/Ubuntu)
+- Link: Add `-lyaml-cpp` to compiler args
+
+**Header Include:**
+```cpp
+#include <yaml-cpp/yaml.h>  // Required for YAML functionality
 ```
 
 ## Integration with Existing Code

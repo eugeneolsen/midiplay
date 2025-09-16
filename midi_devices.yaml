@@ -1,0 +1,87 @@
+# MIDI Device Configuration for MidiPlay
+# This file defines device detection strings and channel/program configurations
+# for supported MIDI devices.
+#
+# Configuration file search locations (in priority order):
+# 1. ~/.config/midiplay/midi_devices.yaml (user-specific)
+# 2. /etc/midiplay/midi_devices.yaml (system-wide)
+# 3. ./midi_devices.yaml (local/development)
+# 4. Built-in defaults (fallback)
+
+version: "1.0"
+
+# Global connection settings (optional overrides)
+# If not specified, defaults from device_constants.hpp are used
+connection:
+  timeout_iterations: 300      # Maximum connection retry attempts
+  poll_sleep_seconds: 2        # Sleep duration between retries
+  min_port_count: 2           # Minimum MIDI ports required
+  output_port_index: 1        # MIDI output port to use
+
+# Device configurations
+# Each device type maps detection strings to channel configurations
+devices:
+  casio_ctx3000:
+    name: "Casio keyboard"
+    description: "Casio USB MIDI keyboards with organ and orchestral sounds"
+    detection_strings: 
+      - "CASIO USB"
+    channels:
+      1:
+        bank_msb: 32          # Bank Select MSB
+        bank_lsb: 0           # Bank Select LSB
+        program: 19           # Program Change (0-127)
+        description: "Pipe Organ"
+      2:
+        bank_msb: 32
+        bank_lsb: 0
+        program: 19
+        description: "Pipe Organ"
+      3:
+        bank_msb: 36
+        bank_lsb: 0
+        program: 48
+        description: "Brass and Strings"
+
+  yamaha_psr_ew425:
+    name: "Yamaha keyboard"
+    description: "Yamaha portable keyboards with church organ sounds"
+    detection_strings:
+      - "Digital Keyboard"
+    channels:
+      1:
+        bank_msb: 0           # Yamaha uses LSB for bank selection
+        bank_lsb: 113
+        program: 20
+        description: "Chapel Organ"
+      2:
+        bank_msb: 0
+        bank_lsb: 113
+        program: 20
+        description: "Chapel Organ"
+      3:
+        bank_msb: 0
+        bank_lsb: 112
+        program: 4
+        description: "Strings"
+
+  allen_protege:
+    name: "Allen Protege Organ"
+    description: "Allen digital church organs (fallback for unrecognized devices)"
+    detection_strings: []     # Empty list means this is the fallback device
+    channels: {}              # No default channel configuration (organ uses default settings)
+
+# Example of adding a new device type:
+# 
+# custom_device:
+#   name: "Custom MIDI Device"
+#   description: "User-defined device configuration"
+#   detection_strings:
+#     - "Custom Device Name"
+#     - "Alternative Name"
+#   channels:
+#     1:
+#       bank_msb: 0
+#       bank_lsb: 0
+#       program: 1
+#       description: "Custom Sound"

@@ -433,6 +433,9 @@ int main(int argc, char **argv)
    // Use DeviceManager to handle device connection and setup
    MidiPlay::DeviceManager deviceManager;
    
+   // Load YAML configuration if available
+   deviceManager.loadDevicePresets();
+   
    try {
        // Connect to device and detect its type
        MidiPlay::DeviceInfo deviceInfo = deviceManager.connectAndDetectDevice(outport);
@@ -441,7 +444,7 @@ int main(int argc, char **argv)
        deviceManager.createAndConfigureDevice(deviceInfo.type, outport);
        
        // Display device information
-       std::cout << "Connected to: " << MidiPlay::DeviceManager::getDeviceTypeName(deviceInfo.type)
+       std::cout << "Connected to: " << deviceManager.getDeviceTypeName(deviceInfo.type)
                  << " (" << deviceInfo.portName << ")" << std::endl;
    }
    catch (const std::exception& e) {

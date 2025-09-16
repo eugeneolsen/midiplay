@@ -4,13 +4,12 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <map>
+#include <vector>
+#include <filesystem>
+#include <yaml-cpp/yaml.h>
 
 #include "device_constants.hpp"
-
-// Forward declarations for device classes
-class ctx3000;
-class psr_ew425;
-class protege;
 
 namespace MidiPlay {
 
@@ -119,20 +118,21 @@ namespace MidiPlay {
         /**
          * @brief Get human-readable name for device type
          * @param type The device type
-         * @return String description of the device type
+         * @return String description of the device type (from YAML if loaded)
          */
-        static std::string getDeviceTypeName(DeviceType type);
+        std::string getDeviceTypeName(DeviceType type);
 
         /**
          * @brief Load device configuration presets from YAML file
-         * 
-         * Future implementation will support loading device configurations
-         * from external YAML files to enable customization without code changes.
-         * 
-         * @param configPath Path to the YAML configuration file
-         * @note This method is planned for future implementation
+         *
+         * Loads device configurations from YAML file. Searches standard locations
+         * if no path provided: ~/.config/midiplay/midi_devices.yaml,
+         * /etc/midiplay/midi_devices.yaml, ./midi_devices.yaml
+         *
+         * @param configPath Optional path to specific YAML configuration file
+         * @return true if YAML loaded successfully, false if fallback to defaults
          */
-        void loadDevicePresets(const std::string& configPath);
+        bool loadDevicePresets(const std::string& configPath = "");
 
     private:
         /**
@@ -159,11 +159,44 @@ namespace MidiPlay {
          */
         bool waitForDeviceConnection(cxxmidi::output::Default& outport);
 
-        // Device configuration structures for future YAML support
-        struct DevicePreset {
-            std::string detectionString;
-            // Future: channel configurations, bank/program mappings
+        // YAML configuration data structures
+        struct ChannelConfig {
+            std::uint8_t bank_msb = 0;
+            std::uint8_t bank_lsb = 0;
+            std::uint8_t program = 0;
+            std::string description;
         };
+
+        struct DeviceConfig {
+            std::string name;
+            std::string description;
+            std::vector<std::string> detection_strings;
+            std::map<int, ChannelConfig> channels;
+        };
+
+        struct ConnectionConfig {
+            int timeout_iterations = MidiPlay::Device::CONNECTION_TIMEOUT;
+            int poll_sleep_seconds = MidiPlay::Device::POLL_SLEEP_SECONDS;
+            std::size_t min_port_count = MidiPlay::Device::MIN_PORT_COUNT;
+            int output_port_index = MidiPlay::Device::OUTPUT_PORT_INDEX;
+        };
+
+        struct YamlConfig {
+            std::string version;
+            ConnectionConfig connection;
+            std::map<std::string, DeviceConfig> devices;
+        };
+
+        // YAML configuration state
+        YamlConfig yamlConfig;
+        bool yamlLoaded = false;
+
+        // YAML parsing and file discovery methods
+        std::string findConfigFile(const std::string& specifiedPath = "");
+        bool parseYamlFile(const std::string& filePath);
+        bool parseYamlContent(const YAML::Node& config);
+        DeviceType detectDeviceTypeFromYaml(const std::string& portName);
+        void configureDeviceFromYaml(const std::string& deviceKey, cxxmidi::output::Default& outport);
     };
 
 } // namespace MidiPlay

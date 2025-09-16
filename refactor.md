@@ -389,8 +389,8 @@ namespace MidiPlay::Device {
 5. ✅ Move `MICROSECONDS_PER_MINUTE` from `options.hpp` to shared constants
 6. ✅ Update all references to use namespaced constants
 
-#### Phase 2: Extract Modules (Future)
-1. `signal_handler.cpp` (smallest, most isolated)
+#### Phase 2: Extract Modules
+1. ✅ `signal_handler.cpp` (smallest, most isolated) - **COMPLETED**
 2. `device_manager.cpp` (now benefits from shared device constants)
 3. `midi_loader.cpp` (complex but well-defined boundaries)
 4. `playback_engine.cpp` and `timing_manager.cpp`

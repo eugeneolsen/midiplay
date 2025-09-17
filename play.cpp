@@ -18,9 +18,6 @@
 #include "ticks.hpp"
 #include "custommessage.hpp"
 
-#include "ctx3000.hpp"
-#include "psr-ew425.hpp"
-#include "protege.hpp"
 #include "constants.hpp"
 #include "device_constants.hpp"
 #include "signal_handler.hpp"

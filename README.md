@@ -48,12 +48,12 @@ For Spanish and Portuguese:
 
 `-p`*n* `--prelude=`*n* play two verses *without* the introduction as prelude or postlude where *n* indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 8, which is 80% of the tempo in the MIDI file.
 
-`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with the 0x10 Meta event.
+`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (see below).
 
 `-t`*bpm*` --tempo=`*bpm*  overrides the tempo specified in the MIDI file,
 where *bpm* is beats per minute.
 
-`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with the 0x10 Meta event.
+`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (see below).
 
 ## Player-Specific Meta Events
 The play command uses custom MIDI Meta events to inform playback options for single-verse MIDI files.  They are used at time zero in track zero. These events are optional but helpful.  They are not sent to the connected playback device.

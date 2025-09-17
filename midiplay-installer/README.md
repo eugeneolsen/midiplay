@@ -39,9 +39,7 @@ midiplay-installer/
 
 1. **Extract the package** (if downloaded as archive):
    ```bash
-   tar -xzf midiplay-installer.tar.gz
-   # or
-   unzip midiplay-installer.zip
+   tar -xzf midiplay-installer.v1.5.0.tar.gz
    ```
 
 2. **Navigate to the installer directory**:

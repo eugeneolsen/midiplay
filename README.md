@@ -22,7 +22,7 @@ This project was created for people with technical aptitude.  A more user-friend
 - Allen Protégé-16 organ.  Other Allen organ models may work but have not been tested.
 
 ## Installation
-#### 🏗️ Under construction 🚧
+For installation instructions, see the [installer documentation](midiplay-installer/README.md).
 
 ## Usage 
 On the Linux or SSH command line, type:

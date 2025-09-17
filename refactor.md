@@ -177,7 +177,7 @@ The refactoring will follow this sequence:
 5. **Add missing const qualifiers** - Improve const-correctness
 
 ### Phase 2: Structural Refactoring (3-5 days)
-6. **Extract device setup logic** - Factory pattern with configuration loading
+6. ✅ **Extract device setup logic** - Factory pattern with configuration loading - **COMPLETED**
 7. **Break down main()** - Separate functions for setup, loading, playback
 8. **Create handler classes** - For MIDI events and playback logic
 9. **Encapsulate global state** - PlayerContext class
@@ -391,7 +391,7 @@ namespace MidiPlay::Device {
 
 #### Phase 2: Extract Modules
 1. ✅ `signal_handler.cpp` (smallest, most isolated) - **COMPLETED**
-2. `device_manager.cpp` (now benefits from shared device constants)
+2. ✅ `device_manager.cpp` (now benefits from shared device constants) - **COMPLETED**
 3. `midi_loader.cpp` (complex but well-defined boundaries)
 4. `playback_engine.cpp` and `timing_manager.cpp`
 

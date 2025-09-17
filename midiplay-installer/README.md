@@ -68,7 +68,7 @@ The installer automatically handles these system dependencies:
 - `libc6` (>= 2.17) - GNU C Library
 - `libgcc-s1` (>= 3.0) - GCC support library
 - `libstdc++6` (>= 5.2) - GNU Standard C++ Library
-- `libyaml-cpp0.6` - YAML configuration parsing library *(NEW in v1.5.0)*
+- `libyaml-cpp0.7` - YAML configuration parsing library *(NEW in v1.5.0)*
 
 ## 🎵 Usage
 
@@ -184,7 +184,7 @@ sudo apt-get install dpkg-dev
 **YAML library missing**:
 ```bash
 sudo apt-get update
-sudo apt-get install libyaml-cpp0.6
+sudo apt-get install libyaml-cpp0.7
 ```
 
 **Architecture mismatch**:

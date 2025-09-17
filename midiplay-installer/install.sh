@@ -63,7 +63,7 @@ fi
 
 # Check if yaml-cpp is available
 if ! dpkg -l | grep -q libyaml-cpp; then
-    print_warning "libyaml-cpp0.6 not found. This will be installed as a dependency."
+    print_warning "libyaml-cpp0.7 not found. This will be installed as a dependency."
 fi
 
 # Verify package structure

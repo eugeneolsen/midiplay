@@ -14,10 +14,13 @@ midiplay-installer/
     │   ├── control          # Package metadata and dependencies
     │   ├── postinst         # Post-installation script
     │   └── prerm            # Pre-removal script
+    ├── etc/
+    │   └── midiplay/
+    │       └── midi_devices.yaml    # System MIDI device configuration
     └── usr/
         └── local/
             └── bin/
-                └── play     # The midiplay binary (v1.4.7)
+                └── play     # The midiplay binary (v1.5.0)
 ```
 
 ## 🖥️ System Requirements
@@ -65,6 +68,7 @@ The installer automatically handles these system dependencies:
 - `libc6` (>= 2.17) - GNU C Library
 - `libgcc-s1` (>= 3.0) - GCC support library
 - `libstdc++6` (>= 5.2) - GNU Standard C++ Library
+- `libyaml-cpp0.6` - YAML configuration parsing library *(NEW in v1.5.0)*
 
 ## 🎵 Usage
 
@@ -109,6 +113,58 @@ play hymn001 --tempo=120
 - `-t[bpm], --tempo=[bpm]` - Override tempo in beats per minute
 - `--help` - Show detailed help
 
+## ⚙️ YAML Configuration (NEW in v1.5.0)
+
+The player now uses YAML configuration files for device management, providing greater flexibility and easier customization.
+
+### Configuration File Locations
+
+The player searches for configuration files in this priority order:
+1. `./midi_devices.yaml` (current directory - highest priority)
+2. `~/.config/midiplay/midi_devices.yaml` (user-specific)
+3. `/etc/midiplay/midi_devices.yaml` (system-wide - installed by default)
+
+### Default Configuration
+
+The installer creates a system-wide configuration at `/etc/midiplay/midi_devices.yaml` with support for:
+- **Allen Protégé-16** organ (primary target)
+- **Casio CTX-3000 series** keyboards
+- **Yamaha PSR-EW425** keyboards
+
+### Custom Configuration
+
+To create a user-specific configuration:
+
+```bash
+# Create user config directory
+mkdir -p ~/.config/midiplay
+
+# Copy system config as starting point
+cp /etc/midiplay/midi_devices.yaml ~/.config/midiplay/
+
+# Edit with your preferred editor
+nano ~/.config/midiplay/midi_devices.yaml
+```
+
+### YAML Configuration Format
+
+```yaml
+devices:
+  - name: "Allen Protégé-16"
+    detection_strings: ["Protege", "PROTEGE"]
+    channels:
+      - number: 1
+        bank_msb: 32
+        bank_lsb: 0
+        program: 19  # Pipe Organ
+      - number: 2
+        bank_msb: 32
+        bank_lsb: 0
+        program: 19  # Pipe Organ
+```
+
+For detailed configuration options, see the comments in the installed YAML file.
+
 ## 🔧 Troubleshooting
 
 ### Installation Issues
@@ -123,6 +179,12 @@ chmod +x install.sh
 ```bash
 sudo apt-get update
 sudo apt-get install dpkg-dev
+```
+
+**YAML library missing**:
+```bash
+sudo apt-get update
+sudo apt-get install libyaml-cpp0.6
 ```
 
 **Architecture mismatch**:
@@ -144,6 +206,17 @@ sudo apt-get install dpkg-dev
 - Verify ALSA is working: `aplay -l`
 - Check MIDI connections: `aconnect -l`
 
+**YAML configuration issues**:
+- Check if config file exists: `ls /etc/midiplay/midi_devices.yaml`
+- Validate YAML syntax: `python3 -c "import yaml; yaml.safe_load(open('/etc/midiplay/midi_devices.yaml'))"`
+- Check configuration priority: `play --version` (shows config file being used)
+- Reset to defaults: `sudo cp /etc/midiplay/midi_devices.yaml ~/.config/midiplay/`
+
+**Device not recognized**:
+- Check if your device is in the YAML configuration
+- Add custom device detection strings to user config
+- See YAML configuration section above for customization
+
 ## 🗑️ Uninstallation
 
 To remove the Organ Pi MIDI File Player:
@@ -162,9 +235,32 @@ sudo dpkg -r midiplay
 After installation:
 - **Binary**: `/usr/local/bin/play`
 - **Alias**: `/usr/local/bin/p` → `/usr/local/bin/play`
+- **System Configuration**: `/etc/midiplay/midi_devices.yaml` *(NEW in v1.5.0)*
+- **User Configuration**: `~/.config/midiplay/midi_devices.yaml` (optional override)
 - **Package info**: `/var/lib/dpkg/info/midiplay.*`
 
 ## 🔄 Updates
+
+### Upgrading from v1.4.7 to v1.5.0
+
+**⚠️ Breaking Changes in v1.5.0:**
+- **New dependency**: `libyaml-cpp0.6` library required
+- **Configuration**: YAML device configuration now mandatory
+- **Behavior**: Device detection now uses YAML configuration instead of hardcoded logic
+
+**Migration Steps:**
+1. **Automatic**: The installer will install the new YAML dependency and configuration
+2. **Manual**: If you had custom device configurations, you may need to recreate them in YAML format
+3. **Verification**: Test your devices after upgrade to ensure proper recognition
+
+**What's New in v1.5.0:**
+- ✅ **Configurable device management** via YAML files
+- ✅ **User-specific configuration** support (`~/.config/midiplay/`)
+- ✅ **System-wide defaults** with user override capability
+- ✅ **Easier device addition** without code changes
+- ✅ **Better device detection** with custom detection strings
+
+### General Updates
 
 To update to a newer version:
 1. Uninstall the current version
@@ -186,8 +282,8 @@ This software is distributed under the terms specified in the original project l
 
 The Organ Pi MIDI File Player is designed specifically for church organists and musicians who need a reliable, simple MIDI file player for live performance. It supports custom MIDI markers for introductions, multiple verses, and various playback options optimized for liturgical use.
 
-**Version**: 1.4.7  
-**Architecture**: ARM64  
+**Version**: 1.5.0
+**Architecture**: ARM64
 **Target Platform**: Raspberry Pi 4B+ with Debian 12
 
 ---

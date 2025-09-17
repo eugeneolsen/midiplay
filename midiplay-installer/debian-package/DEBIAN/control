@@ -1,9 +1,9 @@
 Package: midiplay
-Version: 1.4.7
+Version: 1.5.0
 Section: sound
 Priority: optional
 Architecture: arm64
-Depends: libasound2 (>= 1.0.16), libc6 (>= 2.17), libgcc-s1 (>= 3.0), libstdc++6 (>= 5.2)
+Depends: libasound2 (>= 1.0.16), libc6 (>= 2.17), libgcc-s1 (>= 3.0), libstdc++6 (>= 5.2), libyaml-cpp0.7
 Maintainer: Eugene Olsen <eugene@example.com>
 Description: Organ Pi MIDI File Player
  A software MIDI sequencer that plays MIDI files through MIDI OUT port 1

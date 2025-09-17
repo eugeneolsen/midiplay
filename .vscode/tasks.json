@@ -11,11 +11,13 @@
                 //"-DDEBUG",
                 "play.cpp",
                 "signal_handler.cpp",
+                "device_manager.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-I${userHome}/.local/include/",
                 "-lasound",
-                "-pthread"
+                "-pthread",
+                "-lyaml-cpp"
             ],
             "options": {
                 "cwd": "${fileDirname}"

@@ -9,7 +9,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 ARCHIVE_NAME="midiplay-installer"
-VERSION="1.4.7"
+VERSION="1.5.0"
 
 echo -e "${BLUE}📦 Creating Organ Pi MIDI File Player Installer Archive${NC}"
 echo -e "${BLUE}====================================================${NC}"
@@ -39,6 +39,7 @@ required_files=(
     "midiplay-installer/debian-package/DEBIAN/postinst"
     "midiplay-installer/debian-package/DEBIAN/prerm"
     "midiplay-installer/debian-package/usr/local/bin/play"
+    "midiplay-installer/debian-package/etc/midiplay/midi_devices.yaml"
 )
 
 for file in "${required_files[@]}"; do

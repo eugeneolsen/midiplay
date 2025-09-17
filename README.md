@@ -22,7 +22,7 @@ This project was created for people with technical aptitude.  A more user-friend
 - Allen Protégé-16 organ.  Other Allen organ models may work but have not been tested.
 
 ## Installation
-#### 🏗️ Under construction 🚧
+For installation instructions, see the [installer documentation](midiplay-installer/README.md).
 
 ## Usage 
 On the Linux or SSH command line, type:
@@ -48,12 +48,12 @@ For Spanish and Portuguese:
 
 `-p`*n* `--prelude=`*n* play two verses *without* the introduction as prelude or postlude where *n* indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 8, which is 80% of the tempo in the MIDI file.
 
-`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with the 0x10 Meta event.
+`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (see below).
 
 `-t`*bpm*` --tempo=`*bpm*  overrides the tempo specified in the MIDI file,
 where *bpm* is beats per minute.
 
-`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with the 0x10 Meta event.
+`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (see below).
 
 ## Player-Specific Meta Events
 The play command uses custom MIDI Meta events to inform playback options for single-verse MIDI files.  They are used at time zero in track zero. These events are optional but helpful.  They are not sent to the connected playback device.
@@ -88,6 +88,7 @@ FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause B
 >>*tttt* specifies the number of ticks to pause between verses, including between the introduction and the first verse.
 
 ## Release History
+Version 1.5.0 - 2025.09.17 Extract MIDI device management to its own class.<br>
 Version 1.4.9 - 2025.09.15 Separate signal handling into its own class.<br>
 Version 1.4.7 - 2025.09.02 Convert magic numbers to constants<br>
 Version 1.4.6 - 2025.09.01 Throw away SysEx, Lyrics, and most Control Change events.<br>

@@ -24,6 +24,7 @@
 #include "constants.hpp"
 #include "device_constants.hpp"
 #include "signal_handler.hpp"
+#include "device_manager.hpp"
 
 #include <semaphore.h>
 #include <cmath>
@@ -33,7 +34,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.4.9";
+static std::string version = "1.5.0";
 
 // Constants to replace magic numbers
 constexpr int MAJOR_KEY_OFFSET = 6;
@@ -429,50 +430,26 @@ int main(int argc, char **argv)
      std::cout << std::endl;
  #endif
 
-   for (int i = 0; true; i++)
-   {
-     if (i > MidiPlay::Device::CONNECTION_TIMEOUT)
-     {
-       std::cout << "Device connection timeout.  No device found.  Connect a MIDI device and try again.\n"
-            << std::endl;
-       exit(MidiPlay::EXIT_DEVICE_NOT_FOUND);  // Timeout connecting device.
-     }
-
-     if (portCount >= MidiPlay::Device::MIN_PORT_COUNT)
-     {
-       break;  // We have a device. Open it and play.
-     }
-     else
-     {
-       std::cout << "No device connected.  Connect a device."
-            << std::endl;
-       //usleep(2000000);
-       sleep(MidiPlay::Device::POLL_SLEEP_SECONDS);
-       portCount = outport.GetPortCount(); // Try again and see if there's a connection
-     }
+   // Use DeviceManager to handle device connection and setup
+   MidiPlay::DeviceManager deviceManager;
+   
+   // Load YAML configuration if available
+   deviceManager.loadDevicePresets();
+   
+   try {
+       // Connect to device and detect its type
+       MidiPlay::DeviceInfo deviceInfo = deviceManager.connectAndDetectDevice(outport);
+       
+       // Create and configure device using factory pattern
+       deviceManager.createAndConfigureDevice(deviceInfo.type, outport);
+       
+       // Display device information
+       std::cout << "Connected to: " << deviceManager.getDeviceTypeName(deviceInfo.type)
+                 << " (" << deviceInfo.portName << ")" << std::endl;
    }
-
-   outport.OpenPort(MidiPlay::Device::OUTPUT_PORT_INDEX);
-
-   std::string portName = outport.GetPortName(MidiPlay::Device::OUTPUT_PORT_INDEX);
-
-   if (portName.find("CASIO USB") == 0)
-   {
-     // This is a Casio USB MIDI device.
-     ctx3000* ctx = new ctx3000(outport);
-     ctx->SetDefaults();
-   }
-   else if (portName.find("Digital Keyboard") == 0)
-   {
-     psr_ew425* psr = new psr_ew425(outport);
-     psr->SetDefaults();
-   }
-   else 
-   {
-     // NOT Casio or Yamaha device, probably Allen Protege organ
-     // TODO: check for "USB MIDI Interface" first.
-     protege* p = new protege(outport);
-     p->SetDefaults();
+   catch (const std::exception& e) {
+       std::cout << e.what() << std::endl;
+       exit(MidiPlay::EXIT_DEVICE_NOT_FOUND);
    }
 
    player::PlayerSync player(&outport);

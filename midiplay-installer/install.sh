@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Package information
 PACKAGE_NAME="midiplay"
-PACKAGE_VERSION="1.4.7"
+PACKAGE_VERSION="1.5.0"
 PACKAGE_ARCH="arm64"
 DEB_FILE="${PACKAGE_NAME}_${PACKAGE_VERSION}_${PACKAGE_ARCH}.deb"
 
@@ -59,6 +59,11 @@ if ! command -v dpkg-deb &> /dev/null; then
     print_error "dpkg-deb is not installed. Please install dpkg-dev:"
     echo "sudo apt-get update && sudo apt-get install dpkg-dev"
     exit 1
+fi
+
+# Check if yaml-cpp is available
+if ! dpkg -l | grep -q libyaml-cpp; then
+    print_warning "libyaml-cpp0.7 not found. This will be installed as a dependency."
 fi
 
 # Verify package structure
@@ -121,7 +126,9 @@ if command -v play &> /dev/null; then
     echo -e "${BLUE}Installation Summary:${NC}"
     echo "• Binary installed to: /usr/local/bin/play"
     echo "• Symlink created: /usr/local/bin/p -> /usr/local/bin/play"
-    echo "• Version: $(play --version 2>/dev/null || echo '1.4.7')"
+    echo "• System config: /etc/midiplay/midi_devices.yaml"
+    echo "• User config: ~/.config/midiplay/midi_devices.yaml (optional)"
+    echo "• Version: $(play --version 2>/dev/null || echo '1.5.0')"
     echo ""
     echo -e "${GREEN}Usage:${NC}"
     echo "  play <filename> [options]"

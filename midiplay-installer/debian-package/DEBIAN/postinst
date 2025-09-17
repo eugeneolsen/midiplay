@@ -23,6 +23,20 @@ if [ ! -L /usr/local/bin/p ]; then
     ln -s /usr/local/bin/play /usr/local/bin/p
 fi
 
+# Create system configuration directory
+if [ ! -d /etc/midiplay ]; then
+    mkdir -p /etc/midiplay
+    chmod 755 /etc/midiplay
+fi
+
+# Install default YAML configuration - it's already there from package installation
+if [ -f /etc/midiplay/midi_devices.yaml ]; then
+    chmod 644 /etc/midiplay/midi_devices.yaml
+    echo "✅ Default MIDI device configuration installed to /etc/midiplay/midi_devices.yaml"
+else
+    echo "⚠️  Warning: YAML configuration file not found"
+fi
+
 # Print installation success message
 echo ""
 echo "✅ Organ Pi MIDI File Player (midiplay) installed successfully!"
@@ -30,8 +44,12 @@ echo ""
 echo "Usage: play <filename> [options]"
 echo "   or: p <filename> [options]"
 echo ""
-echo "For help: play --help"
-echo "Version: $(play --version 2>/dev/null || echo '1.4.7')"
+echo "For help: play --version"
+echo "Version: $(play --version 2>/dev/null || echo '1.5.0')"
+echo ""
+echo "📁 Configuration directory: /etc/midiplay/"
+echo "   System config: /etc/midiplay/midi_devices.yaml"
+echo "   User config:   ~/.config/midiplay/midi_devices.yaml (optional override)"
 echo ""
 echo "Note: Connect your MIDI device before running the player."
 echo ""

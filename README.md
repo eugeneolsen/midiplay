@@ -88,6 +88,7 @@ FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause B
 >>*tttt* specifies the number of ticks to pause between verses, including between the introduction and the first verse.
 
 ## Release History
+Version 1.5.0 - 2025.09.17 Extract MIDI device management to its own class.<br>
 Version 1.4.9 - 2025.09.15 Separate signal handling into its own class.<br>
 Version 1.4.7 - 2025.09.02 Convert magic numbers to constants<br>
 Version 1.4.6 - 2025.09.01 Throw away SysEx, Lyrics, and most Control Change events.<br>

@@ -31,7 +31,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.5.0";
+static std::string version = "1.5.1";
 
 // Constants to replace magic numbers
 constexpr int MAJOR_KEY_OFFSET = 6;
@@ -142,8 +142,14 @@ int main(int argc, char **argv)
 
      MidiTicks ticksToPause;
 
-
-     std::string path = getFullPath(filename, options.isStaging());
+     std::string path;
+     try {
+         path = getFullPath(filename, options.isStaging());
+     }
+     catch (const std::runtime_error& e) {
+         std::cout << "Error: " << e.what() << std::endl;
+         exit(MidiPlay::EXIT_ENVIRONMENT_ERROR);
+     }
 
      File midifile;
      struct _timesig timesig;

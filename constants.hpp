@@ -7,5 +7,6 @@ namespace MidiPlay {
     constexpr int QUARTER_NOTE_DENOMINATOR = 4;
     constexpr int EXIT_FILE_NOT_FOUND = 2;
     constexpr int EXIT_DEVICE_NOT_FOUND = 6;
+    constexpr int EXIT_ENVIRONMENT_ERROR = 3;
     constexpr int DEFAULT_VERSES = 1;
 }

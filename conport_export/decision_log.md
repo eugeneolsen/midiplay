@@ -2,6 +2,36 @@
 
 ---
 ## Decision
+*   [2025-09-25 18:35:40] ConPort context synchronization - Product Context initialized and Active Context updated
+
+## Rationale
+*   The ConPort database had an empty Product Context despite the project being well-developed with clear architecture and goals. Updated Product Context with comprehensive project information from README.md and updated Active Context to reflect the completion of Phase 2, Item 3 (MIDI Loader extraction).
+
+## Implementation Details
+*   Populated Product Context with project description, technical stack, architecture details, supported devices, system requirements, and custom MIDI features. Updated Active Context to mark Phase 2 Items 1-3 as completed (Signal Handler, DeviceManager, MIDI Loader extractions) and identified next priority as playback engine extraction.
+
+---
+## Decision
+*   [2025-09-22 16:06:30] Added exception handling for getFullPath() environment variable errors
+
+## Rationale
+*   The getFullPath() function throws std::runtime_error when required environment variables are not set. Previously, this would cause the application to crash ungracefully. Added try/catch block to handle these exceptions with proper error messaging and appropriate exit codes.
+
+## Implementation Details
+*   Wrapped getFullPath() call on line 146 of play.cpp with try/catch block catching std::runtime_error. Added new EXIT_ENVIRONMENT_ERROR = 3 constant to constants.hpp for environment-related errors, distinct from EXIT_FILE_NOT_FOUND. Exception handler outputs error message to console and exits gracefully.
+
+---
+## Decision
+*   [2025-09-22 07:59:20] Deferred implementing full Dependency Inversion for the Options object.
+
+## Rationale
+*   The current Dependency Injection pattern is sufficient for now. The added complexity of an IOptions interface is not justified at this stage. This decision will be revisited when a unit testing framework is introduced, as the interface would be highly beneficial for mocking.
+
+## Implementation Details
+*   Development will proceed by passing the concrete Options class via constructors (Dependency Injection). No IOptions interface will be created at this time.
+
+---
+## Decision
 *   [2025-09-17 17:32:31] Phase 2, Item 2 Complete: DeviceManager + YAML Configuration Architecture
 
 ## Rationale

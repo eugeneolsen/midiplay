@@ -1,34 +1,52 @@
 # Product Context
 ## Project Name
-Organ Pi MIDI File Player
+Organ Pi 🎹 MIDI File Player
 
-## Goals
-Create a software MIDI sequencer to play MIDI files through USB-to-MIDI converters to organs and keyboards, initially for Allen Protégé-16 on Raspberry Pi. Developed for people with technical aptitude, with goal for more user-friendly interface in future.
+## Description
+C++ MIDI sequencer for Raspberry Pi that plays MIDI files through USB-to-MIDI converters to organs and keyboards
 
-## Features
-*   Simple Linux command line syntax
-*   Define introduction using MIDI markers
-*   Play configurable verses from MIDI or command line
-*   Command line flags for prelude/postlude without introduction
-*   Support for custom MIDI Meta events (0xFF7F) for verses and pauses
-*   Version display on command line
+## Primary Purpose
+Software MIDI sequencer designed specifically for church organ applications, particularly Allen Protégé-16 organs
+
+## Target Platform
+Raspberry Pi 4B+ running Debian 12 (Bookworm) or Raspberry Pi OS 64-bit
+
+## Supported Devices
+{'primary': 'Allen Protégé-16 organ', 'testing': ['Casio consumer keyboards', 'Yamaha consumer keyboards'], 'future': 'Other Allen organ models (untested)'}
+
+## Technical Stack
+{'language': 'C++ (gnu++20 standard)', 'dependencies': ['cxxmidi (customized fork)', 'yaml-cpp library', 'libyaml-cpp0.7'], 'build_system': 'Standard C++ compilation', 'libraries': 'Standard library + custom MIDI handling'}
+
+## Current Version
+1.5.3
+
+## Key Features
+*   Simple Linux command line interface
+*   MIDI marker-based introduction definition
+*   Configurable verse count via MIDI file or command line
+*   Prelude and postlude modes without introduction
+*   Custom MIDI meta events for playback control
+*   YAML-driven device configuration system
+*   Multi-device support (Casio, Yamaha, Allen)
 
 ## Architecture
-C++ using gnu++20 standard, customized fork of cxxmidi library, standard library. Runs as Linux command line application with USB-to-MIDI converter.
+{'main_executable': 'play command', 'core_modules': ['DeviceManager (YAML configuration)', 'MIDI file loading and parsing', 'Signal handling', 'Device-specific implementations'], 'configuration': 'YAML-based device configuration with priority discovery', 'patterns': ['Factory pattern for device creation', 'Modular architecture']}
 
 ## System Requirements
-*   Raspberry Pi 4B or better (Orange Pi 5 tested)
-*   64-bit Debian 12 (Bookworm) or later, 4GB RAM
-*   NVME SSD recommended but fast SD card works
-*   Allen Protégé-16 organ primarily, Casio/Yamaha keyboards recently added
+{'hardware': 'Raspberry Pi 4B or better (Orange Pi 5 tested)', 'os': '64-bit Debian 12 (Bookworm) or later', 'memory': '4GB RAM (may work with less)', 'storage': 'NVME SSD recommended, fast SD card acceptable', 'connectivity': 'USB-to-MIDI adapter'}
 
-## Current Architecture Issues
-{'code_smells': ['God object: play.cpp main() function is 659 lines with multiple responsibilities', 'Excessive global variables: 15+ globals in play.cpp (outport, sem, timesig, etc.)', "Magic numbers/strings: Hardcoded constants throughout (timeout 300, meta events 0x10, strings like version '1.4.3')", "Namespace pollution: 'using namespace std;' and 'using namespace cxxmidi;' in headers", 'Code duplication: Similar SelectProgram/SetDefaults in device header classes', 'Poor synchronization: Old semaphore-based approach', 'Incomplete features: TODO comments for goto, channel override'], 'refactoring_priorities': ['High/Low: Remove namespace directives from headers, extract magic numbers/strings to constants, clean up dead code', 'Medium/Medium: Refactor main() into smaller functions (setupDevice, loadMidiFile, play...), create device config system, encapsulate globals', 'High/High: Extract callback handlers, implement configuration-driven device setup, eliminate duplication among device classes'], 'refactoring_phases': ['Phase 1 (1-2 days): Create constants.hpp/messages.hpp/device_config.hpp, clean headers (remove namespaces, dead code), add const', 'Phase 2 (3-5 days): Extract device setup logic (factory pattern), break down main(), create handler classes, encapsulate state', 'Phase 3 (5-7 days): External JSON/YAML config for devices, comprehensive error handling, complete missing features (goto/channel/stops)', 'Phase 4 (2-3 days): Unit tests, performance optimization, documentation update']}
+## Custom Midi Features
+{'meta_events': 'Sequencer-Specific Meta Event 0xFF7F with private event type 0x7D', 'verse_control': 'Event type 0x01 for number of verses (1-9)', 'pause_control': 'Event type 0x02 for pause between verses (16-bit tick count)', 'deprecated_events': 'FF 0x10 and FF 0x11 (legacy verse and pause control)'}
 
-## Files Overview
-*   Headers: ctx3000.hpp (Casio CT-X3000), custommessage.hpp, options.hpp, protege.hpp (Allen Protégé), psr-ew425.hpp (Yamaha PSR-EW425), ticks.hpp
-*   Source: play.cpp (main application)
-*   Docs: README.md, refactor.md
-*   Config: .gitignore, .vscode/launch.json
-*   Version: 1.4.4
+## Installation
+{'method': 'Debian package installer', 'current_installer_version': 'v1.5.0', 'package_format': 'tar.gz and zip archives with install.sh script', 'dependencies_managed': 'Automatic libyaml-cpp0.7 installation'}
+
+## Target Users
+People with technical aptitude using church organs
+
+## Future Plans
+More user-friendly touch-screen interface in development
+
+## Repository Context
+Active development with structured refactoring plan
 

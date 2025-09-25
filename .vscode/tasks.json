@@ -12,6 +12,8 @@
                 "play.cpp",
                 "signal_handler.cpp",
                 "device_manager.cpp",
+                "midi_loader.cpp",
+                "${userHome}/.local/lib/utility.o",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-I${userHome}/.local/include/",

@@ -48,7 +48,7 @@ bool MidiLoader::fileExists(const std::string& path) {
 }
 
 // Main loading interface
-bool MidiLoader::loadFile(const std::string& path, Options& options) {
+bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     // Reset state for new file
     resetState();
     
@@ -96,7 +96,7 @@ bool MidiLoader::loadFile(const std::string& path, Options& options) {
 }
 
 // Initialize the load callback (extracted and refactored from play.cpp lines 157-366)
-void MidiLoader::initializeLoadCallback(Options& options) {
+void MidiLoader::initializeLoadCallback(const Options& options) {
     midiFile_.SetCallbackLoad(
         [this, &options](Event& event) -> bool {
             return this->loadCallback(event, options);
@@ -105,7 +105,7 @@ void MidiLoader::initializeLoadCallback(Options& options) {
 }
 
 // Main load callback implementation (extracted from play.cpp lines 157-366)
-bool MidiLoader::loadCallback(Event& event, Options& options) {
+bool MidiLoader::loadCallback(Event& event, const Options& options) {
     Message message = event;
     uint8_t status = message[0];
     
@@ -190,7 +190,7 @@ void MidiLoader::processTimeSignatureEvent(const Event& event) {
 }
 
 // Process tempo events (extracted from play.cpp lines 208-236)
-void MidiLoader::processTempoEvent(const Event& event, Options& options) {
+void MidiLoader::processTempoEvent(const Event& event, const Options& options) {
     Message message = event;
     
     if (message.IsMeta(Message::MetaType::Tempo)) {
@@ -248,7 +248,7 @@ void MidiLoader::processKeySignatureEvent(const Event& event) {
 }
 
 // Process custom meta events (extracted from play.cpp lines 255-314)
-void MidiLoader::processCustomMetaEvents(const Event& event, Options& options) {
+void MidiLoader::processCustomMetaEvents(const Event& event, const Options& options) {
     Message message = event;
     uint8_t type = message[1];
     

@@ -58,47 +58,47 @@ public:
         _verses = 0;
     }
 
-    int getBpm() {
+    int getBpm() const {
         return _bpm;
     }
 
-    int getVerses() {
+    int getVerses() const {
         return _verses;
     }
 
-    int get_uSecPerBeat() {
+    int get_uSecPerBeat() const {
         return _uSecPerBeat;
     }
 
-    float getSpeed() {
+    float getSpeed() const {
         return _speed;
     }
 
-    bool isStaging() {
+    bool isStaging() const {
         return _staging;
     }
 
-    bool isPrePost() {
+    bool isPrePost() const {
         return _prepost;
     }
 
-    bool isPlayIntro() {
+    bool isPlayIntro() const {
         return _playIntro;
     }
 
-    bool isDisplayWarnings() {
+    bool isDisplayWarnings() const {
         return _displayWarnings;
     }
 
-    std::string getFileName() {
+    std::string getFileName() const {
         return _filename;
     }
 
-    std::string getUrlName() {
+    std::string getUrlName() const {
         return _urlName;
     }
 
-    std::string getTitle() {
+    std::string getTitle() const {
         return _title;
     }
 

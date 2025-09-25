@@ -77,7 +77,7 @@ public:
      * @param options Command line options affecting loading behavior
      * @return true if loading successful, false otherwise
      */
-    bool loadFile(const std::string& path, Options& options);
+    bool loadFile(const std::string& path, const Options& options);
     
     // Getters for extracted MIDI file data
     cxxmidi::File& getFile() { return midiFile_; }
@@ -108,21 +108,21 @@ public:
 
 private:
     // Internal loading methods
-    void initializeLoadCallback(Options& options);
+    void initializeLoadCallback(const Options& options);
     void scanTrackZeroMetaEvents();
     void finalizeLoading();
     void resetState();
     
     // Event processing helpers
-    void processTempoEvent(const cxxmidi::Event& event, Options& options);
+    void processTempoEvent(const cxxmidi::Event& event, const Options& options);
     void processKeySignatureEvent(const cxxmidi::Event& event);
     void processTimeSignatureEvent(const cxxmidi::Event& event);
-    void processCustomMetaEvents(const cxxmidi::Event& event, Options& options);
+    void processCustomMetaEvents(const cxxmidi::Event& event, const Options& options);
     void processIntroductionMarkers(const cxxmidi::Event& event);
     void processTrackNameEvent(const cxxmidi::Event& event);
     
     // Load callback implementation (extracted from play.cpp)
-    bool loadCallback(cxxmidi::Event& event, Options& options);
+    bool loadCallback(cxxmidi::Event& event, const Options& options);
     
     // Member variables (previously global variables in play.cpp)
     cxxmidi::File midiFile_;

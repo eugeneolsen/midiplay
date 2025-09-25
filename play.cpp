@@ -31,7 +31,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.5.3";
+static std::string version = "1.5.4";
 
 // Play-specific constants (not shared with other modules)
 constexpr int64_t HEARTBEAT_CHECK_INTERVAL = 100000;

@@ -392,8 +392,36 @@ namespace MidiPlay::Device {
 #### Phase 2: Extract Modules
 1. ✅ `signal_handler.cpp` (smallest, most isolated) - **COMPLETED**
 2. ✅ `device_manager.cpp` (now benefits from shared device constants) - **COMPLETED**
-3. `midi_loader.cpp` (complex but well-defined boundaries)
+3. ✅ `midi_loader.cpp` (complex but well-defined boundaries) - **COMPLETED**
 4. `playback_engine.cpp` and `timing_manager.cpp`
+
+#### Future Enhancement: Options Class Const-Correctness
+**Priority:** Medium | **Effort:** Low | **Impact:** Code Quality
+
+**Issue:** The Options class getter methods (`getBpm()`, `getVerses()`, `getSpeed()`, `isStaging()`, etc.) are not const qualified, which:
+- Prevents passing Options objects as `const&` parameters
+- Violates C++ best practices for immutable operations
+- Forces unnecessary mutable references in clean interfaces like MidiLoader
+
+**Solution:**
+```cpp
+// In options.hpp - add const to all getter methods:
+int getBpm() const { return _bpm; }
+int getVerses() const { return _verses; }
+float getSpeed() const { return _speed; }
+bool isStaging() const { return _staging; }
+std::string getFileName() const { return _filename; }
+// ... etc for all 10+ getter methods
+```
+
+**Benefits:**
+- **Better API Design** - Getters should be const since they don't modify state
+- **Const-Correctness** - Enables passing `const Options&` to functions
+- **Cleaner MidiLoader Interface** - Could change `loadFile(path, Options& options)` to `loadFile(path, const Options& options)`
+- **Thread Safety** - Const methods can be safely called from multiple threads
+- **Documentation** - Clearly indicates which methods are read-only
+
+**Implementation:** ~15 minutes to add const qualifiers and update MidiLoader interface
 
 #### Phase 3: Refactor Main (Future)
 - Orchestration-only main function

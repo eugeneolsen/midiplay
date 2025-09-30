@@ -52,6 +52,12 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     // Reset state for new file
     resetState();
     
+    // Store speed from options
+    speed_ = options.getSpeed();
+    
+    // Check for tempo override from command line
+    int tempoOverride = options.get_uSecPerBeat();
+    
     // Check if file exists (extracted from play.cpp lines 369-378)
     if (!fileExists(path)) {
         std::cout << "Hymn " << options.getFileName() << " was not found";
@@ -71,6 +77,11 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     try {
         // Load the MIDI file (extracted from play.cpp line 381)
         midiFile_.Load(path.c_str());
+        
+        // Apply tempo override if specified via --tempo command line option
+        if (tempoOverride > 0) {
+            uSecPerQuarter_ = tempoOverride;
+        }
         
         // Calculate timing values (extracted from play.cpp lines 383-390)
         std::vector<Track>& tracks = (std::vector<Track>&)midiFile_;
@@ -200,30 +211,31 @@ void MidiLoader::processTempoEvent(const Event& event, const Options& options) {
                           static_cast<uint32_t>(event[4]);
         
         if (firstTempo_) {
-            int bpm = options.getBpm();
+            bpm_ = options.getBpm();
             int uSecPerBeat = options.get_uSecPerBeat();
             float speed = options.getSpeed();
-            
-            if (0 == bpm) {     // If BPM not overridden on command line
-                if (uSecPerQuarter_ != 0) {
-                    int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerQuarter_;  // Quarter notes per minute
-                    bpm = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
-                }
-                
-                if (uSecPerBeat != 0 && speed == 1.0) {
-                    // Note: speed calculation would need to be handled by caller
-                    // since we can't modify options in const context
-                }
+
+            if (uSecPerQuarter_ > 0) {
+                int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerQuarter_;  // Quarter notes per minute
+                fileTempo_ = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
             }
             else {
-                int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerQuarter_;  // Quarter notes per minute
-                bpm = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
+                uSecPerQuarter_ = 500000;  // Default to 120 bpm if no tempo specified
+                fileTempo_ = 120;
+            }
+            
+            if (bpm_ > 0) {
+                int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerBeat;  // Quarter notes per minute
+                bpm_ = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
                 
                 if (uSecPerBeat) {
                     // Note: speed calculation would need to be handled by caller
                 }
             }
-            
+            else {
+                bpm_ = fileTempo_;
+            }
+           
             firstTempo_ = false;
         }
     }

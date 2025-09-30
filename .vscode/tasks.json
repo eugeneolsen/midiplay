@@ -13,6 +13,8 @@
                 "signal_handler.cpp",
                 "device_manager.cpp",
                 "midi_loader.cpp",
+                "timing_manager.cpp",
+                "playback_engine.cpp",
                 "${userHome}/.local/lib/utility.o",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
@@ -22,7 +24,7 @@
                 "-lyaml-cpp"
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
                 "$gcc"

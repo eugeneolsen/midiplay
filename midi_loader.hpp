@@ -92,7 +92,10 @@ public:
     int getVerses() const { return verses_; }
     int getUSecPerQuarter() const { return uSecPerQuarter_; }
     int getUSecPerTick() const { return uSecPerTick_; }
+    int getFileTempo() const { return fileTempo_; }
+    int getBpm() const { return bpm_; }
     MidiTicks getPauseTicks() const { return pauseTicks_; }
+    float getSpeed() const { return speed_; }
     
     // State flags
     bool shouldPlayIntro() const { return playIntro_; }
@@ -134,7 +137,10 @@ private:
     int verses_;
     int uSecPerQuarter_;
     int uSecPerTick_;
+    int fileTempo_;  // Tempo from file, if any
+    int bpm_;
     MidiTicks pauseTicks_;
+    float speed_;
     
     bool playIntro_;
     bool potentialStuckNote_;

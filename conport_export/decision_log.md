@@ -2,6 +2,26 @@
 
 ---
 ## Decision
+*   [2025-09-30 19:21:42] Phase 2, Item 4 Complete: PlaybackEngine and TimingManager extraction with tempo override bugfix
+
+## Rationale
+*   Successfully completed the extraction of playback orchestration and timing management from play.cpp into dedicated modules. The extraction achieved all architectural goals: single responsibility, testability, maintainability, and reusability. The tempo override bug (--tempo command line option not affecting actual playback speed) was identified during testing, debugged, fixed, and validated. The PlaybackEngine now correctly applies tempo overrides by recalculating baseTempo_ after MidiLoader processes the override.
+
+## Implementation Details
+*   Created playback_engine.hpp/.cpp (258 lines) and timing_manager.hpp/.cpp (52 lines). Key achievements: (1) Reduced play.cpp from 172 to ~145 lines of pure orchestration. (2) Eliminated redundant parameters - PlaybackEngine receives only player, semaphore, and midiLoader. (3) Encapsulated all playback callbacks, intro/verse management, ritardando, and musical direction handling. (4) Fixed tempo override by ensuring PlaybackEngine.initialize() retrieves speed from MidiLoader after tempo override is applied. (5) All features tested and working: intro playback, multi-verse iteration, ritardando, D.C. al Fine, and tempo override.
+
+---
+## Decision
+*   [2025-09-29 23:37:24] Phase 2, Item 4: Extracted PlaybackEngine and TimingManager modules from play.cpp
+
+## Rationale
+*   Completed the extraction of playback orchestration (243 lines) and timing management (52 lines) from play.cpp into separate, focused modules. This follows the architectural plan established in refactor.md Phase 2, achieving single responsibility principle and improving testability. The PlaybackEngine now handles all playback logic including callbacks, intro/verse management, ritardando, and musical direction markers. TimingManager encapsulates all time tracking and elapsed time display.
+
+## Implementation Details
+*   Created timing_manager.hpp/.cpp (simple, independent utility class) and playback_engine.hpp/.cpp (complex orchestrator). Key design decisions: (1) PlaybackEngine receives only player, semaphore, and midiLoader (removed redundant outport parameter since player contains it). (2) Speed parameter removed from initialize() - now retrieved from midiLoader which stores it from Options. (3) Playback info display moved into PlaybackEngine.displayPlaybackInfo() for better encapsulation. (4) Updated .vscode/tasks.json to include new source files. Main.cpp reduced from 172 to ~145 lines with cleaner orchestration-only logic.
+
+---
+## Decision
 *   [2025-09-25 18:35:40] ConPort context synchronization - Product Context initialized and Active Context updated
 
 ## Rationale

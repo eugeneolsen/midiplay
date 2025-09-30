@@ -1,6 +1,7 @@
 #include "playback_engine.hpp"
 #include "constants.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <unistd.h>
 
@@ -57,7 +58,8 @@ void PlaybackEngine::displayPlaybackInfo() const {
         std::cout << "s";
     }
     
-    std::cout << " at " << midiLoader_.getBpm() * baseSpeed_ << " bpm" << std::endl;
+    std::cout << " at " << static_cast<int>(std::round(midiLoader_.getBpm() * baseSpeed_)) 
+                << " bpm" << std::endl;
 }
 
 void PlaybackEngine::executePlayback() {

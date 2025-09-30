@@ -13,5 +13,7 @@ namespace MidiPlay {
         constexpr std::uint8_t VOLUME_FULL = 127;
         constexpr std::uint8_t VOLUME_OFF = 0;
         constexpr std::uint8_t BANK_SELECT_OFF = 0;
+        constexpr std::uint8_t DEFAULT_TEMPO_BPM = 120;
+        constexpr int DEFAULT_TEMPO_USEC_PER_QUARTER = 500000; // 120 BPM
     }
 }

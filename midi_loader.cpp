@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "midi_constants.hpp"
+
 using namespace cxxmidi;
 
 namespace MidiPlay {
@@ -220,8 +222,8 @@ void MidiLoader::processTempoEvent(const Event& event, const Options& options) {
                 fileTempo_ = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
             }
             else {
-                uSecPerQuarter_ = 500000;  // Default to 120 bpm if no tempo specified
-                fileTempo_ = 120;
+                uSecPerQuarter_ = Midi::DEFAULT_TEMPO_USEC_PER_QUARTER;  // Default to 120 bpm if no tempo specified
+                fileTempo_ = Midi::DEFAULT_TEMPO_BPM;
             }
             
             if (bpm_ > 0) {

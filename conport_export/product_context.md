@@ -18,7 +18,7 @@ Raspberry Pi 4B+ running Debian 12 (Bookworm) or Raspberry Pi OS 64-bit
 {'language': 'C++ (gnu++20 standard)', 'dependencies': ['cxxmidi (customized fork)', 'yaml-cpp library', 'libyaml-cpp0.7'], 'build_system': 'Standard C++ compilation', 'libraries': 'Standard library + custom MIDI handling'}
 
 ## Current Version
-1.5.3
+1.5.6-dev (Phase 3 at 95% completion)
 
 ## Key Features
 *   Simple Linux command line interface
@@ -30,7 +30,7 @@ Raspberry Pi 4B+ running Debian 12 (Bookworm) or Raspberry Pi OS 64-bit
 *   Multi-device support (Casio, Yamaha, Allen)
 
 ## Architecture
-{'main_executable': 'play command', 'core_modules': ['DeviceManager (YAML configuration)', 'MIDI file loading and parsing', 'Signal handling', 'Device-specific implementations'], 'configuration': 'YAML-based device configuration with priority discovery', 'patterns': ['Factory pattern for device creation', 'Modular architecture']}
+{'main_executable': 'play command', 'core_modules': ['DeviceManager (YAML configuration)', 'PlaybackEngine (playback orchestration and callbacks)', 'TimingManager (tempo, speed, timing calculations)', 'SignalHandler (Ctrl+C graceful shutdown)', 'PlaybackSynchronizer (modern C++ thread synchronization)', 'MidiLoader (MIDI file loading and parsing)'], 'configuration': 'YAML-based device configuration with priority discovery', 'patterns': ['Factory pattern for device creation', 'Dependency injection throughout', 'RAII-based resource management', 'Modern C++ synchronization primitives', 'Modular architecture with single responsibility'], 'phase_3_achievements': ['Eliminated ALL global variables from main program (except static version string)', 'Modernized synchronization from POSIX semaphores to C++ std::condition_variable', 'Improved portability by removing POSIX-specific dependencies', 'Enhanced exception safety through RAII design patterns', 'Main function reduced to clean orchestration code (~145 lines)']}
 
 ## System Requirements
 {'hardware': 'Raspberry Pi 4B or better (Orange Pi 5 tested)', 'os': '64-bit Debian 12 (Bookworm) or later', 'memory': '4GB RAM (may work with less)', 'storage': 'NVME SSD recommended, fast SD card acceptable', 'connectivity': 'USB-to-MIDI adapter'}
@@ -49,4 +49,7 @@ More user-friendly touch-screen interface in development
 
 ## Repository Context
 Active development with structured refactoring plan
+
+## Refactoring Status
+{'phase_1': 'COMPLETED - Constants extraction and code organization', 'phase_2': 'COMPLETED - Module extraction (Signal Handler, DeviceManager, MidiLoader, PlaybackEngine, TimingManager)', 'phase_3': '95% COMPLETE - Main refactoring and architectural cleanup', 'remaining_phase_3_tasks': ['Remove namespace pollution (using namespace directives)', 'Eliminate magic strings (create messages.hpp)', 'Document TODO features (optional)']}
 

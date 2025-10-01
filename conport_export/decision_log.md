@@ -2,6 +2,46 @@
 
 ---
 ## Decision
+*   [2025-10-01 14:07:00] Synchronization Modernization - Replaced POSIX semaphores with C++ std::condition_variable
+
+## Rationale
+*   The codebase used POSIX semaphores (sem_t) for playback synchronization, which had several issues: (1) Global variable sem_t sem violated encapsulation, (2) POSIX-specific code reduced portability to non-POSIX platforms like Windows, (3) Manual initialization/cleanup (sem_init/sem_destroy) was error-prone and not exception-safe, (4) C-style API was not idiomatic modern C++. Modernizing to std::condition_variable addresses all these issues while maintaining identical functionality and performance.
+
+## Implementation Details
+*   Created PlaybackSynchronizer class encapsulating std::mutex and std::condition_variable with a boolean flag. The class provides wait() and notify() methods that replace sem_wait() and sem_post() respectively. Key implementation details: (1) RAII-based design with automatic cleanup, (2) Automatic reset of finished_ flag after wait() completes for seamless multi-cycle usage, (3) Notify outside lock scope for optimal performance, (4) Delete copy/move constructors to prevent synchronization issues. Updated PlaybackEngine and SignalHandler to accept PlaybackSynchronizer& instead of sem_t&. Updated play.cpp to create local PlaybackSynchronizer instance instead of global sem_t. This change naturally eliminated the last remaining global variable in play.cpp.
+
+---
+## Decision
+*   [2025-10-01 12:22:20] Fixed playIntro bug: -p and -x flags were playing introduction when they shouldn't
+
+## Rationale
+*   The MidiLoader was setting playIntro based solely on whether intro markers existed in the MIDI file, completely ignoring the command-line option. The -p (prelude) and -x (verses without intro) flags correctly set _playIntro = false in Options, but MidiLoader never retrieved this value, causing introductions to play even when explicitly disabled.
+
+## Implementation Details
+*   Added one line in midi_loader.cpp:63 to retrieve playIntro from options: `playIntro_ = options.isPlayIntro();`. Simplified finalizeLoading() method (lines 383-396) to only override playIntro_ if MIDI file has no intro markers (can't play intro if markers don't exist), otherwise retaining the value from command-line options. This ensures proper priority: command-line option first, then file capability check.
+
+---
+## Decision
+*   [2025-10-01 12:11:29] Fixed verse count override bug: -n and -x flags were being ignored
+
+## Rationale
+*   The MidiLoader was retrieving speed and tempo overrides from Options but never retrieved the verse count. This caused command-line verse overrides (-n and -x flags) to be completely ignored, with the program always using MIDI file meta-events or default value instead.
+
+## Implementation Details
+*   Added single line in midi_loader.cpp:60 to retrieve verses from options: `verses_ = options.getVerses();`. This follows the same pattern as speed (line 58) and tempo override (line 62). The fix ensures command-line verse overrides take priority over MIDI file meta-events and default values, restoring intended behavior.
+
+---
+## Decision
+*   [2025-10-01 01:37:32] Modernized synchronization from POSIX semaphores to standard C++ primitives
+
+## Rationale
+*   Replaced POSIX semaphore (sem_t) with std::condition_variable and std::mutex to achieve: (1) Elimination of the last global variable in play.cpp, (2) Better portability using standard C++ instead of POSIX-specific APIs, (3) Exception safety through RAII principles, (4) More idiomatic modern C++ code. This change completes Phase 3's goal of eliminating all global variables (except static version string).
+
+## Implementation Details
+*   Created PlaybackSynchronizer class with wait() and notify() methods that wrap std::condition_variable and std::mutex. Updated PlaybackEngine, SignalHandler, and play.cpp to use PlaybackSynchronizer& instead of sem_t&. Removed all POSIX semaphore includes and calls (sem_init, sem_wait, sem_post, sem_destroy). The PlaybackSynchronizer provides automatic reset after wait() for convenient use in multi-verse playback loops. All cleanup happens automatically via RAII destructors. Updated .vscode/tasks.json to include playback_synchronizer.cpp in build.
+
+---
+## Decision
 *   [2025-10-01 01:12:47] Implemented --verbose (-V) command-line flag for enhanced debugging output
 
 ## Rationale

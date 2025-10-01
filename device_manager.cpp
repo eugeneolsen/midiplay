@@ -1,5 +1,6 @@
 #include "device_manager.hpp"
 #include "constants.hpp"
+#include "options.hpp"
 
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/message.hpp>
@@ -15,6 +16,12 @@
 using namespace cxxmidi;
 
 namespace MidiPlay {
+
+    DeviceManager::DeviceManager(const Options& options)
+        : options_(options)
+        , yamlLoaded(false)
+    {
+    }
 
     DeviceInfo DeviceManager::connectAndDetectDevice(cxxmidi::output::Default& outport) {
         // Wait for device connection with timeout
@@ -118,7 +125,9 @@ namespace MidiPlay {
 
         if (parseYamlFile(yamlPath)) {
             yamlLoaded = true;
-            std::cout << "Loaded device configuration from: " << yamlPath << std::endl;
+            if (options_.isVerbose()) {
+                std::cout << "Loaded device configuration from: " << yamlPath << std::endl;
+            }
             return true;
         } else {
             throw std::runtime_error("Failed to parse YAML configuration file: " + yamlPath +
@@ -337,10 +346,12 @@ namespace MidiPlay {
                               channelConfig.program);
             outport.SendMessage(&programEvent);
             
-            std::cout << "  Channel " << channelNum << ": " << channelConfig.description
-                      << " (Bank " << static_cast<int>(channelConfig.bank_msb) << ":"
-                      << static_cast<int>(channelConfig.bank_lsb) << ", Program "
-                      << static_cast<int>(channelConfig.program) << ")" << std::endl;
+            if (options_.isVerbose()) {
+                std::cout << "  Channel " << channelNum << ": " << channelConfig.description
+                          << " (Bank " << static_cast<int>(channelConfig.bank_msb) << ":"
+                          << static_cast<int>(channelConfig.bank_lsb) << ", Program "
+                          << static_cast<int>(channelConfig.program) << ")" << std::endl;
+            }
         }
     }
 

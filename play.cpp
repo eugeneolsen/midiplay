@@ -24,8 +24,8 @@
 #include "midi_loader.hpp"
 #include "timing_manager.hpp"
 #include "playback_engine.hpp"
+#include "playback_synchronizer.hpp"
 
-#include <semaphore.h>
 #include <cmath>
 
 
@@ -33,11 +33,7 @@ using namespace cxxmidi;
 using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.5.4";
-
-output::Default outport;
-sem_t sem;
-bool displayWarnings = false;
+static std::string version = "1.5.5";
 
 // Signal handling is now handled by the SignalHandler class
 // Timing is now handled by the TimingManager class
@@ -48,8 +44,6 @@ bool displayWarnings = false;
 int main(int argc, char **argv)
 {
      // Signal handler will be set up after startTime is initialized
-
-     int ret = sem_init(&sem, 0, 0);
 
      // Get command line arguments
      //
@@ -65,8 +59,7 @@ int main(int argc, char **argv)
 
      // Extract initial option values
      std::string filename = options.getFileName();
-     displayWarnings = options.isDisplayWarnings();
-
+     
      std::string path;
      try {
          path = getFullPath(filename, options.isStaging());
@@ -83,18 +76,23 @@ int main(int argc, char **argv)
          exit(MidiPlay::EXIT_FILE_NOT_FOUND);
      }
 
+     output::Default outport;
+
      size_t portCount = outport.GetPortCount();
- #if defined(DEBUG)
-     for (size_t i = 0; i < portCount; i++)
-     {
-       std::cout << i << ": " << outport.GetPortName(i) << std::endl;
+
+     if (options.isVerbose()) {
+        std::cout << "Detected " << portCount << " MIDI output ports:" << std::endl;
+
+        for (size_t i = 0; i < portCount; i++)
+        {
+            std::cout << i << ": " << outport.GetPortName(i) << std::endl;
+        }
+
+        std::cout << std::endl;
      }
 
-     std::cout << std::endl;
- #endif
-
    // Use DeviceManager to handle device connection and setup
-   MidiPlay::DeviceManager deviceManager;
+   MidiPlay::DeviceManager deviceManager(options);
    
    // Load YAML configuration if available
    deviceManager.loadDevicePresets();
@@ -106,9 +104,12 @@ int main(int argc, char **argv)
        // Create and configure device using factory pattern
        deviceManager.createAndConfigureDevice(deviceInfo.type, outport);
        
-       // Display device information
-       std::cout << "Connected to: " << deviceManager.getDeviceTypeName(deviceInfo.type)
-                 << " (" << deviceInfo.portName << ")" << std::endl;
+       if (options.isVerbose()) {
+            // Display device information
+            std::cout << "Connected to: " << deviceManager.getDeviceTypeName(deviceInfo.type)
+                        << " (" << deviceInfo.portName << ")" << std::endl;
+        }
+
    }
    catch (const std::exception& e) {
        std::cout << e.what() << std::endl;
@@ -122,16 +123,19 @@ int main(int argc, char **argv)
      MidiPlay::TimingManager timingManager;
      timingManager.startTimer();
      
+     // Create modern C++ synchronization primitive (replaces POSIX semaphore)
+     MidiPlay::PlaybackSynchronizer synchronizer;
+     
      // Create playback engine with dependencies
-     MidiPlay::PlaybackEngine playbackEngine(player, sem, midiLoader);
+     MidiPlay::PlaybackEngine playbackEngine(player, synchronizer, midiLoader);
      playbackEngine.initialize();
-     playbackEngine.setDisplayWarnings(displayWarnings);
+     playbackEngine.setDisplayWarnings(options.isDisplayWarnings());
      
      // Display what we're about to play
      playbackEngine.displayPlaybackInfo();
      
      // Set up signal handler now that all dependencies are available
-     MidiPlay::SignalHandler signalHandler(outport, sem, timingManager.getStartTime());
+     MidiPlay::SignalHandler signalHandler(outport, synchronizer, timingManager.getStartTime());
      signalHandler.setupSignalHandler();
 
      // Execute complete playback sequence (intro + verses)
@@ -140,6 +144,6 @@ int main(int argc, char **argv)
      // Display elapsed time
      timingManager.endTimer();
      timingManager.displayElapsedTime();
-
-     ret = sem_destroy(&sem);  // Clean up the semaphore
+     
+     // Note: synchronizer cleanup happens automatically via RAII
 }

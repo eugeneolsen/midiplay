@@ -61,19 +61,17 @@ void SignalHandler::displayElapsedTime() const {
 }
 
 void SignalHandler::postSemaphoreAndCleanup(int signum) {
-    // Post semaphore to wake up waiting threads
-    int ret = sem_post(&m_semaphore);
+    // Notify synchronizer to wake up waiting threads
+    m_synchronizer.notify();
     
     // Emergency notes-off to prevent stuck notes
     emergencyNotesOff();
-    
-    // Clean up the semaphore
-    ret = sem_destroy(&m_semaphore);
     
     // Display elapsed time
     displayElapsedTime();
     
     // Exit with the signal number
+    // Note: PlaybackSynchronizer cleanup happens automatically via RAII
     std::exit(signum);
 }
 

@@ -25,7 +25,8 @@ static struct option long_options[] = {
     {"stops", required_argument, NULL, 'S'},    // --stops=<file name>  YAML file with stop definitions.
     {"tempo", required_argument, NULL, 't'},
     {"title", required_argument, NULL, 'T'},
-    {"warnings", no_argument, NULL, 'w'},
+    {"verbose", no_argument, NULL, 'V'},    // Verbose output
+    {"warnings", no_argument, NULL, 'W'},   // Display warnings
     {NULL, 0, NULL, 0}};
 
 
@@ -43,6 +44,7 @@ private:
     bool _staging = false;
     bool _prepost = false;
     bool _playIntro = true;
+    bool _verbose = false;
     bool _displayWarnings = false;
     std::string _filename;  // Provided as a command line argument
     std::string _urlName;    // Second command line argument
@@ -86,6 +88,10 @@ public:
         return _playIntro;
     }
 
+    bool isVerbose() const {
+        return _verbose;
+    }
+
     bool isDisplayWarnings() const {
         return _displayWarnings;
     }
@@ -108,7 +114,7 @@ public:
         int option_index = 0;
 
         // Loop until there are no more options
-        while ((opt = getopt_long(_argc, _argv, "vx:g:hn:p::st:w?", long_options, &option_index)) != -1)
+        while ((opt = getopt_long(_argc, _argv, "vVx:g:hn:p::st:W?", long_options, &option_index)) != -1)
         {
             switch (opt)
             {
@@ -189,15 +195,18 @@ public:
                     exit(1);
                 }
                 break;
+            case 'T':
+                _title = optarg;
+                break;
             case 'v':
                 std::cout << "Organ Pi play MIDI file command\n";
                 std::cout << "===============================\n";
                 std::cout << "  Version " << version << "\n" << std::endl;
                 return -2;
-            case 'T':
-                _title = optarg;
+            case 'V':
+                _verbose = true;
                 break;
-            case 'w':
+            case 'W':
                 _displayWarnings = true;
                 break;
             case 'h':

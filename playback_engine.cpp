@@ -10,10 +10,10 @@ using namespace cxxmidi;
 namespace MidiPlay {
 
 PlaybackEngine::PlaybackEngine(player::PlayerSync& player,
-                               sem_t& semaphore,
+                               PlaybackSynchronizer& synchronizer,
                                const MidiLoader& midiLoader)
     : player_(player)
-    , semaphore_(semaphore)
+    , synchronizer_(synchronizer)
     , midiLoader_(midiLoader)
     , playingIntro_(false)
     , ritardando_(false)
@@ -123,7 +123,7 @@ bool PlaybackEngine::eventCallback(Event& event) {
 }
 
 void PlaybackEngine::finishedCallback() {
-    sem_post(&semaphore_);
+    synchronizer_.notify();
 }
 
 // === Playback Section Methods ===
@@ -142,7 +142,7 @@ void PlaybackEngine::playIntroduction() {
     std::cout << " Playing introduction" << std::endl;
     
     player_.Play();
-    sem_wait(&semaphore_);  // Wait for playback to finish
+    synchronizer_.wait();  // Wait for playback to finish
     
     // Reset state after introduction
     ritardando_ = false;
@@ -178,7 +178,7 @@ void PlaybackEngine::playVerses() {
         std::cout << std::endl;
         
         player_.Play();
-        sem_wait(&semaphore_);  // Wait for playback to finish
+        synchronizer_.wait();  // Wait for playback to finish
         
         if (!lastVerse_) {
             player_.Rewind();
@@ -193,7 +193,7 @@ void PlaybackEngine::playVerses() {
         if (alFine_) {
             player_.Rewind();
             player_.Play();
-            sem_wait(&semaphore_);
+            synchronizer_.wait();
         }
     }
 }

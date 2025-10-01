@@ -11,6 +11,9 @@
 
 #include "device_constants.hpp"
 
+// Forward declaration
+class Options;
+
 namespace MidiPlay {
 
     /**
@@ -78,9 +81,10 @@ namespace MidiPlay {
     class DeviceManager {
     public:
         /**
-         * @brief Default constructor
+         * @brief Constructor with Options dependency injection
+         * @param options Reference to Options object for configuration and output control
          */
-        DeviceManager() = default;
+        DeviceManager(const Options& options);
         
         /**
          * @brief Destructor
@@ -187,6 +191,9 @@ namespace MidiPlay {
             std::map<std::string, DeviceConfig> devices;
         };
 
+        // Options reference for configuration access
+        const Options& options_;
+        
         // YAML configuration state
         YamlConfig yamlConfig;
         bool yamlLoaded = false;

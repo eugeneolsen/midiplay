@@ -57,6 +57,12 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     // Store speed from options
     speed_ = options.getSpeed();
     
+    // Store verses from command-line options (if specified)
+    verses_ = options.getVerses();
+    
+    // Store playIntro flag from command-line options
+    playIntro_ = options.isPlayIntro();
+    
     // Check for tempo override from command line
     int tempoOverride = options.get_uSecPerBeat();
     
@@ -278,11 +284,21 @@ void MidiLoader::processCustomMetaEvents(const Event& event, const Options& opti
                 verses_ = std::stoi(sVerse);
             }
         }
+
+        if (options.isVerbose() || options.isDisplayWarnings()) {
+            std::cout << "Warning: Deprecated Meta event for number of verses found in MIDI file. "
+                      << "Please use the Sequencer-Specific Meta event instead." << std::endl;
+        }
         // Don't load the non-standard event - handled by returning false in main callback
     }
     
     if (DEPRECATED_META_EVENT_PAUSE == type) {   // Non-standard "pause between verses" Meta event type for this sequencer
         pauseTicks_ = (static_cast<uint16_t>(message[2]) << 8) | message[3];
+
+        if (options.isVerbose() || options.isDisplayWarnings()) {
+            std::cout << "Warning: Deprecated Meta event for pause between verses found in MIDI file. "
+                      << "Please use the Sequencer-Specific Meta event instead." << std::endl;
+        }
         // Don't load the non-standard event - handled by returning false in main callback
     }
     
@@ -373,13 +389,12 @@ void MidiLoader::finalizeLoading() {
         verses_ = MidiPlay::DEFAULT_VERSES;
     }
     
-    // Determine if intro should be played
-    playIntro_ = !introSegments_.empty();
-    
-    // If there are no intro markers, don't play intro
+    // If there are no intro markers in file, can't play intro
+    // regardless of command-line option
     if (introSegments_.size() == 0) {
-        playIntro_ = false;      // Override default or command line option
+        playIntro_ = false;      // Override command line option if no markers
     }
+    // Otherwise playIntro_ retains value from options (set in loadFile)
 }
 
 } // namespace MidiPlay

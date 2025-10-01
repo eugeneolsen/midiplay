@@ -3,10 +3,10 @@
 #include <cxxmidi/player/player_sync.hpp>
 #include <cxxmidi/event.hpp>
 #include <cxxmidi/message.hpp>
-#include <semaphore.h>
 #include <vector>
 
 #include "midi_loader.hpp"
+#include "playback_synchronizer.hpp"
 
 namespace MidiPlay {
 
@@ -26,11 +26,11 @@ public:
     /**
      * @brief Constructor with dependency injection
      * @param player Reference to cxxmidi PlayerSync instance (already contains outport)
-     * @param semaphore Reference to semaphore for synchronization
+     * @param synchronizer Reference to PlaybackSynchronizer for synchronization
      * @param midiLoader Reference to MidiLoader for file metadata
      */
     PlaybackEngine(cxxmidi::player::PlayerSync& player,
-                   sem_t& semaphore,
+                   PlaybackSynchronizer& synchronizer,
                    const MidiLoader& midiLoader);
     
     /**
@@ -71,7 +71,7 @@ public:
 private:
     // === Dependency References ===
     cxxmidi::player::PlayerSync& player_;  // Contains outport internally
-    sem_t& semaphore_;
+    PlaybackSynchronizer& synchronizer_;
     const MidiLoader& midiLoader_;
     
     // === Playback State Variables ===

@@ -1,12 +1,13 @@
 #pragma once
 
 #include <signal.h>
-#include <semaphore.h>
 #include <chrono>
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/event.hpp>
 #include <cxxmidi/note.hpp>
 #include <cxxmidi/message.hpp>
+
+#include "playback_synchronizer.hpp"
 
 namespace MidiPlay {
 
@@ -24,15 +25,15 @@ public:
     /**
      * @brief Constructor - dependency injection
      * @param outport Reference to MIDI output port for emergency notes-off
-     * @param semaphore Reference to semaphore for synchronization cleanup
+     * @param synchronizer Reference to PlaybackSynchronizer for synchronization
      * @param startTime Reference to start time for elapsed time calculation
      */
     template<typename OutputType>
     SignalHandler(OutputType& outport,
-                 sem_t& semaphore,
+                 PlaybackSynchronizer& synchronizer,
                  const std::chrono::time_point<std::chrono::high_resolution_clock>& startTime)
         : m_outport(outport)
-        , m_semaphore(semaphore)
+        , m_synchronizer(synchronizer)
         , m_startTime(startTime)
     {
         // Ensure only one instance exists
@@ -67,7 +68,7 @@ public:
 private:
     // Dependencies injected via constructor
     cxxmidi::output::Default& m_outport;
-    sem_t& m_semaphore;
+    PlaybackSynchronizer& m_synchronizer;
     const std::chrono::time_point<std::chrono::high_resolution_clock>& m_startTime;
     
     // Static instance pointer for signal handler access

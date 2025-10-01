@@ -24,8 +24,8 @@
 #include "midi_loader.hpp"
 #include "timing_manager.hpp"
 #include "playback_engine.hpp"
+#include "playback_synchronizer.hpp"
 
-#include <semaphore.h>
 #include <cmath>
 
 
@@ -34,8 +34,6 @@ using namespace midiplay;
 namespace fs = std::filesystem;
 
 static std::string version = "1.5.5";
-
-sem_t sem;
 
 // Signal handling is now handled by the SignalHandler class
 // Timing is now handled by the TimingManager class
@@ -46,8 +44,6 @@ sem_t sem;
 int main(int argc, char **argv)
 {
      // Signal handler will be set up after startTime is initialized
-
-     int ret = sem_init(&sem, 0, 0);
 
      // Get command line arguments
      //
@@ -127,8 +123,11 @@ int main(int argc, char **argv)
      MidiPlay::TimingManager timingManager;
      timingManager.startTimer();
      
+     // Create modern C++ synchronization primitive (replaces POSIX semaphore)
+     MidiPlay::PlaybackSynchronizer synchronizer;
+     
      // Create playback engine with dependencies
-     MidiPlay::PlaybackEngine playbackEngine(player, sem, midiLoader);
+     MidiPlay::PlaybackEngine playbackEngine(player, synchronizer, midiLoader);
      playbackEngine.initialize();
      playbackEngine.setDisplayWarnings(options.isDisplayWarnings());
      
@@ -136,7 +135,7 @@ int main(int argc, char **argv)
      playbackEngine.displayPlaybackInfo();
      
      // Set up signal handler now that all dependencies are available
-     MidiPlay::SignalHandler signalHandler(outport, sem, timingManager.getStartTime());
+     MidiPlay::SignalHandler signalHandler(outport, synchronizer, timingManager.getStartTime());
      signalHandler.setupSignalHandler();
 
      // Execute complete playback sequence (intro + verses)
@@ -145,6 +144,6 @@ int main(int argc, char **argv)
      // Display elapsed time
      timingManager.endTimer();
      timingManager.displayElapsedTime();
-
-     ret = sem_destroy(&sem);  // Clean up the semaphore
+     
+     // Note: synchronizer cleanup happens automatically via RAII
 }

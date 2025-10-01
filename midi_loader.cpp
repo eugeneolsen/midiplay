@@ -278,11 +278,21 @@ void MidiLoader::processCustomMetaEvents(const Event& event, const Options& opti
                 verses_ = std::stoi(sVerse);
             }
         }
+
+        if (options.isVerbose() || options.isDisplayWarnings()) {
+            std::cout << "Warning: Deprecated Meta event for number of verses found in MIDI file. "
+                      << "Please use the Sequencer-Specific Meta event instead." << std::endl;
+        }
         // Don't load the non-standard event - handled by returning false in main callback
     }
     
     if (DEPRECATED_META_EVENT_PAUSE == type) {   // Non-standard "pause between verses" Meta event type for this sequencer
         pauseTicks_ = (static_cast<uint16_t>(message[2]) << 8) | message[3];
+
+        if (options.isVerbose() || options.isDisplayWarnings()) {
+            std::cout << "Warning: Deprecated Meta event for pause between verses found in MIDI file. "
+                      << "Please use the Sequencer-Specific Meta event instead." << std::endl;
+        }
         // Don't load the non-standard event - handled by returning false in main callback
     }
     

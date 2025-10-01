@@ -114,7 +114,7 @@ public:
         int option_index = 0;
 
         // Loop until there are no more options
-        while ((opt = getopt_long(_argc, _argv, "vVx:g:hn:p::st:wW?", long_options, &option_index)) != -1)
+        while ((opt = getopt_long(_argc, _argv, "vVx:g:hn:p::st:W?", long_options, &option_index)) != -1)
         {
             switch (opt)
             {

@@ -7,6 +7,7 @@
             "args": [
                 "-std=c++20",
                 "-fdiagnostics-color=always",
+                //"-fsanitize=thread",    // ThreadSanitizer - test only after major changes, as it slows down execution
                 "-g",
                 //"-DDEBUG",
                 "play.cpp",
@@ -15,6 +16,7 @@
                 "midi_loader.cpp",
                 "timing_manager.cpp",
                 "playback_engine.cpp",
+                "playback_synchronizer.cpp",
                 "${userHome}/.local/lib/utility.o",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",

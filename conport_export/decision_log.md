@@ -2,6 +2,36 @@
 
 ---
 ## Decision
+*   [2025-10-01 01:12:47] Implemented --verbose (-V) command-line flag for enhanced debugging output
+
+## Rationale
+*   Adding a verbose flag provides users and developers with optional detailed output about MIDI port detection, device connection, and other internal operations. This aids in debugging and troubleshooting without cluttering normal output.
+
+## Implementation Details
+*   Added private bool `_verbose` member to Options class (line 47), added public getter `isVerbose()` (lines 91-93), added -V flag to getopt_long call (line 117), and implemented case 'V' handler (lines 206-208). Verbose output now displays detected MIDI ports (lines 87-96) and connected device information (lines 111-115) in play.cpp when enabled.
+
+---
+## Decision
+*   [2025-10-01 01:12:34] Moved displayWarnings flag to Options object for better configuration management
+
+## Rationale
+*   The displayWarnings flag is a command-line configurable option that belongs with other user preferences in the Options class. This improves encapsulation by keeping all command-line options together and makes the option more discoverable and maintainable.
+
+## Implementation Details
+*   Added private bool `_displayWarnings` member to Options class (line 48), added public getter `isDisplayWarnings()` (lines 95-97), and added -W flag handling in parse() method (lines 209-211). PlaybackEngine now retrieves this setting via `options.isDisplayWarnings()` at line 133 in play.cpp.
+
+---
+## Decision
+*   [2025-10-01 01:12:15] Refactored global outport to local scope in main() for better encapsulation
+
+## Rationale
+*   Moving outport from global to local scope in main() improves code organization, reduces global state, and follows best practices for resource management. This change supports the Phase 3 goal of cleaning up main() and improving overall architecture.
+
+## Implementation Details
+*   Changed `output::Default outport;` from global declaration (line 35 area) to local variable declaration inside main() at line 83. All references to outport remain unchanged as they already accessed it through function parameters or local scope.
+
+---
+## Decision
 *   [2025-09-30 19:21:42] Phase 2, Item 4 Complete: PlaybackEngine and TimingManager extraction with tempo override bugfix
 
 ## Rationale

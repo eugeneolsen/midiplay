@@ -1,15 +1,13 @@
 # Active Context
 ## Current Focus
-Phase 2, Item 4 COMPLETE ✅ - PlaybackEngine and TimingManager extraction fully operational
+Phase 3: Main() refactoring - improving encapsulation and configuration management
 
 ## Recent Completion
-Added exception handling for getFullPath() environment variable errors with appropriate exit codes
+Completed three Phase 3 refactoring tasks: moved global outport to local scope, moved displayWarnings to Options object, and implemented --verbose flag
 
 ## Files Modified
 *   play.cpp
-*   midi_loader.hpp
-*   midi_loader.cpp
-*   .vscode/tasks.json
+*   options.hpp
 
 ## Files Created
 *   timing_manager.hpp
@@ -75,4 +73,19 @@ Extract playback control callbacks, intro/verse management, ritardando logic, an
 *   Complete manual testing of all playback features
 *   Mark Phase 2, Item 4 as complete once tempo override is fixed
 *   Proceed to Phase 3: main() refactoring
+
+## Latest Session Date
+2025-10-01
+
+## Current Version
+1.5.5
+
+## Phase 3 Progress
+{'completed_items': ['Moved global outport declaration to local scope in main() for better encapsulation', 'Moved displayWarnings flag from global/parameter passing to Options object', 'Implemented --verbose (-V) command-line flag for enhanced debugging output'], 'status': 'IN_PROGRESS', 'next_steps': ['Continue main() refactoring and cleanup', 'Review remaining global state and refactor as needed', 'Complete Phase 3 architectural improvements']}
+
+## Technical Improvements
+*   Reduced global state by moving outport to local scope
+*   Improved Options object encapsulation with displayWarnings and verbose flags
+*   Enhanced user experience with optional verbose debugging output
+*   Better configuration management with all CLI options centralized in Options class
 

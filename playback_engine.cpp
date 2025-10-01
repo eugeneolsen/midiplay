@@ -5,11 +5,13 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace cxxmidi;
+using cxxmidi::Event;
+using cxxmidi::Message;
+using cxxmidi::player::PlayerSync;
 
 namespace MidiPlay {
 
-PlaybackEngine::PlaybackEngine(player::PlayerSync& player,
+PlaybackEngine::PlaybackEngine(PlayerSync& player,
                                PlaybackSynchronizer& synchronizer,
                                const MidiLoader& midiLoader)
     : player_(player)

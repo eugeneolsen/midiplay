@@ -5,7 +5,9 @@
 
 #include "midi_constants.hpp"
 
-using namespace cxxmidi;
+using cxxmidi::Event;
+using cxxmidi::Message;
+using cxxmidi::Track;
 
 namespace MidiPlay {
 

@@ -5,7 +5,9 @@
 #include <iomanip>
 #include <cstdlib>
 
-using namespace cxxmidi;
+using cxxmidi::Event;
+using cxxmidi::Message;
+using cxxmidi::Note;
 
 namespace MidiPlay {
 
@@ -37,7 +39,7 @@ void SignalHandler::emergencyNotesOff() {
     Event e;
     
     // Turn all notes off on channels 1-3 to prevent stuck notes
-    for (int channel = Channel1; channel <= Channel3; channel++) {
+    for (int channel = cxxmidi::Channel1; channel <= cxxmidi::Channel3; channel++) {
         for (int note = Note::kC2; note <= Note::kC7; note++) {
             e = Event(0, channel | Message::Type::NoteOn, note, 0); // Note Off (velocity 0)
             m_outport.SendMessage(&e);

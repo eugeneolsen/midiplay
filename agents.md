@@ -44,3 +44,4 @@ The player is a Linux binary that is invoked as the `play` command from a bash c
 ### Development Requirements
 
 - C++ standard: gnu++20
+- Prefer "#pragma once" over #include guards

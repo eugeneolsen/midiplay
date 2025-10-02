@@ -6,7 +6,9 @@
                 "${workspaceFolder}",
                 "~/.local/include/"
             ],
-            "defines": [],
+            "defines": [
+                "APP_VERSION=\"Version-x.y.z\""
+            ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu23",
             "cppStandard": "gnu++20",

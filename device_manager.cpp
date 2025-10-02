@@ -13,7 +13,8 @@
 #include <pwd.h>
 #include <sys/types.h>
 
-using namespace cxxmidi;
+using cxxmidi::Event;
+using cxxmidi::Message;
 
 namespace MidiPlay {
 

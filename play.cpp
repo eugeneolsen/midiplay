@@ -29,11 +29,15 @@
 #include <cmath>
 
 
-using namespace cxxmidi;
-using namespace midiplay;
 namespace fs = std::filesystem;
 
-static std::string version = "1.5.5";
+using namespace midiplay;
+
+using cxxmidi::output::Default;
+using cxxmidi::player::PlayerSync;
+
+// Version is now established from the latest git tag at build time
+// The git tag takes the form "Version x.y.z"
 
 // Signal handling is now handled by the SignalHandler class
 // Timing is now handled by the TimingManager class
@@ -48,7 +52,7 @@ int main(int argc, char **argv)
      // Get command line arguments
      //
      Options options(argc, argv);
-     int rc = options.parse(version);
+     int rc = options.parse();
      if (rc != 0) {
          if (rc < 0) {
              exit(0);
@@ -76,7 +80,7 @@ int main(int argc, char **argv)
          exit(MidiPlay::EXIT_FILE_NOT_FOUND);
      }
 
-     output::Default outport;
+     Default outport;
 
      size_t portCount = outport.GetPortCount();
 
@@ -116,7 +120,7 @@ int main(int argc, char **argv)
        exit(MidiPlay::EXIT_DEVICE_NOT_FOUND);
    }
 
-   player::PlayerSync player(&outport);
+   PlayerSync player(&outport);
    player.SetFile(&midiLoader.getFile());
 
      // Create timing manager

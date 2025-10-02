@@ -1,6 +1,10 @@
 # Progress Log
 
 ## Completed Tasks
+*   [2025-10-02 04:58:27] Implemented extracting semantic version text from Version-x.y.z strings with std::regex in options.hpp
+*   [2025-10-02 04:57:54] Documented regex approach for extracting semantic version numbers from Version-x.y.z tags.
+*   [2025-10-02 04:11:03] Clarified VS Code tasks.json configuration for APP_VERSION define using bash shell wrapper.
+*   [2025-10-01 20:36:09] Removed namespace pollution across CxxMidi usages using targeted using declarations in play.cpp, playback_engine.cpp, midi_loader.cpp, signal_handler.cpp, and device_manager.cpp
 *   [2025-10-01 14:07:22] Created SYNCHRONIZATION_MODERNIZATION_DESIGN.md - Complete architectural design documentation
 *   [2025-10-01 14:07:21] Task C: Synchronization Modernization - Complete replacement of POSIX semaphores with C++ std::condition_variable
 *   [2025-10-01 14:07:21] Created PlaybackSynchronizer class - RAII-based synchronization with std::condition_variable and std::mutex
@@ -17,4 +21,5 @@
 *   [2025-10-01 01:13:02] Phase 3: Moved global outport declaration to local scope in main()
 
 ## In Progress Tasks
+*   [2025-10-01 19:06:22] Drafted validation and regression checklist for Task B namespace cleanup
 *   [2025-10-01 14:07:22] Phase 3 Progress - Now at 95% completion with only namespace cleanup and magic strings elimination remaining

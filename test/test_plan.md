@@ -8,7 +8,7 @@
 - 1.mid - One long verse, which includes the introduction and 5 verses.  No marked introduction.
 - 19.mid - Introduction + 3 verses
 - 209.mid - Introduction + 2 verses
-- 252.mid - Introduction + 1 verse
+- 242.mid - Introduction + 1 verse
 - 1202.mid - Introduction + 3 verses + D.C. al Fine
 
 ### 1. Unit Testing Approach
@@ -66,6 +66,9 @@ Test all existing playback scenarios:
   
 - [ ] **D.C. al Fine** (with markers)
   - Verify: Returns to beginning, stops at Fine marker
+
+- [ ] **Specify Tempo** (-t*nn*)
+  - Verify: Plays at specified tempo
 
 #### Signal Handling
 - [ ] **Ctrl+C during intro**

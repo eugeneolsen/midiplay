@@ -12,6 +12,9 @@
 #include <cstdlib>
 #include <pwd.h>
 #include <sys/types.h>
+#include <libintl.h>
+
+#define _(String) gettext(String)
 
 using cxxmidi::Event;
 using cxxmidi::Message;
@@ -27,7 +30,7 @@ namespace MidiPlay {
     DeviceInfo DeviceManager::connectAndDetectDevice(cxxmidi::output::Default& outport) {
         // Wait for device connection with timeout
         if (!waitForDeviceConnection(outport)) {
-            throw std::runtime_error("Device connection timeout. No device found. Connect a MIDI device and try again.");
+            throw std::runtime_error(_("Device connection timeout. No device found. Connect a MIDI device and try again."));
         }
 
         // Use YAML configuration for port index if loaded
@@ -46,11 +49,11 @@ namespace MidiPlay {
     void DeviceManager::createAndConfigureDevice(DeviceType type, cxxmidi::output::Default& outport) {
         // YAML configuration is now mandatory
         if (!yamlLoaded) {
-            throw std::runtime_error("YAML configuration is required. No device configuration found. "
+            throw std::runtime_error(_("YAML configuration is required. No device configuration found. "
                                    "Please ensure midi_devices.yaml is available in a standard location:\n"
                                    "  ~/.config/midiplay/midi_devices.yaml (user-specific)\n"
                                    "  /etc/midiplay/midi_devices.yaml (system-wide)\n"
-                                   "  ./midi_devices.yaml (local)");
+                                   "  ./midi_devices.yaml (local)"));
         }
 
         // Configure device using YAML configuration
@@ -89,7 +92,7 @@ namespace MidiPlay {
                     break;
                 case DeviceType::UNKNOWN:
                 default:
-                    return "Unknown device";
+                    return _("Unknown device");
             }
             
             // Look up device name in YAML configuration
@@ -102,14 +105,14 @@ namespace MidiPlay {
         // Fallback names (should rarely be used since YAML is mandatory)
         switch (type) {
             case DeviceType::CASIO_CTX3000:
-                return "Casio CTX-3000 series";
+                return _("Casio CTX-3000 series");
             case DeviceType::YAMAHA_PSR_EW425:
-                return "Yamaha PSR-EW425 series";
+                return _("Yamaha PSR-EW425 series");
             case DeviceType::ALLEN_PROTEGE:
-                return "Allen Protege organ";
+                return _("Allen Protege organ");
             case DeviceType::UNKNOWN:
             default:
-                return "Unknown device";
+                return _("Unknown device");
         }
     }
 
@@ -117,22 +120,22 @@ namespace MidiPlay {
         std::string yamlPath = findConfigFile(configPath);
         
         if (yamlPath.empty()) {
-            throw std::runtime_error("YAML configuration file not found. Device configuration is mandatory. "
+            throw std::runtime_error(_("YAML configuration file not found. Device configuration is mandatory. "
                                    "Please create midi_devices.yaml in one of these locations:\n"
                                    "  ~/.config/midiplay/midi_devices.yaml (user-specific)\n"
                                    "  /etc/midiplay/midi_devices.yaml (system-wide)\n"
-                                   "  ./midi_devices.yaml (local)");
+                                   "  ./midi_devices.yaml (local)"));
         }
 
         if (parseYamlFile(yamlPath)) {
             yamlLoaded = true;
             if (options_.isVerbose()) {
-                std::cout << "Loaded device configuration from: " << yamlPath << std::endl;
+                std::cout << _("Loaded device configuration from: ") << yamlPath << std::endl;
             }
             return true;
         } else {
-            throw std::runtime_error("Failed to parse YAML configuration file: " + yamlPath +
-                                   "\nPlease check the file syntax and structure.");
+            throw std::runtime_error(_("Failed to parse YAML configuration file: ") + yamlPath +
+                                   _("\nPlease check the file syntax and structure."));
         }
     }
 
@@ -179,10 +182,10 @@ namespace MidiPlay {
             YAML::Node config = YAML::LoadFile(filePath);
             return parseYamlContent(config);
         } catch (const YAML::Exception& e) {
-            std::cerr << "YAML parsing error: " << e.what() << std::endl;
+            std::cerr << _("YAML parsing error: ") << e.what() << std::endl;
             return false;
         } catch (const std::exception& e) {
-            std::cerr << "Error loading YAML file: " << e.what() << std::endl;
+            std::cerr << _("Error loading YAML file: ") << e.what() << std::endl;
             return false;
         }
     }
@@ -267,10 +270,10 @@ namespace MidiPlay {
             
             return true;
         } catch (const YAML::Exception& e) {
-            std::cerr << "YAML content parsing error: " << e.what() << std::endl;
+            std::cerr << _("YAML content parsing error: ") << e.what() << std::endl;
             return false;
         } catch (const std::exception& e) {
-            std::cerr << "Error parsing YAML content: " << e.what() << std::endl;
+            std::cerr << _("Error parsing YAML content: ") << e.what() << std::endl;
             return false;
         }
     }
@@ -278,8 +281,8 @@ namespace MidiPlay {
     DeviceType DeviceManager::detectDeviceType(const std::string& portName) {
         // YAML configuration is now mandatory for device detection
         if (!yamlLoaded) {
-            throw std::runtime_error("YAML configuration is required for device detection. "
-                                   "Cannot detect device type without configuration file.");
+            throw std::runtime_error(_("YAML configuration is required for device detection. "
+                                   "Cannot detect device type without configuration file."));
         }
         
         return detectDeviceTypeFromYaml(portName);
@@ -348,9 +351,9 @@ namespace MidiPlay {
             outport.SendMessage(&programEvent);
             
             if (options_.isVerbose()) {
-                std::cout << "  Channel " << channelNum << ": " << channelConfig.description
-                          << " (Bank " << static_cast<int>(channelConfig.bank_msb) << ":"
-                          << static_cast<int>(channelConfig.bank_lsb) << ", Program "
+                std::cout << _("  Channel ") << channelNum << ": " << channelConfig.description
+                          << _(" (Bank ") << static_cast<int>(channelConfig.bank_msb) << ":"
+                          << static_cast<int>(channelConfig.bank_lsb) << _(", Program ")
                           << static_cast<int>(channelConfig.program) << ")" << std::endl;
             }
         }
@@ -365,7 +368,7 @@ namespace MidiPlay {
         for (int i = 0; i <= timeoutLimit; i++) {
             // Check if we've reached the timeout limit
             if (i > timeoutLimit) {
-                std::cout << "Device connection timeout. No device found. Connect a MIDI device and try again.\n"
+                std::cout << _("Device connection timeout. No device found. Connect a MIDI device and try again.\n")
                          << std::endl;
                 return false;  // Timeout reached
             }
@@ -388,7 +391,7 @@ namespace MidiPlay {
             }
             else {
                 // No device connected yet, continue polling
-                std::cout << "No device connected. Connect a device." << std::endl;
+                std::cout << _("No device connected. Connect a device.") << std::endl;
                 sleep(pollSleep);
                 
                 // Refresh port count for next iteration

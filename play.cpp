@@ -81,7 +81,7 @@ int main(int argc, char **argv)
          path = getFullPath(filename, options.isStaging());
      }
      catch (const std::runtime_error& e) {
-         std::cout << "Error: " << e.what() << std::endl;
+         std::cout << _("Error: ") << e.what() << std::endl;
          exit(MidiPlay::EXIT_ENVIRONMENT_ERROR);
      }
 
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
      size_t portCount = outport.GetPortCount();
 
      if (options.isVerbose()) {
-        std::cout << "Detected " << portCount << " MIDI output ports:" << std::endl;
+        std::cout << _("Detected ") << portCount << _(" MIDI output ports:") << std::endl;
 
         for (size_t i = 0; i < portCount; i++)
         {

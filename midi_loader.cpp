@@ -2,6 +2,9 @@
 #include "options.hpp"
 #include <iostream>
 #include <cmath>
+#include <libintl.h>
+
+#define _(String) gettext(String)
 
 #include "midi_constants.hpp"
 
@@ -70,12 +73,12 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     
     // Check if file exists (extracted from play.cpp lines 369-378)
     if (!fileExists(path)) {
-        std::cout << "Hymn " << options.getFileName() << " was not found";
+        std::cout << _("Hymn ") << options.getFileName() << _(" was not found");
         
         if (options.isStaging()) {
-            std::cout << " in the staging folder.\n" << std::endl;
+            std::cout << _(" in the staging folder.\n") << std::endl;
         } else {
-            std::cout << ".\n" << std::endl;
+            std::cout << _(".\n") << std::endl;
         }
         
         return false;
@@ -111,7 +114,7 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
         return true;
     }
     catch (const std::exception& e) {
-        std::cerr << "Error loading MIDI file: " << e.what() << std::endl;
+        std::cerr << _("Error loading MIDI file: ") << e.what() << std::endl;
         return false;
     }
 }
@@ -264,7 +267,7 @@ void MidiLoader::processKeySignatureEvent(const Event& event) {
         }
         else {
             keySignature_ = keys_[sf + MINOR_KEY_OFFSET];
-            keySignature_ += " minor";
+            keySignature_ += _(" minor");
         }
     }
 }
@@ -288,8 +291,8 @@ void MidiLoader::processCustomMetaEvents(const Event& event, const Options& opti
         }
 
         if (options.isVerbose() || options.isDisplayWarnings()) {
-            std::cout << "Warning: Deprecated Meta event for number of verses found in MIDI file. "
-                      << "Please use the Sequencer-Specific Meta event instead." << std::endl;
+            std::cout << _("Warning: Deprecated Meta event for number of verses found in MIDI file. "
+                      "Please use the Sequencer-Specific Meta event instead.") << std::endl;
         }
         // Don't load the non-standard event - handled by returning false in main callback
     }
@@ -298,8 +301,8 @@ void MidiLoader::processCustomMetaEvents(const Event& event, const Options& opti
         pauseTicks_ = (static_cast<uint16_t>(message[2]) << 8) | message[3];
 
         if (options.isVerbose() || options.isDisplayWarnings()) {
-            std::cout << "Warning: Deprecated Meta event for pause between verses found in MIDI file. "
-                      << "Please use the Sequencer-Specific Meta event instead." << std::endl;
+            std::cout << _("Warning: Deprecated Meta event for pause between verses found in MIDI file. "
+                      "Please use the Sequencer-Specific Meta event instead.") << std::endl;
         }
         // Don't load the non-standard event - handled by returning false in main callback
     }

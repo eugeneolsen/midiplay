@@ -1,2 +1,7 @@
 # List of source files which contain translatable strings
 play.cpp
+playback_engine.cpp
+device_manager.cpp
+timing_manager.cpp
+midi_loader.cpp
+options.hpp

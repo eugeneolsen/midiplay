@@ -1,13 +1,15 @@
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "shell",
             "label": "C/C++: aarch64-linux-gnu-g++ build active file",
-            "command": "/usr/bin/aarch64-linux-gnu-g++",
+            "command": "bash",
             "args": [
+                "-c",
+                "APP_VERSION=$(git describe --tags); export APP_VERSION; exec /usr/bin/aarch64-linux-gnu-g++ -DAPP_VERSION=\\\"$APP_VERSION\\\" \"$@\"",
+                "midiplay-build",
                 "-std=c++20",
                 "-fdiagnostics-color=always",
-                //"-fsanitize=thread",    // ThreadSanitizer - test only after major changes, as it slows down execution
                 "-g",
                 //"-DDEBUG",
                 "play.cpp",

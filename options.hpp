@@ -1,5 +1,6 @@
 #pragma once
 
+#include <regex>
 #include <string>
 #include <unistd.h>
 #include <iostream>
@@ -52,6 +53,16 @@ private:
 
 
 public:
+    static std::string getSemanticVersion() {
+        static const std::regex pattern{R"(Version-([0-9]+\.[0-9]+\.[0-9]+))"};
+        std::smatch match;
+        const std::string tag{APP_VERSION};
+        if (std::regex_search(tag, match, pattern) && match.size() > 1) {
+            return match[1].str();
+        }
+        return "not found";
+    }
+
     // Constructor
     Options(int argc, char** argv) {
         _argc = argc;
@@ -108,7 +119,7 @@ public:
         return _title;
     }
 
-    int parse(std::string version)
+    int parse()
     {
         int opt;
         int option_index = 0;
@@ -201,7 +212,7 @@ public:
             case 'v':
                 std::cout << "Organ Pi play MIDI file command\n";
                 std::cout << "===============================\n";
-                std::cout << "  Version " << version << "\n" << std::endl;
+                std::cout << "  Version " << getSemanticVersion() << "\n" << std::endl;
                 return -2;
             case 'V':
                 _verbose = true;
@@ -211,7 +222,7 @@ public:
                 break;
             case 'h':
             case '?':
-                std::cout << "Organ Pi play MIDI file command, version " << version << std::endl;
+                std::cout << "Organ Pi play MIDI file command, version " << getSemanticVersion() << std::endl;
                 std::cout << "===============================================\n" << std::endl;
                 std::cout << "Usage:\n" << std::endl;
                 std::cout << "play <filename> options\n" << std::endl;

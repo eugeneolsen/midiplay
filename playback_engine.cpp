@@ -4,6 +4,9 @@
 #include <cmath>
 #include <iostream>
 #include <unistd.h>
+#include <libintl.h>
+
+#define _(String) gettext(String)
 
 using cxxmidi::Event;
 using cxxmidi::Message;
@@ -52,16 +55,16 @@ void PlaybackEngine::initialize() {
 }
 
 void PlaybackEngine::displayPlaybackInfo() const {
-    std::cout << "Playing: \"" << midiLoader_.getTitle() << "\""
-              << " in " << midiLoader_.getKeySignature()
-              << " - " << midiLoader_.getVerses() << " verse";
+    std::cout << _("Playing: \"") << midiLoader_.getTitle() << "\""
+              << _(" in ") << midiLoader_.getKeySignature()
+              << _(" - ") << midiLoader_.getVerses() << _(" verse");
     
     if (midiLoader_.getVerses() > MidiPlay::DEFAULT_VERSES) {
-        std::cout << "s";
+        std::cout << _("s");
     }
     
-    std::cout << " at " << static_cast<int>(std::round(midiLoader_.getBpm() * baseSpeed_)) 
-                << " bpm" << std::endl;
+    std::cout << _(" at ") << static_cast<int>(std::round(midiLoader_.getBpm() * baseSpeed_))
+                << _(" bpm") << std::endl;
 }
 
 void PlaybackEngine::executePlayback() {
@@ -141,7 +144,7 @@ void PlaybackEngine::playIntroduction() {
         player_.GoToTick(currentIntroSegment_->start);
     }
     
-    std::cout << " Playing introduction" << std::endl;
+    std::cout << _(" Playing introduction") << std::endl;
     
     player_.Play();
     synchronizer_.wait();  // Wait for playback to finish
@@ -170,11 +173,11 @@ void PlaybackEngine::playVerses() {
         ritardando_ = false;
         setPlayerSpeed(baseSpeed_);
         
-        std::cout << " Playing verse " << verse + VERSE_DISPLAY_OFFSET;
+        std::cout << _(" Playing verse ") << verse + VERSE_DISPLAY_OFFSET;
         
         if (verse == verses - VERSE_DISPLAY_OFFSET) {
             lastVerse_ = true;
-            std::cout << ", last verse";
+            std::cout << _(", last verse");
         }
         
         std::cout << std::endl;
@@ -234,7 +237,7 @@ void PlaybackEngine::processIntroMarker(const Message& message) {
             player_.NotesOff();
             
             if (displayWarnings_) {
-                std::cout << "   Warning: Final intro marker not past last NoteOff event" << std::endl;
+                std::cout << _("   Warning: Final intro marker not past last NoteOff event") << std::endl;
             }
         }
     }
@@ -242,7 +245,7 @@ void PlaybackEngine::processIntroMarker(const Message& message) {
 
 void PlaybackEngine::processRitardandoMarker(const Message& message) {
     ritardando_ = true;
-    std::cout << "  Ritardando" << std::endl;
+    std::cout << _("  Ritardando") << std::endl;
 }
 
 bool PlaybackEngine::processDCAlFineMarker(const Message& message) {

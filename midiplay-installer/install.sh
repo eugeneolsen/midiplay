@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Package information
 PACKAGE_NAME="midiplay"
-PACKAGE_VERSION="1.5.0"
+PACKAGE_VERSION="1.5.7"
 PACKAGE_ARCH="arm64"
 DEB_FILE="${PACKAGE_NAME}_${PACKAGE_VERSION}_${PACKAGE_ARCH}.deb"
 
@@ -80,6 +80,23 @@ fi
 
 print_status "Package structure verified"
 
+# Check for translation files
+echo "Checking for translation files..."
+TRANSLATIONS_FOUND=()
+for lang_dir in debian-package/usr/share/locale/*/LC_MESSAGES/midiplay.mo; do
+    if [[ -f "$lang_dir" ]]; then
+        # Extract language code from path
+        lang=$(basename $(dirname $(dirname "$lang_dir")))
+        TRANSLATIONS_FOUND+=("$lang")
+    fi
+done
+
+if [[ ${#TRANSLATIONS_FOUND[@]} -gt 0 ]]; then
+    print_status "Found ${#TRANSLATIONS_FOUND[@]} translation(s): ${TRANSLATIONS_FOUND[*]}"
+else
+    print_warning "No translation files found in package"
+fi
+
 # Set proper permissions on DEBIAN scripts
 chmod 755 debian-package/DEBIAN/postinst
 chmod 755 debian-package/DEBIAN/prerm
@@ -129,6 +146,10 @@ if command -v play &> /dev/null; then
     echo "• System config: /etc/midiplay/midi_devices.yaml"
     echo "• User config: ~/.config/midiplay/midi_devices.yaml (optional)"
     echo "• Version: $(play --version 2>/dev/null || echo '1.5.0')"
+    if [[ ${#TRANSLATIONS_FOUND[@]} -gt 0 ]]; then
+        echo "• Languages: ${#TRANSLATIONS_FOUND[@]} translation(s) installed (${TRANSLATIONS_FOUND[*]})"
+        echo "  → Automatic language detection enabled"
+    fi
     echo ""
     echo -e "${GREEN}Usage:${NC}"
     echo "  play <filename> [options]"

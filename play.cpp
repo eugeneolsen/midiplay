@@ -7,6 +7,8 @@
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <libintl.h>
+#include <locale.h>
 
 #include <iostream>
 #include <iomanip>
@@ -33,6 +35,11 @@ namespace fs = std::filesystem;
 
 using namespace midiplay;
 
+// i18n macros
+#define _(String) gettext(String)
+#define PACKAGE "midiplay"
+#define LOCALEDIR "/usr/share/locale"
+
 using cxxmidi::output::Default;
 using cxxmidi::player::PlayerSync;
 
@@ -47,6 +54,11 @@ using cxxmidi::player::PlayerSync;
 
 int main(int argc, char **argv)
 {
+     // Initialize i18n
+     setlocale(LC_ALL, "");
+     bindtextdomain(PACKAGE, LOCALEDIR);
+     textdomain(PACKAGE);
+
      // Signal handler will be set up after startTime is initialized
 
      // Get command line arguments
@@ -69,7 +81,7 @@ int main(int argc, char **argv)
          path = getFullPath(filename, options.isStaging());
      }
      catch (const std::runtime_error& e) {
-         std::cout << "Error: " << e.what() << std::endl;
+         std::cout << _("Error: ") << e.what() << std::endl;
          exit(MidiPlay::EXIT_ENVIRONMENT_ERROR);
      }
 
@@ -85,7 +97,7 @@ int main(int argc, char **argv)
      size_t portCount = outport.GetPortCount();
 
      if (options.isVerbose()) {
-        std::cout << "Detected " << portCount << " MIDI output ports:" << std::endl;
+        std::cout << _("Detected ") << portCount << _(" MIDI output ports:") << std::endl;
 
         for (size_t i = 0; i < portCount; i++)
         {
@@ -110,7 +122,7 @@ int main(int argc, char **argv)
        
        if (options.isVerbose()) {
             // Display device information
-            std::cout << "Connected to: " << deviceManager.getDeviceTypeName(deviceInfo.type)
+            std::cout << _("Connected to: ") << deviceManager.getDeviceTypeName(deviceInfo.type)
                         << " (" << deviceInfo.portName << ")" << std::endl;
         }
 

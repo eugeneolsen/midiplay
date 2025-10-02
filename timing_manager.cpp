@@ -4,6 +4,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <libintl.h>
+
+#define _(String) gettext(String)
 
 namespace MidiPlay {
 
@@ -36,8 +39,8 @@ void TimingManager::displayElapsedTime() const {
     int minutes = totalSeconds / MidiPlay::SECONDS_PER_MINUTE;
     int seconds = totalSeconds % MidiPlay::SECONDS_PER_MINUTE;
     
-    std::cout << "Fine - elapsed time " << minutes << ":" 
-              << std::setw(2) << std::setfill('0') << seconds 
+    std::cout << _("Fine - elapsed time ") << minutes << ":"
+              << std::setw(2) << std::setfill('0') << seconds
               << std::endl << std::endl;
 }
 

@@ -20,7 +20,7 @@ midiplay-installer/
     └── usr/
         └── local/
             └── bin/
-                └── play     # The midiplay binary (v1.5.0)
+                └── play     # The midiplay binary (v1.5.7)
 ```
 
 ## 🖥️ System Requirements
@@ -39,7 +39,7 @@ midiplay-installer/
 
 1. **Extract the package** (if downloaded as archive):
    ```bash
-   tar -xzf midiplay-installer-v1.5.0.tar.gz
+   tar -xzf midiplay-installer-v1.5.7.tar.gz
    ```
 
 2. **Navigate to the installer directory**:
@@ -248,7 +248,7 @@ After installation:
 
 **Migration Steps:**
 1. **Automatic**: The installer will install the new YAML dependency and configuration
-2. **Manual**: If you had custom device configurations, you may need to recreate them in YAML format
+2. **Manual**: If you had custom device configurations, that were not in `~/.config/midiplay/midi_devices.yaml` you may need to recreate them in YAML format
 3. **Verification**: Test your devices after upgrade to ensure proper recognition
 
 **What's New in v1.5.0:**
@@ -257,6 +257,20 @@ After installation:
 - ✅ **System-wide defaults** with user override capability
 - ✅ **Easier device addition** without code changes
 - ✅ **Better device detection** with custom detection strings
+
+### Upgrading to v1.5.7
+
+**✅ No Breaking Changes**
+
+**What's New in v1.5.7:**
+- ✅ **The code has been internationalized.**
+- ✅ **Support for five different languages:**
+1. English
+2. Spanish
+3. Brazilian Portuguese
+4. French (France)
+5. French (Canada)
+- ✅ **Many internal changes to enhance reliability and extensibility.**
 
 ### General Updates
 
@@ -280,8 +294,8 @@ This software is distributed under the terms specified in the original project l
 
 The Organ Pi MIDI File Player is designed specifically for church organists and musicians who need a reliable, simple MIDI file player for live performance. It supports custom MIDI markers for introductions, multiple verses, and various playback options optimized for liturgical use.
 
-**Version**: 1.5.0
-**Architecture**: ARM64
+**Version**: 1.5.7<br>
+**Architecture**: ARM64<br>
 **Target Platform**: Raspberry Pi 4B+ with Debian 12
 
 ---

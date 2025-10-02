@@ -2,6 +2,33 @@
 
 ---
 ## Decision
+*   [2025-10-02 22:17:28] Completed Phase 3: Production-Ready i18n Build Integration
+
+## Rationale
+*   Integrated translation compilation into build system and installer package workflow. This ensures translations are automatically compiled during development and properly distributed in production packages, with no manual intervention required.
+
+## Implementation Details
+*   1. Created po/compile-translations.sh for automated compilation of all 4 languages (es, pt_BR, fr_FR, fr_CA)
+2. Updated update-installer-package.sh to compile translations and copy .mo files to installer structure
+3. Modified .vscode/tasks.json to compile translations before C++ build (dependsOn)
+4. Enhanced install.sh to verify and report installed translation files
+5. Created comprehensive po/README.md with plural forms documentation
+6. Fixed arithmetic increment issues with set -e (bash strict mode)
+7. Updated version to 1.5.7 across all installer files
+8. Successfully tested complete workflow: compile → package → verified 4 translations in installer
+
+---
+## Decision
+*   [2025-10-02 19:24:29] Adopt GNU gettext for Internationalization (i18n)
+
+## Rationale
+*   Selected GNU gettext as the standard, robust, and scalable solution for internationalization over simpler methods like a custom messages.hpp or a YAML-based system. The long-term benefits of its standard tooling and workflow outweigh the moderate initial setup cost.
+
+## Implementation Details
+*   Implementation will be done in three incremental phases: 1) Proof of Concept, 2) Full Code Refactoring, 3) Build System Integration. The existing .vscode/tasks.json build system will be retained, augmented with helper shell scripts for the gettext workflow, and the compiler will be linked with '-lintl'.
+
+---
+## Decision
 *   [2025-10-01 14:07:00] Synchronization Modernization - Replaced POSIX semaphores with C++ std::condition_variable
 
 ## Rationale

@@ -1052,5 +1052,10 @@ context_portal/context.db
 *.mid
 *.midi
 
+# Internationalization files
+*.mo
+*.pot
+*.po~
+
 # The application binary
 play

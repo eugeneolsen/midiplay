@@ -4,8 +4,11 @@
 #include <string>
 #include <unistd.h>
 #include <iostream>
+#include <libintl.h>
 
 #include <getopt.h>
+
+#define _(String) gettext(String)
 
 #include <ecocommon/utility.hpp>
 #include "constants.hpp"
@@ -137,7 +140,7 @@ public:
                     // TODO: Go to marker
                 }
 
-                std::cout << "Goto option not yet implemented. Starting at the beginning." << std::endl;
+                std::cout << _("Goto option not yet implemented. Starting at the beginning.") << std::endl;
                 break;
             case 'p':              // Prelude/Postlude
                 _verses = 2;        // Play 2 verses
@@ -202,7 +205,7 @@ public:
                 }
                 else
                 {
-                    std::cout << "Tempo must be numeric.  Exiting program." << std::endl;
+                    std::cout << _("Tempo must be numeric.  Exiting program.") << std::endl;
                     exit(1);
                 }
                 break;
@@ -210,9 +213,9 @@ public:
                 _title = optarg;
                 break;
             case 'v':
-                std::cout << "Organ Pi play MIDI file command\n";
-                std::cout << "===============================\n";
-                std::cout << "  Version " << getSemanticVersion() << "\n" << std::endl;
+                std::cout << _("Organ Pi play MIDI file command\n");
+                std::cout << _("===============================\n");
+                std::cout << _("  Version ") << getSemanticVersion() << "\n" << std::endl;
                 return -2;
             case 'V':
                 _verbose = true;
@@ -222,18 +225,18 @@ public:
                 break;
             case 'h':
             case '?':
-                std::cout << "Organ Pi play MIDI file command, version " << getSemanticVersion() << std::endl;
-                std::cout << "===============================================\n" << std::endl;
-                std::cout << "Usage:\n" << std::endl;
+                std::cout << _("Organ Pi play MIDI file command, version ") << getSemanticVersion() << std::endl;
+                std::cout << _("===============================================\n") << std::endl;
+                std::cout << _("Usage:\n") << std::endl;
                 std::cout << "play <filename> options\n" << std::endl;
-                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)" << std::endl;
-                std::cout << "  --help -h -? This text." << std::endl;
-                std::cout << "  -n<verses> Play the introduction followed by the specified number of verses." << std::endl;
-                std::cout << "  --prelude=<speed> -p<speed> Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>" << std::endl;
-                std::cout << "  --staging   Play the file from the staging directory, if present." << std::endl;
-                std::cout << "  --tempo=<bpm> -t<bpm>  Force tempo to the specified number of beats per minute." << std::endl;
-                std::cout << "  --version -v  Version of this command" << std::endl;
-                std::cout << "  -x<verses> Number of verses to play without introduction.\n" << std::endl;
+                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   " << _("If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)") << std::endl;
+                std::cout << "  --help -h -? " << _("This text.") << std::endl;
+                std::cout << "  -n<verses> " << _("Play the introduction followed by the specified number of verses.") << std::endl;
+                std::cout << "  --prelude=<speed> -p<speed> " << _("Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>") << std::endl;
+                std::cout << "  --staging   " << _("Play the file from the staging directory, if present.") << std::endl;
+                std::cout << "  --tempo=<bpm> -t<bpm>  " << _("Force tempo to the specified number of beats per minute.") << std::endl;
+                std::cout << "  --version -v  " << _("Version of this command") << std::endl;
+                std::cout << "  -x<verses> " << _("Number of verses to play without introduction.\n") << std::endl;
                 return 1;
             default:
                 abort();
@@ -251,7 +254,7 @@ public:
         }
         else
         {
-            std::cerr << "No filename provided. You must pass an file name to play." << std::endl;
+            std::cerr << _("No filename provided. You must pass an file name to play.") << std::endl;
             return 1;
         }
 
@@ -265,7 +268,7 @@ public:
         // Handle any remaining arguments (if necessary)
         while (optind < _argc)
         {
-            std::cerr << "Unrecognized argument: " << _argv[optind] << std::endl;
+            std::cerr << _("Unrecognized argument: ") << _argv[optind] << std::endl;
             optind++;
         }
 

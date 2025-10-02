@@ -64,7 +64,7 @@ get_version() {
     fi
     
     # Final fallback
-    echo "1.4.7"
+    echo "1.5.7"
 }
 
 # Function to update version in control file
@@ -188,6 +188,48 @@ cp "$BINARY_PATH" "$BINARY_DEST"
 chmod 755 "$BINARY_DEST"
 print_status "Updated binary in package structure"
 
+# Compile and copy translation files
+echo ""
+print_info "Compiling and installing translation files..."
+if [[ -f "./po/compile-translations.sh" ]]; then
+    # Compile all translations
+    if ./po/compile-translations.sh; then
+        print_status "Translations compiled successfully"
+        
+        # Copy .mo files to package structure
+        LOCALE_DEST="$PACKAGE_DIR/usr/share/locale"
+        TRANSLATIONS_COPIED=0
+        
+        for lang_dir in po/*/LC_MESSAGES; do
+            if [[ -d "$lang_dir" ]]; then
+                # Extract language code from path (e.g., po/es/LC_MESSAGES -> es)
+                lang=$(basename $(dirname "$lang_dir"))
+                
+                # Create destination directory
+                mkdir -p "$LOCALE_DEST/$lang/LC_MESSAGES"
+                
+                # Copy .mo file
+                if [[ -f "$lang_dir/midiplay.mo" ]]; then
+                    cp "$lang_dir/midiplay.mo" "$LOCALE_DEST/$lang/LC_MESSAGES/"
+                    print_status "Installed translation: $lang"
+                    TRANSLATIONS_COPIED=$((TRANSLATIONS_COPIED + 1))
+                fi
+            fi
+        done
+        
+        if [[ $TRANSLATIONS_COPIED -gt 0 ]]; then
+            print_status "Installed $TRANSLATIONS_COPIED translation(s) to package"
+        else
+            print_warning "No translations found to install"
+        fi
+    else
+        print_warning "Translation compilation failed, continuing without translations"
+    fi
+else
+    print_warning "Translation compilation script not found, skipping translations"
+    print_info "Translations will not be included in this package"
+fi
+
 # Update version in control file
 if [[ -f "$CONTROL_FILE" ]]; then
     update_control_version "$DETECTED_VERSION" "$CONTROL_FILE"
@@ -233,6 +275,13 @@ fi
 
 echo ""
 print_status "Package update completed successfully!"
+echo ""
+print_info "Package contents:"
+echo "  • Binary: $BINARY_DEST"
+echo "  • Version: $DETECTED_VERSION"
+if [[ $TRANSLATIONS_COPIED -gt 0 ]]; then
+    echo "  • Translations: $TRANSLATIONS_COPIED language(s)"
+fi
 echo ""
 print_info "Next steps:"
 echo "  1. Test the updated installer: cd $INSTALLER_DIR && ./install.sh"

@@ -54,7 +54,7 @@ private:
 
 public:
     static std::string getSemanticVersion() {
-        static const std::regex pattern{R"(Version-([0-9]+\.[0-9]+\.[0-9]+))"};
+        static const std::regex pattern{R"((?:^|-|n|v|V)([0-9]+\.[0-9]+\.[0-9]+))"};
         std::smatch match;
         const std::string tag{APP_VERSION};
         if (std::regex_search(tag, match, pattern) && match.size() > 1) {

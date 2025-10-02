@@ -13,6 +13,7 @@ This project was created for people with technical aptitude.  A more user-friend
 ✅ Define an introduction using MIDI markers.<br>
 ✅ Play the number of verses defined in the MIDI file or overridden on the command line.<br>
 ✅ Command line flags for prelude and postlude without playing the introduction.<br>
+✅ Localized to five languages: English, Spanish, Brazilian Portuguese, and French for both France and Canada.<br>
 
 ## System Requirements
 - Raspberry Pi 4B or better.  The Orange Pi 5 family of single-board computers has also been tested with success.
@@ -88,6 +89,7 @@ FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause B
 >>*tttt* specifies the number of ticks to pause between verses, including between the introduction and the first verse.
 
 ## Release History
+Version 1.5.7 - 2925.10.02 Move magic strings to internationalization tables, localize.<br>
 Version 1.5.6 - 2025.10.02 Remove namespace pollution from .cpp files<br>
 Versino 1.5.5 - 2025.10.01 Replace POSIX synchronization with modern C++ synchronization<br>
 Version 1.5.4 - 2025.09.30 Extract playback code into a discrete playback engine<br>

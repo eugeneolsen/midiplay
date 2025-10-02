@@ -9,7 +9,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 ARCHIVE_NAME="midiplay-installer"
-VERSION="1.5.0"
+VERSION="1.5.7"
 
 echo -e "${BLUE}📦 Creating Organ Pi MIDI File Player Installer Archive${NC}"
 echo -e "${BLUE}====================================================${NC}"

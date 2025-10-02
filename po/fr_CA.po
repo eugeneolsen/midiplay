@@ -8,16 +8,322 @@ msgid ""
 msgstr ""
 "Project-Id-Version: midiplay 1.5.6\n"
 "Report-Msgid-Bugs-To: eugene@example.com\n"
-"POT-Creation-Date: 2025-10-02 15:32-0400\n"
-"PO-Revision-Date: 2025-10-02 15:32-0400\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"POT-Creation-Date: 2025-10-02 16:30-0400\n"
+"PO-Revision-Date: 2025-10-02 16:18-0400\n"
+"Last-Translator: AI Assistant\n"
+"Language-Team: French (Canada)\n"
 "Language: fr_CA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: play.cpp:84
+msgid "Error: "
+msgstr "Erreur : "
+
+#: play.cpp:100
+msgid "Detected "
+msgstr "Détectés "
+
+#: play.cpp:100
+msgid " MIDI output ports:"
+msgstr " ports de sortie MIDI :"
+
 #: play.cpp:125
 msgid "Connected to: "
 msgstr "Connecté à : "
+
+#: playback_engine.cpp:58
+msgid "Playing: \""
+msgstr "Lecture : \""
+
+#: playback_engine.cpp:59
+msgid " in "
+msgstr " en "
+
+#: playback_engine.cpp:60
+msgid " - "
+msgstr " - "
+
+#: playback_engine.cpp:60
+msgid " verse"
+msgstr " couplet"
+
+#: playback_engine.cpp:63
+msgid "s"
+msgstr "s"
+
+#: playback_engine.cpp:66
+msgid " at "
+msgstr " à "
+
+#: playback_engine.cpp:67
+msgid " bpm"
+msgstr " bpm"
+
+#: playback_engine.cpp:147
+msgid " Playing introduction"
+msgstr " Lecture de l'introduction"
+
+#: playback_engine.cpp:176
+msgid " Playing verse "
+msgstr " Lecture du couplet "
+
+#: playback_engine.cpp:180
+msgid ", last verse"
+msgstr ", dernier couplet"
+
+#: playback_engine.cpp:240
+msgid "   Warning: Final intro marker not past last NoteOff event"
+msgstr ""
+"   Avertissement : Le marqueur final d'introduction n'est pas après le "
+"dernier événement NoteOff"
+
+#: playback_engine.cpp:248
+msgid "  Ritardando"
+msgstr "  Ritardando"
+
+#: device_manager.cpp:33
+msgid ""
+"Device connection timeout. No device found. Connect a MIDI device and try "
+"again."
+msgstr ""
+"Délai de connexion de l'appareil dépassé. Aucun appareil trouvé. Connectez "
+"un appareil MIDI et réessayez."
+
+#: device_manager.cpp:52
+msgid ""
+"YAML configuration is required. No device configuration found. Please ensure "
+"midi_devices.yaml is available in a standard location:\n"
+"  ~/.config/midiplay/midi_devices.yaml (user-specific)\n"
+"  /etc/midiplay/midi_devices.yaml (system-wide)\n"
+"  ./midi_devices.yaml (local)"
+msgstr ""
+"La configuration YAML est requise. Aucune configuration d'appareil trouvée. "
+"Veuillez vous assurer que midi_devices.yaml est disponible dans un "
+"emplacement standard :\n"
+"  ~/.config/midiplay/midi_devices.yaml (spécifique à l'utilisateur)\n"
+"  /etc/midiplay/midi_devices.yaml (à l'échelle du système)\n"
+"  ./midi_devices.yaml (local)"
+
+#: device_manager.cpp:95 device_manager.cpp:115
+msgid "Unknown device"
+msgstr "Appareil inconnu"
+
+#: device_manager.cpp:108
+msgid "Casio CTX-3000 series"
+msgstr "Série Casio CTX-3000"
+
+#: device_manager.cpp:110
+msgid "Yamaha PSR-EW425 series"
+msgstr "Série Yamaha PSR-EW425"
+
+#: device_manager.cpp:112
+msgid "Allen Protege organ"
+msgstr "Orgue Allen Protege"
+
+#: device_manager.cpp:123
+msgid ""
+"YAML configuration file not found. Device configuration is mandatory. Please "
+"create midi_devices.yaml in one of these locations:\n"
+"  ~/.config/midiplay/midi_devices.yaml (user-specific)\n"
+"  /etc/midiplay/midi_devices.yaml (system-wide)\n"
+"  ./midi_devices.yaml (local)"
+msgstr ""
+"Fichier de configuration YAML non trouvé. La configuration de l'appareil est "
+"obligatoire. Veuillez créer midi_devices.yaml dans l'un de ces "
+"emplacements :\n"
+"  ~/.config/midiplay/midi_devices.yaml (spécifique à l'utilisateur)\n"
+"  /etc/midiplay/midi_devices.yaml (à l'échelle du système)\n"
+"  ./midi_devices.yaml (local)"
+
+#: device_manager.cpp:133
+msgid "Loaded device configuration from: "
+msgstr "Configuration de l'appareil chargée depuis : "
+
+#: device_manager.cpp:137
+msgid "Failed to parse YAML configuration file: "
+msgstr "Échec de l'analyse du fichier de configuration YAML : "
+
+#: device_manager.cpp:138
+msgid ""
+"\n"
+"Please check the file syntax and structure."
+msgstr ""
+"\n"
+"Veuillez vérifier la syntaxe et la structure du fichier."
+
+#: device_manager.cpp:185
+msgid "YAML parsing error: "
+msgstr "Erreur d'analyse YAML : "
+
+#: device_manager.cpp:188
+msgid "Error loading YAML file: "
+msgstr "Erreur de chargement du fichier YAML : "
+
+#: device_manager.cpp:273
+msgid "YAML content parsing error: "
+msgstr "Erreur d'analyse du contenu YAML : "
+
+#: device_manager.cpp:276
+msgid "Error parsing YAML content: "
+msgstr "Erreur d'analyse du contenu YAML : "
+
+#: device_manager.cpp:284
+msgid ""
+"YAML configuration is required for device detection. Cannot detect device "
+"type without configuration file."
+msgstr ""
+"La configuration YAML est requise pour la détection de l'appareil. "
+"Impossible de détecter le type d'appareil sans fichier de configuration."
+
+#: device_manager.cpp:354
+msgid "  Channel "
+msgstr "  Canal "
+
+#: device_manager.cpp:355
+msgid " (Bank "
+msgstr " (Banque "
+
+#: device_manager.cpp:356
+msgid ", Program "
+msgstr ", Programme "
+
+#: device_manager.cpp:371
+msgid ""
+"Device connection timeout. No device found. Connect a MIDI device and try "
+"again.\n"
+msgstr ""
+"Délai de connexion de l'appareil dépassé. Aucun appareil trouvé. Connectez "
+"un appareil MIDI et réessayez.\n"
+
+#: device_manager.cpp:394
+msgid "No device connected. Connect a device."
+msgstr "Aucun appareil connecté. Connectez un appareil."
+
+#: timing_manager.cpp:42
+msgid "Fine - elapsed time "
+msgstr "Fin - temps écoulé "
+
+#: midi_loader.cpp:76
+msgid "Hymn "
+msgstr "Hymne "
+
+#: midi_loader.cpp:76
+msgid " was not found"
+msgstr " n'a pas été trouvé"
+
+#: midi_loader.cpp:79
+msgid " in the staging folder.\n"
+msgstr " dans le dossier de préparation.\n"
+
+#: midi_loader.cpp:81
+msgid ".\n"
+msgstr ".\n"
+
+#: midi_loader.cpp:117
+msgid "Error loading MIDI file: "
+msgstr "Erreur de chargement du fichier MIDI : "
+
+#: midi_loader.cpp:270
+msgid " minor"
+msgstr " mineur"
+
+#: midi_loader.cpp:294
+msgid ""
+"Warning: Deprecated Meta event for number of verses found in MIDI file. "
+"Please use the Sequencer-Specific Meta event instead."
+msgstr ""
+"Avertissement : Méta-événement obsolète pour le nombre de couplets trouvé "
+"dans le fichier MIDI. Veuillez utiliser le méta-événement spécifique au "
+"séquenceur à la place."
+
+#: midi_loader.cpp:304
+msgid ""
+"Warning: Deprecated Meta event for pause between verses found in MIDI file. "
+"Please use the Sequencer-Specific Meta event instead."
+msgstr ""
+"Avertissement : Méta-événement obsolète pour la pause entre les couplets "
+"trouvé dans le fichier MIDI. Veuillez utiliser le méta-événement spécifique "
+"au séquenceur à la place."
+
+#: options.hpp:143
+msgid "Goto option not yet implemented. Starting at the beginning."
+msgstr "Option Goto pas encore implémentée. Démarrage au début."
+
+#: options.hpp:208
+msgid "Tempo must be numeric.  Exiting program."
+msgstr "Le tempo doit être numérique. Fermeture du programme."
+
+#: options.hpp:216
+msgid "Organ Pi play MIDI file command\n"
+msgstr "Commande Organ Pi pour lire les fichiers MIDI\n"
+
+#: options.hpp:217
+msgid "===============================\n"
+msgstr "===============================\n"
+
+#: options.hpp:218
+msgid "  Version "
+msgstr "  Version "
+
+#: options.hpp:228
+msgid "Organ Pi play MIDI file command, version "
+msgstr "Commande Organ Pi pour lire les fichiers MIDI, version "
+
+#: options.hpp:229
+msgid "===============================================\n"
+msgstr "===============================================\n"
+
+#: options.hpp:230
+msgid "Usage:\n"
+msgstr "Utilisation :\n"
+
+#: options.hpp:232
+msgid ""
+"If argument is numeric, start at the measure number; if has alpha, start at "
+"marker. (not yet implemented)"
+msgstr ""
+"Si l'argument est numérique, commence au numéro de mesure ; si alphabétique, "
+"commence au marqueur. (pas encore implémenté)"
+
+#: options.hpp:233
+msgid "This text."
+msgstr "Ce texte."
+
+#: options.hpp:234
+msgid "Play the introduction followed by the specified number of verses."
+msgstr "Lit l'introduction suivie du nombre spécifié de couplets."
+
+#: options.hpp:235
+msgid ""
+"Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is "
+"100%.  Plays 2 verses by default; can be modified by -x<verses>"
+msgstr ""
+"Prélude/postlude. <speed> est optionnel, la valeur par défaut est 9, soit "
+"90%. 10 est 100%. Lit 2 couplets par défaut ; peut être modifié avec -x<couplets>"
+
+#: options.hpp:236
+msgid "Play the file from the staging directory, if present."
+msgstr "Lit le fichier depuis le répertoire de préparation, s'il existe."
+
+#: options.hpp:237
+msgid "Force tempo to the specified number of beats per minute."
+msgstr "Force le tempo au nombre spécifié de battements par minute."
+
+#: options.hpp:238
+msgid "Version of this command"
+msgstr "Version de cette commande"
+
+#: options.hpp:239
+msgid "Number of verses to play without introduction.\n"
+msgstr "Nombre de couplets à lire sans introduction.\n"
+
+#: options.hpp:257
+msgid "No filename provided. You must pass an file name to play."
+msgstr "Aucun nom de fichier fourni. Vous devez fournir un nom de fichier à lire."
+
+#: options.hpp:271
+msgid "Unrecognized argument: "
+msgstr "Argument non reconnu : "

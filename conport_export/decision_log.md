@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-02 19:24:29] Adopt GNU gettext for Internationalization (i18n)
+
+## Rationale
+*   Selected GNU gettext as the standard, robust, and scalable solution for internationalization over simpler methods like a custom messages.hpp or a YAML-based system. The long-term benefits of its standard tooling and workflow outweigh the moderate initial setup cost.
+
+## Implementation Details
+*   Implementation will be done in three incremental phases: 1) Proof of Concept, 2) Full Code Refactoring, 3) Build System Integration. The existing .vscode/tasks.json build system will be retained, augmented with helper shell scripts for the gettext workflow, and the compiler will be linked with '-lintl'.
+
+---
+## Decision
 *   [2025-10-01 14:07:00] Synchronization Modernization - Replaced POSIX semaphores with C++ std::condition_variable
 
 ## Rationale

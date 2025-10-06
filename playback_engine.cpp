@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <libintl.h>
 
+#include <ecocommon/utility.hpp>
+
 #define _(String) gettext(String)
 
 using cxxmidi::Event;

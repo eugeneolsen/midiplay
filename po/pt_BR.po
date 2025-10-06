@@ -47,12 +47,10 @@ msgid " - "
 msgstr " - "
 
 #: playback_engine.cpp:60
-msgid " verse"
-msgstr " verso"
-
-#: playback_engine.cpp:63
-msgid "s"
-msgstr "s"
+msgid "verse"
+msgid_plural "verses"
+msgstr[0] "verso"
+msgstr[1] "versos"
 
 #: playback_engine.cpp:66
 msgid " at "

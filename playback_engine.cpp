@@ -1,14 +1,12 @@
 #include "playback_engine.hpp"
 #include "constants.hpp"
+#include "i18n.hpp"
 
 #include <cmath>
 #include <iostream>
 #include <unistd.h>
-#include <libintl.h>
 
 #include <ecocommon/utility.hpp>
-
-#define _(String) gettext(String)
 
 using cxxmidi::Event;
 using cxxmidi::Message;
@@ -59,11 +57,7 @@ void PlaybackEngine::initialize() {
 void PlaybackEngine::displayPlaybackInfo() const {
     std::cout << _("Playing: \"") << midiLoader_.getTitle() << "\""
               << _(" in ") << midiLoader_.getKeySignature()
-              << _(" - ") << midiLoader_.getVerses() << _(" verse");
-    
-    if (midiLoader_.getVerses() > MidiPlay::DEFAULT_VERSES) {
-        std::cout << _("s");
-    }
+              << _(" - ") << formatPlural(midiLoader_.getVerses(), "verse", "verses");
     
     std::cout << _(" at ") << static_cast<int>(std::round(midiLoader_.getBpm() * baseSpeed_))
                 << _(" bpm") << std::endl;
@@ -97,7 +91,9 @@ bool PlaybackEngine::eventCallback(Event& event) {
     Message message = event;
     
 #ifdef DEBUG
-    dumpEvent(event);
+    if (midiLoader_.isVerbose()) {
+        dumpEvent(event);
+    }
 #endif
 
     // Process introduction markers if playing intro

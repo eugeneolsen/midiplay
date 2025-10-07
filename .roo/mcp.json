@@ -18,7 +18,13 @@
       "alwaysAllow": [
         "export_conport_to_markdown",
         "log_decision",
-        "update_active_context"
+        "update_active_context",
+        "get_product_context",
+        "get_active_context",
+        "get_decisions",
+        "get_progress",
+        "log_progress",
+        "update_product_context"
       ]
     }
   }

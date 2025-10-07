@@ -122,7 +122,7 @@ bool EventPreProcessor::processEvent(cxxmidi::Event& event, const Options& optio
 void EventPreProcessor::processTimeSignatureEvent(const Event& event) {
     Message message = event;
     
-    if (message.IsMeta(Message::MetaType::TimeSignature) && message.size() == 6) {
+    if (message.IsMeta(Message::MetaType::TimeSignature)) {
         timeSignature_.beatsPerMeasure = message[2];
         timeSignature_.denominator = message[3];
         timeSignature_.clocksPerClick = message[4];

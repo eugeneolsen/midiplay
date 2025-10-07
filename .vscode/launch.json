@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C/C++: g++ build and debug active file",
+            "name": "Debug play command",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${fileDirname}/play",
             "args": ["296"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -27,7 +27,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "C/C++: aarch64-linux-gnu-g++ build active file",
+            "preLaunchTask": "Build play command",
             "miDebuggerPath": "/usr/bin/gdb",
         }
     ]

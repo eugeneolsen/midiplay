@@ -12,12 +12,12 @@
 This report identifies code smells in the MidiPlay codebase following the successful Phase 3 refactoring. The codebase shows excellent architectural improvements, but several opportunities remain for polish and consistency improvements.
 
 **Key Statistics**:
-- **High Priority Issues**: 5 (3 completed, 2 already in Phase 3 plan)
+- **High Priority Issues**: 5 (4 completed, 1 already in Phase 3 plan)
 - **Medium Priority Issues**: 10
 - **Low Priority Issues**: 7
 - **Total Issues**: 22
-- **Completed**: 3
-- **Remaining**: 19
+- **Completed**: 4
+- **Remaining**: 18
 
 ---
 
@@ -94,9 +94,9 @@ int main(int argc, char **argv)
 
 ---
 
-### 4. Deprecated POSIX usleep() Function
+### 4. ✅ Deprecated POSIX usleep() Function (COMPLETED)
 
-**Locations**: 
+**Locations**:
 - [`playback_orchestrator.cpp:115`](playback_orchestrator.cpp:115)
 - [`playback_orchestrator.cpp:145`](playback_orchestrator.cpp:145)
 
@@ -652,7 +652,7 @@ void setPlayingIntro(bool playing) noexcept { playingIntro_ = playing; }
 1. ✅ **COMPLETED** - Add `_()` wrapper to SignalHandler elapsed time message
 2. ✅ **COMPLETED** - Add `_()` wrapper to exception message
 3. ✅ **COMPLETED** - Add return statement to main()
-4. Replace `usleep()` with `std::this_thread::sleep_for()`
+4. ✅ **COMPLETED** - Replace `usleep()` with `std::this_thread::sleep_for()`
 5. Fix dead code assignment
 
 ### Phase 3 Continuation (Already Planned)

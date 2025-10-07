@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-07 23:46:40] Fixed Issue #12: Removed Unnecessary TimeSignature Message Size Check
+
+## Rationale
+*   The code had a hardcoded magic number (6) checking the size of TimeSignature MIDI messages. This check was unnecessary since IsMeta(MetaType::TimeSignature) already validates the message type, and the MIDI standard defines the TimeSignature meta event structure. The size check added no value and reduced code clarity.
+
+## Implementation Details
+*   Removed '&& message.size() == 6' from the conditional in event_preprocessor.cpp:125. The check now simply validates message.IsMeta(Message::MetaType::TimeSignature) before extracting time signature data. Build completed successfully with no errors.
+
+---
+## Decision
 *   [2025-10-07 23:21:33] Fixed Issue #9: Replaced Boolean Flag with std::optional in DeviceManager
 
 ## Rationale

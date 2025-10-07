@@ -13,10 +13,10 @@ This report identifies code smells in the MidiPlay codebase following the succes
 
 **Key Statistics**:
 - **High Priority Issues**: 5 (all 5 completed!)
-- **Medium Priority Issues**: 10 (4 completed)
+- **Medium Priority Issues**: 10 (6 completed)
 - **Low Priority Issues**: 7
 - **Total Issues**: 22
-- **Completed**: 9
+- **Completed**: 11
 - **Remaining**: 16
 
 ---
@@ -305,7 +305,7 @@ public:
 
 ---
 
-### 11. Magic Numbers: Key Signature Offsets
+### 11. ✅ Magic Numbers: Key Signature Offsets (ALREADY RESOLVED)
 
 **Location**: [`event_preprocessor.cpp:183-186`](event_preprocessor.cpp:183-186)
 
@@ -330,7 +330,7 @@ static constexpr int MINOR_KEY_OFFSET = 9;
 
 ---
 
-### 12. Magic Number: TimeSignature Message Size
+### 12. ✅ Magic Number: TimeSignature Message Size (COMPLETED)
 
 **Location**: [`event_preprocessor.cpp:125`](event_preprocessor.cpp:125)
 

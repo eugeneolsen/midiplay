@@ -13,11 +13,11 @@ This report identifies code smells in the MidiPlay codebase following the succes
 
 **Key Statistics**:
 - **High Priority Issues**: 5 (all 5 completed!)
-- **Medium Priority Issues**: 10
+- **Medium Priority Issues**: 10 (1 completed)
 - **Low Priority Issues**: 7
 - **Total Issues**: 22
-- **Completed**: 5
-- **Remaining**: 17
+- **Completed**: 6
+- **Remaining**: 16
 
 ---
 
@@ -134,10 +134,10 @@ std::this_thread::sleep_for(std::chrono::microseconds(pauseTicks.getTicks().valu
 
 ## 🟡 Medium Priority Issues
 
-### 6. Magic Strings: Device Keys Duplicated 3 Times
+### 6. ✅ Magic Strings: Device Keys Duplicated 3 Times (COMPLETED)
 
-**Locations**: 
-- [`device_manager.cpp:60-67`](device_manager.cpp:60-67) 
+**Locations**:
+- [`device_manager.cpp:60-67`](device_manager.cpp:60-67)
 - [`device_manager.cpp:82-89`](device_manager.cpp:82-89)
 - [`device_manager.cpp:295-300`](device_manager.cpp:295-300)
 
@@ -659,7 +659,7 @@ void setPlayingIntro(bool playing) noexcept { playingIntro_ = playing; }
 6. Extract magic strings to messages.hpp (Task E) - Still TODO
 
 ### Follow-up Refactoring (Future Sessions - 6-8 hours)
-8. Extract device key constants and helper methods
+8. ✅ **COMPLETED** - Extract device key constants and helper methods
 9. Create midi_markers.hpp for marker constants
 10. Refactor Options::parse() method
 11. Use std::optional<YamlConfig>

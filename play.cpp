@@ -151,4 +151,5 @@ int main(int argc, char **argv)
      timingManager.displayElapsedTime();
      
      // Note: synchronizer cleanup happens automatically via RAII
+     return EXIT_SUCCESS;
 }

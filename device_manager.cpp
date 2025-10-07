@@ -68,7 +68,7 @@ namespace MidiPlay {
                 break;
             case DeviceType::UNKNOWN:
             default:
-                throw std::invalid_argument("Cannot create device for unknown or unsupported device type");
+                throw std::invalid_argument(_("Cannot create device for unknown or unsupported device type"));
         }
         
         configureDeviceFromYaml(deviceKey, outport);

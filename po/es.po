@@ -93,6 +93,10 @@ msgstr ""
 "Tiempo de espera de conexión agotado. No se encontró ningún dispositivo. "
 "Conecte un dispositivo MIDI e intente nuevamente."
 
+#: device_manager.cpp:33
+msgid "Cannot convert unknown device type to key"
+msgstr "No se puede convertir tipo de dispositivo desconocido a clave"
+
 #: device_manager.cpp:71
 msgid "Cannot create device for unknown or unsupported device type"
 msgstr "No se puede crear dispositivo para tipo de dispositivo desconocido o no soportado"

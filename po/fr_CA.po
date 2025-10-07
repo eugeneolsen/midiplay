@@ -87,6 +87,10 @@ msgid "\nElapsed time "
 msgstr "\nTemps écoulé "
 
 #: device_manager.cpp:33
+msgid "Cannot convert unknown device type to key"
+msgstr "Impossible de convertir le type d'appareil inconnu en clé"
+
+#: device_manager.cpp:33
 msgid ""
 "Device connection timeout. No device found. Connect a MIDI device and try "
 "again."

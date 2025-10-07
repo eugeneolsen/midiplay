@@ -19,6 +19,32 @@ using cxxmidi::Message;
 
 namespace MidiPlay {
 
+    // Helper method implementations
+    std::string DeviceManager::deviceTypeToKey(DeviceType type) const {
+        switch (type) {
+            case DeviceType::CASIO_CTX3000:
+                return DeviceKeys::CASIO_CTX3000;
+            case DeviceType::YAMAHA_PSR_EW425:
+                return DeviceKeys::YAMAHA_PSR_EW425;
+            case DeviceType::ALLEN_PROTEGE:
+                return DeviceKeys::ALLEN_PROTEGE;
+            case DeviceType::UNKNOWN:
+            default:
+                throw std::invalid_argument(_("Cannot convert unknown device type to key"));
+        }
+    }
+
+    DeviceType DeviceManager::deviceKeyToType(const std::string& key) const {
+        if (key == DeviceKeys::CASIO_CTX3000) {
+            return DeviceType::CASIO_CTX3000;
+        } else if (key == DeviceKeys::YAMAHA_PSR_EW425) {
+            return DeviceType::YAMAHA_PSR_EW425;
+        } else if (key == DeviceKeys::ALLEN_PROTEGE) {
+            return DeviceType::ALLEN_PROTEGE;
+        }
+        return DeviceType::UNKNOWN;
+    }
+
     DeviceManager::DeviceManager(const Options& options)
         : options_(options)
         , yamlLoaded(false)
@@ -54,44 +80,15 @@ namespace MidiPlay {
                                    "  ./midi_devices.yaml (local)"));
         }
 
-        // Configure device using YAML configuration
-        std::string deviceKey;
-        switch (type) {
-            case DeviceType::CASIO_CTX3000:
-                deviceKey = "casio_ctx3000";
-                break;
-            case DeviceType::YAMAHA_PSR_EW425:
-                deviceKey = "yamaha_psr_ew425";
-                break;
-            case DeviceType::ALLEN_PROTEGE:
-                deviceKey = "allen_protege";
-                break;
-            case DeviceType::UNKNOWN:
-            default:
-                throw std::invalid_argument(_("Cannot create device for unknown or unsupported device type"));
-        }
-        
+        // Configure device using YAML configuration - use helper method
+        std::string deviceKey = deviceTypeToKey(type);
         configureDeviceFromYaml(deviceKey, outport);
     }
 
     std::string DeviceManager::getDeviceTypeName(DeviceType type) {
         // If YAML is loaded, get device name from configuration
-        if (yamlLoaded) {
-            std::string deviceKey;
-            switch (type) {
-                case DeviceType::CASIO_CTX3000:
-                    deviceKey = "casio_ctx3000";
-                    break;
-                case DeviceType::YAMAHA_PSR_EW425:
-                    deviceKey = "yamaha_psr_ew425";
-                    break;
-                case DeviceType::ALLEN_PROTEGE:
-                    deviceKey = "allen_protege";
-                    break;
-                case DeviceType::UNKNOWN:
-                default:
-                    return _("Unknown device");
-            }
+        if (yamlLoaded && type != DeviceType::UNKNOWN) {
+            std::string deviceKey = deviceTypeToKey(type);
             
             // Look up device name in YAML configuration
             auto deviceIt = yamlConfig.devices.find(deviceKey);
@@ -291,14 +288,8 @@ namespace MidiPlay {
         for (const auto& [deviceKey, deviceConfig] : yamlConfig.devices) {
             for (const auto& detectionString : deviceConfig.detection_strings) {
                 if (!detectionString.empty() && portName.find(detectionString) == 0) {
-                    // Map device key to DeviceType enum
-                    if (deviceKey == "casio_ctx3000") {
-                        return DeviceType::CASIO_CTX3000;
-                    } else if (deviceKey == "yamaha_psr_ew425") {
-                        return DeviceType::YAMAHA_PSR_EW425;
-                    } else if (deviceKey == "allen_protege") {
-                        return DeviceType::ALLEN_PROTEGE;
-                    }
+                    // Use helper method to map device key to DeviceType enum
+                    return deviceKeyToType(deviceKey);
                 }
             }
         }
@@ -306,7 +297,7 @@ namespace MidiPlay {
         // If no match found, use fallback device (usually allen_protege)
         for (const auto& [deviceKey, deviceConfig] : yamlConfig.devices) {
             if (deviceConfig.detection_strings.empty()) {
-                if (deviceKey == "allen_protege") {
+                if (deviceKey == DeviceKeys::ALLEN_PROTEGE) {
                     return DeviceType::ALLEN_PROTEGE;
                 }
             }

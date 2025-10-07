@@ -17,11 +17,20 @@ class Options;
 namespace MidiPlay {
 
     /**
+     * @brief Device key constants for YAML configuration
+     */
+    namespace DeviceKeys {
+        constexpr const char* CASIO_CTX3000 = "casio_ctx3000";
+        constexpr const char* YAMAHA_PSR_EW425 = "yamaha_psr_ew425";
+        constexpr const char* ALLEN_PROTEGE = "allen_protege";
+    }
+
+    /**
      * @brief Enumeration of supported MIDI device types
      */
     enum class DeviceType {
         CASIO_CTX3000,      ///< Casio CTX-3000 series keyboards
-        YAMAHA_PSR_EW425,   ///< Yamaha PSR-EW425 series keyboards  
+        YAMAHA_PSR_EW425,   ///< Yamaha PSR-EW425 series keyboards
         ALLEN_PROTEGE,      ///< Allen Protege organs
         UNKNOWN             ///< Unknown or unsupported device
     };
@@ -204,6 +213,10 @@ namespace MidiPlay {
         bool parseYamlContent(const YAML::Node& config);
         DeviceType detectDeviceTypeFromYaml(const std::string& portName);
         void configureDeviceFromYaml(const std::string& deviceKey, cxxmidi::output::Default& outport);
+        
+        // Helper methods for device key conversion
+        std::string deviceTypeToKey(DeviceType type) const;
+        DeviceType deviceKeyToType(const std::string& key) const;
     };
 
 } // namespace MidiPlay

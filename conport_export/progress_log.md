@@ -1,6 +1,8 @@
 # Progress Log
 
 ## Completed Tasks
+*   [2025-10-07 23:21:40] Issue #9: Boolean Flag Instead of std::optional - RESOLVED
+*   [2025-10-07 23:11:58] Issue #8: Inconsistent Error Handling in DeviceManager - RESOLVED
 *   [2025-10-07 22:59:06] Issue #7: Musical Marker Constants Duplicated Across 3 Files - RESOLVED
 *   [2025-10-07 22:44:57] Code Quality Fixes: Applied 6 critical fixes (5 High Priority + 1 Medium Priority) including i18n coverage, modernization, and code duplication elimination
 *   [2025-10-07 22:44:42] Code Smell Review: Comprehensive codebase analysis and CODE_SMELLS.md creation (22 issues documented)

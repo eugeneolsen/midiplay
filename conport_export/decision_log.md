@@ -2,6 +2,26 @@
 
 ---
 ## Decision
+*   [2025-10-07 23:21:33] Fixed Issue #9: Replaced Boolean Flag with std::optional in DeviceManager
+
+## Rationale
+*   DeviceManager used a yamlConfig struct alongside a separate yamlLoaded bool flag, creating potential for invalid state (yamlConfig exists but yamlLoaded=false). This pattern is error-prone and less expressive than modern C++ alternatives. std::optional provides clearer semantics: either we have valid YAML config or we don't.
+
+## Implementation Details
+*   Replaced 'YamlConfig yamlConfig; bool yamlLoaded;' with 'std::optional<YamlConfig> yamlConfig_'. Updated all yamlLoaded checks to yamlConfig_.has_value(). Changed all yamlConfig accesses to use yamlConfig_-> operator (equivalent to yamlConfig_.value()). Modified parseYamlContent() to create a new YamlConfig, populate it, then assign to optional using std::move. Added <optional> include. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-07 23:11:50] Fixed Issue #8: Standardized Error Handling in DeviceManager
+
+## Rationale
+*   DeviceManager had inconsistent error handling with a mix of bool returns and exceptions. Methods like loadDevicePresets() returned bool but always threw exceptions (never returned false), while parseYamlFile() caught exceptions and returned bool only to have the caller throw on false. This created confusion about the error handling contract and violated the principle of using exceptions for unrecoverable errors.
+
+## Implementation Details
+*   Changed loadDevicePresets(), parseYamlFile(), and parseYamlContent() from bool return to void, making them throw exceptions directly for unrecoverable errors (file not found, parse failures). Updated play.cpp to ensure loadDevicePresets() is called within try/catch block alongside other device operations. Maintained bool return for waitForDeviceConnection() as timeout is an expected operational state. All error messages were already translated in .po files. Build completed successfully with no errors.
+
+---
+## Decision
 *   [2025-10-07 22:58:59] Fixed Issue #7: Eliminated Musical Marker Constants Duplication
 
 ## Rationale

@@ -13,10 +13,10 @@ This report identifies code smells in the MidiPlay codebase following the succes
 
 **Key Statistics**:
 - **High Priority Issues**: 5 (all 5 completed!)
-- **Medium Priority Issues**: 10 (1 completed)
+- **Medium Priority Issues**: 10 (4 completed)
 - **Low Priority Issues**: 7
 - **Total Issues**: 22
-- **Completed**: 6
+- **Completed**: 9
 - **Remaining**: 16
 
 ---
@@ -187,7 +187,7 @@ namespace MidiPlay {
 
 ---
 
-### 7. Musical Marker Constants Duplicated Across 3 Files
+### 7. ✅ Musical Marker Constants Duplicated Across 3 Files (COMPLETED)
 
 **Locations**:
 - [`event_preprocessor.hpp:156-161`](event_preprocessor.hpp:156-161)
@@ -228,7 +228,7 @@ namespace MidiPlay {
 
 ---
 
-### 8. Inconsistent Error Handling in DeviceManager
+### 8. ✅ Inconsistent Error Handling in DeviceManager (COMPLETED)
 
 **Issue**: Mix of bool returns and exceptions for error conditions
 
@@ -247,7 +247,7 @@ namespace MidiPlay {
 
 ---
 
-### 9. Boolean Flag Instead of std::optional
+### 9. ✅ Boolean Flag Instead of std::optional (COMPLETED)
 
 **Location**: [`device_manager.hpp:198-199`](device_manager.hpp:198-199)
 

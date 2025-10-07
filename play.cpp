@@ -25,7 +25,7 @@
 #include "device_manager.hpp"
 #include "midi_loader.hpp"
 #include "timing_manager.hpp"
-#include "playback_engine.hpp"
+#include "playback_orchestrator.hpp"
 #include "playback_synchronizer.hpp"
 
 #include <cmath>
@@ -131,20 +131,20 @@ int main(int argc, char **argv)
      // Create modern C++ synchronization primitive (replaces POSIX semaphore)
      MidiPlay::PlaybackSynchronizer synchronizer;
      
-     // Create playback engine with dependencies
-     MidiPlay::PlaybackEngine playbackEngine(player, synchronizer, midiLoader);
-     playbackEngine.initialize();
-     playbackEngine.setDisplayWarnings(options.isDisplayWarnings());
+     // Create playback orchestrator with dependencies
+     MidiPlay::PlaybackOrchestrator playbackOrchestrator(player, synchronizer, midiLoader);
+     playbackOrchestrator.initialize();
+     playbackOrchestrator.setDisplayWarnings(options.isDisplayWarnings());
      
      // Display what we're about to play
-     playbackEngine.displayPlaybackInfo();
+     playbackOrchestrator.displayPlaybackInfo();
      
      // Set up signal handler now that all dependencies are available
      MidiPlay::SignalHandler signalHandler(outport, synchronizer, timingManager.getStartTime());
      signalHandler.setupSignalHandler();
 
      // Execute complete playback sequence (intro + verses)
-     playbackEngine.executePlayback();
+     playbackOrchestrator.executePlayback();
 
      // Display elapsed time
      timingManager.endTimer();

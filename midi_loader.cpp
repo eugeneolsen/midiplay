@@ -86,6 +86,9 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
         // Scan Track 0 for meta events (extracted from play.cpp lines 397-413)
         scanTrackZeroMetaEvents();
         
+        // Apply verse count from command-line options (takes priority over MIDI file)
+        eventProcessor_->setVersesFromOptions(options.getVerses());
+        
         // Finalize loading process (extracted from play.cpp lines 415-423)
         finalizeLoading();
         

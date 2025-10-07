@@ -20,7 +20,7 @@
         },
         {
             "type": "shell",
-            "label": "C/C++: aarch64-linux-gnu-g++ build active file",
+            "label": "Build play command",
             "command": "bash",
             "args": [
                 "-c",
@@ -28,13 +28,12 @@
                 "midiplay-build",
                 "-std=c++20",
                 "-fdiagnostics-color=always",
-                //"-fsanitize=thread",
                 "-g",
-                //"-DDEBUG",
                 "play.cpp",
                 "signal_handler.cpp",
                 "device_manager.cpp",
                 "midi_loader.cpp",
+                "event_preprocessor.cpp",
                 "timing_manager.cpp",
                 "playback_engine.cpp",
                 "playback_synchronizer.cpp",
@@ -58,6 +57,47 @@
             },
             "dependsOn": ["Compile Translations"],
             "detail": "Build with automatic translation compilation"
+        },
+        {
+            "type": "shell",
+            "label": "Build play command with DEBUG defined",
+            "command": "bash",
+            "args": [
+                "-c",
+                "APP_VERSION=$(git describe --tags); export APP_VERSION; exec /usr/bin/aarch64-linux-gnu-g++ -DAPP_VERSION=\\\"$APP_VERSION\\\" \"$@\"",
+                "midiplay-build",
+                "-std=c++20",
+                "-fdiagnostics-color=always",
+                "-g",
+                "-DDEBUG",
+                "play.cpp",
+                "signal_handler.cpp",
+                "device_manager.cpp",
+                "midi_loader.cpp",
+                "event_preprocessor.cpp",
+                "timing_manager.cpp",
+                "playback_engine.cpp",
+                "playback_synchronizer.cpp",
+                "${userHome}/.local/lib/utility.o",
+                "-o",
+                "${fileDirname}/play",
+                "-I${userHome}/.local/include/",
+                "-lasound",
+                "-pthread",
+                "-lyaml-cpp"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "dependsOn": ["Compile Translations"],
+            "detail": "Debug build with automatic translation compilation"
         }
     ],
     "version": "2.0.0"

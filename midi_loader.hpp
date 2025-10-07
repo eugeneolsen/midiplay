@@ -7,40 +7,17 @@
 #include <vector>
 #include <cstdint>
 #include <sys/stat.h>
+#include <memory>
 
 #include "ticks.hpp"
 #include "custommessage.hpp"
 #include "constants.hpp"
+#include "event_preprocessor.hpp"
 
 // Forward declaration
 class Options;
 
 namespace MidiPlay {
-
-/**
- * Time signature information extracted from MIDI file
- */
-struct TimeSignature {
-    uint8_t beatsPerMeasure;
-    uint8_t denominator;
-    uint8_t clocksPerClick;      // of metronome
-    uint8_t n32ndNotesPerQuaver;
-    
-    // Default constructor
-    TimeSignature() : beatsPerMeasure(0), denominator(0), clocksPerClick(0), n32ndNotesPerQuaver(0) {}
-};
-
-/**
- * Introduction segment boundaries found in MIDI file
- */
-struct IntroductionSegment {
-    uint32_t start;
-    uint32_t end;
-    
-    // Default constructor
-    IntroductionSegment() : start(0), end(0) {}
-    IntroductionSegment(uint32_t s, uint32_t e) : start(s), end(e) {}
-};
 
 /**
  * MidiLoader - Handles MIDI file loading, parsing, and meta-event processing
@@ -63,9 +40,9 @@ public:
     MidiLoader();
     
     /**
-     * Destructor
+     * Destructor - defined in .cpp to support pimpl pattern
      */
-    ~MidiLoader() = default;
+    ~MidiLoader();
     
     // Disable copy constructor and assignment operator
     MidiLoader(const MidiLoader&) = delete;
@@ -83,24 +60,25 @@ public:
     cxxmidi::File& getFile() { return midiFile_; }
     const cxxmidi::File& getFile() const { return midiFile_; }
     
-    const std::string& getTitle() const { return title_; }
-    const std::string& getKeySignature() const { return keySignature_; }
-    const TimeSignature& getTimeSignature() const { return timeSignature_; }
-    const std::vector<IntroductionSegment>& getIntroSegments() const { return introSegments_; }
+    // Forwarding getters to EventPreProcessor
+    const std::string& getTitle() const;
+    const std::string& getKeySignature() const;
+    const MidiPlay::TimeSignature& getTimeSignature() const;
+    const std::vector<MidiPlay::IntroductionSegment>& getIntroSegments() const;
     
     // Calculated values from MIDI processing
-    int getVerses() const { return verses_; }
-    int getUSecPerQuarter() const { return uSecPerQuarter_; }
+    int getVerses() const;
+    int getUSecPerQuarter() const;
     int getUSecPerTick() const { return uSecPerTick_; }
-    int getFileTempo() const { return fileTempo_; }
-    int getBpm() const { return bpm_; }
-    MidiTicks getPauseTicks() const { return pauseTicks_; }
+    int getFileTempo() const;
+    int getBpm() const;
+    MidiTicks getPauseTicks() const;
     float getSpeed() const { return speed_; }
     
     // State flags
     bool shouldPlayIntro() const { return playIntro_; }
-    bool hasPotentialStuckNote() const { return potentialStuckNote_; }
-    bool isFirstTempo() const { return firstTempo_; }
+    bool hasPotentialStuckNote() const;
+    bool isFirstTempo() const;
     bool isVerbose() const { return isVerbose_; }
     
     /**
@@ -117,58 +95,20 @@ private:
     void finalizeLoading();
     void resetState();
     
-    // Event processing helpers
-    void processTempoEvent(const cxxmidi::Event& event, const Options& options);
-    void processKeySignatureEvent(const cxxmidi::Event& event);
-    void processTimeSignatureEvent(const cxxmidi::Event& event);
-    void processCustomMetaEvents(const cxxmidi::Event& event, const Options& options);
-    void processIntroductionMarkers(const cxxmidi::Event& event);
-    void processTrackNameEvent(const cxxmidi::Event& event);
-    
-    // Load callback implementation (extracted from play.cpp)
+    // Simplified load callback that delegates to EventPreProcessor
     bool loadCallback(cxxmidi::Event& event, const Options& options);
     
-    // Member variables (previously global variables in play.cpp)
+    // Member variables
     cxxmidi::File midiFile_;
-    std::string title_;
-    std::string keySignature_;
-    TimeSignature timeSignature_;
-    std::vector<IntroductionSegment> introSegments_;
+    std::unique_ptr<EventPreProcessor> eventProcessor_;
     
-    int verses_;
-    int uSecPerQuarter_;
+    // Calculated timing values
     int uSecPerTick_;
-    int fileTempo_;  // Tempo from file, if any
-    int bpm_;
-    MidiTicks pauseTicks_;
     float speed_;
     
+    // State flags
     bool playIntro_;
-    bool potentialStuckNote_;
-    bool firstTempo_;
     bool isVerbose_; // For debug output
-    
-    // Load callback state variables
-    int currentTrack_;
-    int totalTrackTicks_;
-    int lastNoteOn_;
-    int lastNoteOff_;
-    std::vector<IntroductionSegment>::iterator currentIntroIterator_;
-    
-    // Constants (moved from global scope in play.cpp)
-    static const char* const keys_[18];  // 18 key signatures
-    
-    static constexpr int MAJOR_KEY_OFFSET = 6;
-    static constexpr int MINOR_KEY_OFFSET = 9;
-    static constexpr uint8_t DEPRECATED_META_EVENT_VERSES = 0x10;
-    static constexpr uint8_t DEPRECATED_META_EVENT_PAUSE = 0x11;
-    
-    // Introduction and musical direction markers
-    static constexpr const char* INTRO_BEGIN = "[";
-    static constexpr const char* INTRO_END = "]";
-    static constexpr const char* RITARDANDO_INDICATOR = R"(\)";
-    static constexpr const char* D_C_AL_FINE = "D.C. al Fine";
-    static constexpr const char* FINE_INDICATOR = "Fine";
 };
 
 } // namespace MidiPlay

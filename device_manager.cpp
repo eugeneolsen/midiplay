@@ -47,7 +47,7 @@ namespace MidiPlay {
 
     DeviceManager::DeviceManager(const Options& options)
         : options_(options)
-        , yamlLoaded(false)
+        , yamlConfig_()  // Initialize as empty optional
     {
     }
 
@@ -58,7 +58,7 @@ namespace MidiPlay {
         }
 
         // Use YAML configuration for port index if loaded
-        int outputPortIndex = yamlLoaded ? yamlConfig.connection.output_port_index : MidiPlay::Device::OUTPUT_PORT_INDEX;
+        int outputPortIndex = yamlConfig_.has_value() ? yamlConfig_->connection.output_port_index : MidiPlay::Device::OUTPUT_PORT_INDEX;
         
         // Open the MIDI output port
         outport.OpenPort(outputPortIndex);
@@ -72,7 +72,7 @@ namespace MidiPlay {
 
     void DeviceManager::createAndConfigureDevice(DeviceType type, cxxmidi::output::Default& outport) {
         // YAML configuration is now mandatory
-        if (!yamlLoaded) {
+        if (!yamlConfig_.has_value()) {
             throw std::runtime_error(_("YAML configuration is required. No device configuration found. "
                                    "Please ensure midi_devices.yaml is available in a standard location:\n"
                                    "  ~/.config/midiplay/midi_devices.yaml (user-specific)\n"
@@ -87,12 +87,12 @@ namespace MidiPlay {
 
     std::string DeviceManager::getDeviceTypeName(DeviceType type) {
         // If YAML is loaded, get device name from configuration
-        if (yamlLoaded && type != DeviceType::UNKNOWN) {
+        if (yamlConfig_.has_value() && type != DeviceType::UNKNOWN) {
             std::string deviceKey = deviceTypeToKey(type);
             
             // Look up device name in YAML configuration
-            auto deviceIt = yamlConfig.devices.find(deviceKey);
-            if (deviceIt != yamlConfig.devices.end() && !deviceIt->second.name.empty()) {
+            auto deviceIt = yamlConfig_->devices.find(deviceKey);
+            if (deviceIt != yamlConfig_->devices.end() && !deviceIt->second.name.empty()) {
                 return deviceIt->second.name;
             }
         }
@@ -111,7 +111,7 @@ namespace MidiPlay {
         }
     }
 
-    bool DeviceManager::loadDevicePresets(const std::string& configPath) {
+    void DeviceManager::loadDevicePresets(const std::string& configPath) {
         std::string yamlPath = findConfigFile(configPath);
         
         if (yamlPath.empty()) {
@@ -122,15 +122,11 @@ namespace MidiPlay {
                                    "  ./midi_devices.yaml (local)"));
         }
 
-        if (parseYamlFile(yamlPath)) {
-            yamlLoaded = true;
-            if (options_.isVerbose()) {
-                std::cout << _("Loaded device configuration from: ") << yamlPath << std::endl;
-            }
-            return true;
-        } else {
-            throw std::runtime_error(_("Failed to parse YAML configuration file: ") + yamlPath +
-                                   _("\nPlease check the file syntax and structure."));
+        parseYamlFile(yamlPath);
+        // yamlConfig_ is now set by parseYamlContent
+        
+        if (options_.isVerbose()) {
+            std::cout << _("Loaded device configuration from: ") << yamlPath << std::endl;
         }
     }
 
@@ -172,40 +168,41 @@ namespace MidiPlay {
         return "";  // No config file found
     }
 
-    bool DeviceManager::parseYamlFile(const std::string& filePath) {
+    void DeviceManager::parseYamlFile(const std::string& filePath) {
         try {
             YAML::Node config = YAML::LoadFile(filePath);
-            return parseYamlContent(config);
+            parseYamlContent(config);
         } catch (const YAML::Exception& e) {
-            std::cerr << _("YAML parsing error: ") << e.what() << std::endl;
-            return false;
+            throw std::runtime_error(_("YAML parsing error: ") + std::string(e.what()));
         } catch (const std::exception& e) {
-            std::cerr << _("Error loading YAML file: ") << e.what() << std::endl;
-            return false;
+            throw std::runtime_error(_("Error loading YAML file: ") + std::string(e.what()));
         }
     }
 
-    bool DeviceManager::parseYamlContent(const YAML::Node& config) {
+    void DeviceManager::parseYamlContent(const YAML::Node& config) {
         try {
+            // Create a new YamlConfig to populate
+            YamlConfig newConfig;
+            
             // Parse version
             if (config["version"]) {
-                yamlConfig.version = config["version"].as<std::string>();
+                newConfig.version = config["version"].as<std::string>();
             }
 
             // Parse connection settings
             if (config["connection"]) {
                 const YAML::Node& conn = config["connection"];
                 if (conn["timeout_iterations"]) {
-                    yamlConfig.connection.timeout_iterations = conn["timeout_iterations"].as<int>();
+                    newConfig.connection.timeout_iterations = conn["timeout_iterations"].as<int>();
                 }
                 if (conn["poll_sleep_seconds"]) {
-                    yamlConfig.connection.poll_sleep_seconds = conn["poll_sleep_seconds"].as<int>();
+                    newConfig.connection.poll_sleep_seconds = conn["poll_sleep_seconds"].as<int>();
                 }
                 if (conn["min_port_count"]) {
-                    yamlConfig.connection.min_port_count = conn["min_port_count"].as<std::size_t>();
+                    newConfig.connection.min_port_count = conn["min_port_count"].as<std::size_t>();
                 }
                 if (conn["output_port_index"]) {
-                    yamlConfig.connection.output_port_index = conn["output_port_index"].as<int>();
+                    newConfig.connection.output_port_index = conn["output_port_index"].as<int>();
                 }
             }
 
@@ -259,23 +256,22 @@ namespace MidiPlay {
                         }
                     }
                     
-                    yamlConfig.devices[deviceKey] = deviceConfig;
+                    newConfig.devices[deviceKey] = deviceConfig;
                 }
             }
             
-            return true;
+            // Assign the fully-populated config to the optional
+            yamlConfig_ = std::move(newConfig);
         } catch (const YAML::Exception& e) {
-            std::cerr << _("YAML content parsing error: ") << e.what() << std::endl;
-            return false;
+            throw std::runtime_error(_("YAML content parsing error: ") + std::string(e.what()));
         } catch (const std::exception& e) {
-            std::cerr << _("Error parsing YAML content: ") << e.what() << std::endl;
-            return false;
+            throw std::runtime_error(_("Error parsing YAML content: ") + std::string(e.what()));
         }
     }
 
     DeviceType DeviceManager::detectDeviceType(const std::string& portName) {
         // YAML configuration is now mandatory for device detection
-        if (!yamlLoaded) {
+        if (!yamlConfig_.has_value()) {
             throw std::runtime_error(_("YAML configuration is required for device detection. "
                                    "Cannot detect device type without configuration file."));
         }
@@ -285,7 +281,7 @@ namespace MidiPlay {
 
     DeviceType DeviceManager::detectDeviceTypeFromYaml(const std::string& portName) {
         // Search through YAML device configurations for matching detection strings
-        for (const auto& [deviceKey, deviceConfig] : yamlConfig.devices) {
+        for (const auto& [deviceKey, deviceConfig] : yamlConfig_->devices) {
             for (const auto& detectionString : deviceConfig.detection_strings) {
                 if (!detectionString.empty() && portName.find(detectionString) == 0) {
                     // Use helper method to map device key to DeviceType enum
@@ -295,7 +291,7 @@ namespace MidiPlay {
         }
         
         // If no match found, use fallback device (usually allen_protege)
-        for (const auto& [deviceKey, deviceConfig] : yamlConfig.devices) {
+        for (const auto& [deviceKey, deviceConfig] : yamlConfig_->devices) {
             if (deviceConfig.detection_strings.empty()) {
                 if (deviceKey == DeviceKeys::ALLEN_PROTEGE) {
                     return DeviceType::ALLEN_PROTEGE;
@@ -308,8 +304,8 @@ namespace MidiPlay {
     }
 
     void DeviceManager::configureDeviceFromYaml(const std::string& deviceKey, cxxmidi::output::Default& outport) {
-        auto deviceIt = yamlConfig.devices.find(deviceKey);
-        if (deviceIt == yamlConfig.devices.end()) {
+        auto deviceIt = yamlConfig_->devices.find(deviceKey);
+        if (deviceIt == yamlConfig_->devices.end()) {
             return; // Device configuration not found
         }
 
@@ -350,9 +346,9 @@ namespace MidiPlay {
 
     bool DeviceManager::waitForDeviceConnection(cxxmidi::output::Default& outport) {
         // Use YAML configuration values if loaded, otherwise use defaults
-        int timeoutLimit = yamlLoaded ? yamlConfig.connection.timeout_iterations : MidiPlay::Device::CONNECTION_TIMEOUT;
-        int pollSleep = yamlLoaded ? yamlConfig.connection.poll_sleep_seconds : MidiPlay::Device::POLL_SLEEP_SECONDS;
-        std::size_t minPortCount = yamlLoaded ? yamlConfig.connection.min_port_count : MidiPlay::Device::MIN_PORT_COUNT;
+        int timeoutLimit = yamlConfig_.has_value() ? yamlConfig_->connection.timeout_iterations : MidiPlay::Device::CONNECTION_TIMEOUT;
+        int pollSleep = yamlConfig_.has_value() ? yamlConfig_->connection.poll_sleep_seconds : MidiPlay::Device::POLL_SLEEP_SECONDS;
+        std::size_t minPortCount = yamlConfig_.has_value() ? yamlConfig_->connection.min_port_count : MidiPlay::Device::MIN_PORT_COUNT;
         
         for (int i = 0; i <= timeoutLimit; i++) {
             // Check if we've reached the timeout limit

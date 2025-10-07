@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-07 22:44:29] Code Smell Review and Quality Improvements - 6 Critical Fixes Applied
+
+## Rationale
+*   Conducted comprehensive code smell analysis across entire codebase following Phase 3 refactoring completion. Created CODE_SMELLS.md documenting 22 issues categorized by priority (High: 5, Medium: 10, Low: 7). Prioritized and fixed 6 critical issues to improve code quality, internationalization coverage, portability, and modernization.
+
+## Implementation Details
+*   Fixed 5 High Priority issues: (1) Added _() i18n wrapper to signal_handler.cpp elapsed time message, (2) Added _() i18n wrapper to device_manager.cpp exception, (3) Added explicit return EXIT_SUCCESS to play.cpp main(), (4) Replaced deprecated POSIX usleep() with std::this_thread::sleep_for() in playback_orchestrator.cpp, (5) Removed namespace pollution (using namespace midiplay;) from play.cpp. Fixed 1 Medium Priority issue: (6) Eliminated device key string duplication by creating DeviceKeys namespace with constants and helper methods (deviceTypeToKey(), deviceKeyToType()) in device_manager.hpp/cpp. Updated all 4 translation files (es.po, fr_CA.po, fr_FR.po, pt_BR.po) with 3 new strings. Updated po/POTFILES.in to reflect refactored file structure. Created comprehensive CODE_SMELLS.md documentation (696 lines) for future refactoring sessions.
+
+---
+## Decision
 *   [2025-10-07 20:04:18] Bug Fix: Title Not Displaying After EventPreProcessor Refactoring
 
 ## Rationale

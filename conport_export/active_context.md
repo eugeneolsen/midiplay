@@ -1,6 +1,6 @@
 # Active Context
 ## Current Focus
-Internationalization (i18n) implementation complete - All 3 phases finished
+Completed ThreadSanitizer VMA range error analysis and MidiLoader refactoring with EventPreProcessor implementation
 
 ## Recent Completion
 Completed three Phase 3 refactoring tasks: moved global outport to local scope, moved displayWarnings to Options object, and implemented --verbose flag
@@ -71,9 +71,9 @@ Extract playback control callbacks, intro/verse management, ritardando logic, an
 {'dependency_simplification': 'Removed redundant outport parameter from PlaybackEngine (already in player)', 'parameter_elimination': 'Speed retrieved from MidiLoader instead of passed separately', 'encapsulation_improvement': 'Playback info display moved into PlaybackEngine.displayPlaybackInfo()', 'single_responsibility': 'Each module has one clear purpose - timing vs playback orchestration'}
 
 ## Next Steps
-*   User will recompile and test all fixes
-*   Verify -n, -x, and -p flags work correctly
-*   Continue with remaining Phase 3 tasks after testing confirms fixes
+*   Test build with AddressSanitizer alternative to ThreadSanitizer
+*   Verify custom meta events are properly discarded in loaded MIDI files
+*   Update documentation with final implementation details
 
 ## Latest Session Date
 2025-10-01
@@ -112,4 +112,14 @@ Phase 3 milestone: play.cpp now has ZERO global variables except static version 
 *   All translations automatically compiled and deployed
 
 ## Open Issues
+*   Build system needs APP_VERSION macro definition for compilation
+*   Integration testing needed for EventPreProcessor refactoring
+*   Verification that ThreadSanitizer alternatives work correctly on ARM64
+
+## Recent Changes
+*   Created comprehensive ThreadSanitizer documentation and solutions for ARM64 VMA compatibility
+*   Implemented EventPreProcessor class with proper custom meta event handling
+*   Refactored MidiLoader to use pimpl pattern with EventPreProcessor delegation
+*   Updated build configuration to include new source files
+*   Fixed GitHub Issue #21 by ensuring custom meta events are properly discarded
 

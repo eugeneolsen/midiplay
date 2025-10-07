@@ -2,6 +2,26 @@
 
 ---
 ## Decision
+*   [2025-10-07 15:50:16] EventPreProcessor Refactoring for Custom Meta Event Handling
+
+## Rationale
+*   Refactored MidiLoader according to todo.md Part 2 plan by extracting event processing logic into separate EventPreProcessor class. This improves separation of concerns and fixes GitHub Issue #21 by properly discarding custom meta events.
+
+## Implementation Details
+*   Created event_preprocessor.hpp and event_preprocessor.cpp with corrected custom event logic. Modified midi_loader.hpp/cpp to use pimpl pattern with EventPreProcessor delegation. Updated .vscode/tasks.json build configuration. Custom events now return false when found (discarded) and true when not found.
+
+---
+## Decision
+*   [2025-10-07 15:48:49] ThreadSanitizer ARM64 VMA Range Error Analysis and Solutions
+
+## Rationale
+*   Analyzed ThreadSanitizer VMA range error on ARM64 system (47-bit VMA not supported, only 39/42/48). Created comprehensive documentation with multiple solution approaches including AddressSanitizer alternative.
+
+## Implementation Details
+*   Created THREAD_SANITIZER_FIXES.md, TSAN_ADVANCED_SOLUTIONS.md, and VSCODE_DEFAULT_TASK_GUIDE.md. Recommended using AddressSanitizer (-fsanitize=address,undefined,leak) as primary solution due to full ARM64 support.
+
+---
+## Decision
 *   [2025-10-06 23:51:25] Implemented centralized internationalization with proper plural handling
 
 ## Rationale

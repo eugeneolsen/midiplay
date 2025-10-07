@@ -1,6 +1,8 @@
 # Progress Log
 
 ## Completed Tasks
+*   [2025-10-07 15:48:06] Created EventPreProcessor class with proper custom meta event handling to fix GitHub Issue #21
+*   [2025-10-07 15:47:23] Completed ThreadSanitizer VMA range error analysis and MidiLoader refactoring with EventPreProcessor implementation
 *   [2025-10-02 19:24:42] i18n Phase 1: Proof of Concept & Core Integration - COMPLETED: gettext integrated, 4 languages (es, pt_BR, fr_FR, fr_CA) working
 *   [2025-10-02 19:24:42] i18n Phase 2: Full Code Refactoring - COMPLETED: All 63 strings wrapped and translated in 4 languages (es, pt_BR, fr_FR, fr_CA)
 *   [2025-10-02 04:58:27] Prepared guidance for extracting semantic version text from Version-x.y.z strings with std::regex.

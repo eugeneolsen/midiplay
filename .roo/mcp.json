@@ -1,20 +1,25 @@
 {
-    "mcpServers": {
-        "conport": {
-            "command": "uvx",
-            "args": [
-                "--from",
-                "context-portal-mcp",
-                "conport-mcp",
-                "--mode",
-                "stdio",
-                "--workspace_id",
-                "${workspaceFolder}",
-                "--log-file",
-                "./logs/conport.log",
-                "--log-level",
-                "INFO"
-            ]
-        }
+  "mcpServers": {
+    "conport": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "context-portal-mcp",
+        "conport-mcp",
+        "--mode",
+        "stdio",
+        "--workspace_id",
+        "${workspaceFolder}",
+        "--log-file",
+        "./logs/conport.log",
+        "--log-level",
+        "INFO"
+      ],
+      "alwaysAllow": [
+        "export_conport_to_markdown",
+        "log_decision",
+        "update_active_context"
+      ]
     }
+  }
 }

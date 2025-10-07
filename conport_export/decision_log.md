@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-07 22:58:59] Fixed Issue #7: Eliminated Musical Marker Constants Duplication
+
+## Rationale
+*   Musical marker constants (INTRO_BEGIN, INTRO_END, RITARDANDO_INDICATOR, D_C_AL_FINE, FINE_INDICATOR) were duplicated across three header files (event_preprocessor.hpp, musical_director.hpp, playback_engine.hpp), violating the DRY principle and creating maintenance burden.
+
+## Implementation Details
+*   Created new midi_markers.hpp header file containing all marker constants in the MidiPlay::MidiMarkers namespace. Updated all three affected headers to include midi_markers.hpp and removed duplicate definitions. Updated implementation files (event_preprocessor.cpp, musical_director.cpp, playback_engine.cpp) to reference constants via MidiMarkers:: namespace. Build completed successfully with no errors.
+
+---
+## Decision
 *   [2025-10-07 22:44:29] Code Smell Review and Quality Improvements - 6 Critical Fixes Applied
 
 ## Rationale

@@ -71,7 +71,7 @@ bool EventPreProcessor::processEvent(cxxmidi::Event& event, const Options& optio
         }
         
         if (0 == totalTrackTicks_) {  // Processing for Time Zero Meta events
-            processTrackNameEvent(event);
+            processTrackNameEvent(event);  // Extract title from track name
             processTimeSignatureEvent(event);
             processTempoEvent(event, options);
             processKeySignatureEvent(event);
@@ -196,7 +196,9 @@ bool EventPreProcessor::processCustomMetaEvents(const Event& event, const Option
     
     // Handle deprecated events
     if (DEPRECATED_META_EVENT_VERSES == type) {
-        if (verses_ == 0) {
+        // Only use MIDI file verses if not overridden by command line
+        int cmdLineVerses = options.getVerses();
+        if (cmdLineVerses == 0 && verses_ == 0) {
             char c = static_cast<char>(message[2]);
             if (std::isdigit(c)) {
                 verses_ = std::stoi(std::string{c});
@@ -229,7 +231,9 @@ bool EventPreProcessor::processCustomMetaEvents(const Event& event, const Option
         
         if (message[index++] == midiplay::CustomMessage::Type::Private) {
             if (message[index] == midiplay::CustomMessage::PrivateType::NumberOfVerses) {
-                if (verses_ == 0) {
+                // Only use MIDI file verses if not overridden by command line
+                int cmdLineVerses = options.getVerses();
+                if (cmdLineVerses == 0 && verses_ == 0) {
                     char c = static_cast<char>(message[++index]);
                     if (std::isdigit(c)) {
                         verses_ = std::stoi(std::string{c});
@@ -293,6 +297,18 @@ bool EventPreProcessor::shouldLoadControlChangeEvent(const cxxmidi::Event& event
     }
     
     return false;   // Throw away most control change messages. Use organ controls instead.
+}
+
+// Set verses from command-line options
+void EventPreProcessor::setVersesFromOptions(int optionVerses) {
+    // Command-line option takes priority over MIDI file
+    if (optionVerses > 0) {
+        verses_ = optionVerses;
+    }
+    // If no verses from MIDI or options, use default
+    else if (verses_ == 0) {
+        verses_ = MidiPlay::DEFAULT_VERSES;
+    }
 }
 
 } // namespace MidiPlay

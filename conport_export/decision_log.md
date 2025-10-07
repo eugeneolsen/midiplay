@@ -2,6 +2,36 @@
 
 ---
 ## Decision
+*   [2025-10-07 20:04:18] Bug Fix: Title Not Displaying After EventPreProcessor Refactoring
+
+## Rationale
+*   The EventPreProcessor had a processTrackNameEvent() method to extract the title from MIDI TrackName meta events, but this method was never called in the processEvent() method. This was an oversight during the EventPreProcessor extraction (Decision #22).
+
+## Implementation Details
+*   Added processTrackNameEvent(event) call in the time-zero meta event processing block (line 76 of event_preprocessor.cpp), right after processKeySignatureEvent(). This ensures the title is extracted when processing TrackName meta events at time zero.
+
+---
+## Decision
+*   [2025-10-07 20:04:18] Bug Fix: Verse Count Override Not Honoring Command-Line Options
+
+## Rationale
+*   After EventPreProcessor extraction, the verse count from MIDI files was being used even when command-line options (-n or -x flags) specified a different count. The EventPreProcessor only looked at verses from the MIDI file and never checked the Options object. Command-line options should take priority over MIDI file metadata.
+
+## Implementation Details
+*   Added setVersesFromOptions(int optionVerses) method to EventPreProcessor that applies command-line verse count with proper priority: (1) Command-line option takes precedence, (2) MIDI file value if no command-line option, (3) DEFAULT_VERSES if neither specified. Modified processCustomMetaEvents() to check options.getVerses() before using MIDI file verses. Added call to eventProcessor_->setVersesFromOptions(options.getVerses()) in MidiLoader::loadFile() after MIDI parsing completes.
+
+---
+## Decision
+*   [2025-10-07 20:03:18] PlaybackEngine Decomposition - God Class Refactoring
+
+## Rationale
+*   Decomposed the 263-line PlaybackEngine 'God Class' into four focused classes following Single Responsibility Principle: PlaybackStateMachine (state management), RitardandoEffector (tempo effects), MusicalDirector (musical direction interpretation), and PlaybackOrchestrator (high-level coordination). This addresses code smell identified in todo.md and improves maintainability, testability, and extensibility.
+
+## Implementation Details
+*   Created playback_state_machine.hpp (56 lines), ritardando_effector.hpp/cpp (66+26 lines), musical_director.hpp/cpp (100+114 lines), and playback_orchestrator.hpp/cpp (126+167 lines). Updated play.cpp to use PlaybackOrchestrator instead of PlaybackEngine. Updated .vscode/tasks.json build configuration. Fixed two bugs discovered during refactoring: (1) Title not displaying - added processTrackNameEvent() call in EventPreProcessor, (2) Verses not honoring command-line options - added setVersesFromOptions() method to apply command-line overrides after MIDI parsing.
+
+---
+## Decision
 *   [2025-10-07 15:50:16] EventPreProcessor Refactoring for Custom Meta Event Handling
 
 ## Rationale

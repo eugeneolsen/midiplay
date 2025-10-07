@@ -95,6 +95,13 @@ public:
      * Reset processor state for new file
      */
     void reset();
+    
+    /**
+     * Set verses from command-line options (called after loading)
+     * Only sets if verses not already extracted from MIDI file
+     * @param optionVerses Verse count from command-line options
+     */
+    void setVersesFromOptions(int optionVerses);
 
 private:
     // Event processing helpers (moved from MidiLoader)

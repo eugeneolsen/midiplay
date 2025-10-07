@@ -1,22 +1,26 @@
 # Active Context
 ## Current Focus
-Completed ThreadSanitizer VMA range error analysis and MidiLoader refactoring with EventPreProcessor implementation
+Completed PlaybackEngine decomposition refactoring (todo.md Part 1). All steps complete with bug fixes applied.
 
 ## Recent Completion
-Completed three Phase 3 refactoring tasks: moved global outport to local scope, moved displayWarnings to Options object, and implemented --verbose flag
+Successfully decomposed PlaybackEngine God Class into 4 focused classes: PlaybackStateMachine, RitardandoEffector, MusicalDirector, PlaybackOrchestrator. Fixed title display and verse count override bugs.
 
 ## Files Modified
-*   playback_engine.hpp (replaced sem_t& with PlaybackSynchronizer&)
-*   playback_engine.cpp (sem_wait/sem_post → synchronizer_.wait/notify)
-*   signal_handler.hpp (replaced sem_t& with PlaybackSynchronizer&)
-*   signal_handler.cpp (sem_post → synchronizer_.notify)
-*   play.cpp (replaced global sem_t with local PlaybackSynchronizer)
-*   .vscode/tasks.json (added playback_synchronizer.cpp to build)
+*   play.cpp (updated to use PlaybackOrchestrator)
+*   .vscode/tasks.json (updated build with new source files)
+*   event_preprocessor.cpp (fixed title extraction and verse override)
+*   event_preprocessor.hpp (added setVersesFromOptions method)
+*   midi_loader.cpp (call setVersesFromOptions after loading)
 
 ## Files Created
-*   playback_synchronizer.hpp
-*   playback_synchronizer.cpp
-*   SYNCHRONIZATION_MODERNIZATION_DESIGN.md
+*   playback_state_machine.hpp
+*   playback_orchestrator.hpp
+*   playback_orchestrator.cpp
+*   musical_director.hpp
+*   musical_director.cpp
+*   ritardando_effector.hpp
+*   ritardando_effector.cpp
+*   PLAYBACK_ENGINE_REFACTOR_PLAN.md
 
 ## Major Achievements
 *   Extracted 243 lines of playback logic from play.cpp into PlaybackEngine module
@@ -96,8 +100,8 @@ Extract playback control callbacks, intro/verse management, ritardando logic, an
 Phase 3 milestone: play.cpp now has ZERO global variables except static version string. All synchronization uses modern C++ standard library primitives.
 
 ## Bugs Fixed
-*   Verse count override (-n and -x flags) were being ignored
-*   PlayIntro flag (-p and -x flags) was being ignored, causing unwanted intro playback
+*   Title not displaying - added processTrackNameEvent() call in time-zero meta event processing
+*   Verse count override (-n and -x flags) not honored - implemented setVersesFromOptions() to apply command-line overrides with proper priority
 
 ## Testing Results
 {'synchronization_tests': {'simple_playback': 'PASSED ✅', 'multi_verse_playback': 'PASSED ✅', 'introduction_playback': 'PASSED ✅', 'ritardando': 'PASSED ✅', 'dc_al_fine': 'PASSED ✅', 'ctrl_c_during_intro': 'PASSED ✅', 'ctrl_c_during_verse': 'PASSED ✅', 'ctrl_c_during_pause': 'PASSED ✅', 'valgrind_check': 'PASSED ✅ - 0 memory leaks, 0 errors', 'edge_cases': 'NOT PERFORMED (very short/long files, thread sanitizer)'}}

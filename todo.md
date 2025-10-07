@@ -17,26 +17,26 @@ The `PlaybackEngine` will be broken down into a high-level `PlaybackOrchestrator
 
 ### Refactoring Steps for `PlaybackEngine`
 
-- [ ] **Step 1: Create `PlaybackStateMachine.hpp/.cpp`**
+- [x] **Step 1: Create `PlaybackStateMachine.hpp/.cpp`** ✅
     - Define a class to hold the boolean state flags: `playingIntro_`, `ritardando_`, `lastVerse_`, `alFine_`.
     - Provide public getter and setter methods for each state.
 
-- [ ] **Step 2: Create `RitardandoEffector.hpp/.cpp`**
+- [x] **Step 2: Create `RitardandoEffector.hpp/.cpp`** ✅
     - Create a class that takes a `float& decrementRate`, `cxxmidi::player::PlayerSync&`, and `PlaybackStateMachine&` in its constructor. (The Ritardando Decrement rate, currently defined by the `RITARDANDO_DECREMENT` constant, may become configurable from the MIDI file and/or the command line in the future.)
     - Move the `heartbeatCallback()` logic into a `handleHeartbeat()` method.
     - Move the `HEARTBEAT_CHECK_INTERVAL` constant into this class.
 
-- [ ] **Step 3: Create `MusicalDirector.hpp/.cpp`**
+- [x] **Step 3: Create `MusicalDirector.hpp/.cpp`** ✅
     - Create a class that takes a `cxxmidi::player::PlayerSync&`, `PlaybackStateMachine&`, and `const MidiLoader&` in its constructor.
     - Move the `eventCallback()` logic and its helpers into a `handleEvent(cxxmidi::Event&)` method.
     - Move musical direction constants (`INTRO_END`, etc.) into this class.
 
-- [ ] **Step 4: Refactor `PlaybackEngine` into `PlaybackOrchestrator`**
+- [x] **Step 4: Refactor `PlaybackEngine` into `PlaybackOrchestrator`** ✅
     - Rename `PlaybackEngine` to `PlaybackOrchestrator`.
     - It will own instances of `PlaybackStateMachine`, `MusicalDirector`, and `RitardandoEffector`.
     - The `initialize()` method will be simplified to set up the callbacks, delegating to the new handler classes.
 
-- [ ] **Step 5: Refactor `main()` in `play.cpp`**
+- [x] **Step 5: Refactor `main()` in `play.cpp`** ✅
     - Update `main` to instantiate `PlaybackOrchestrator`.
 
 ---
@@ -53,19 +53,19 @@ The `PlaybackEngine` will be broken down into a high-level `PlaybackOrchestrator
 
 ### Refactoring Steps for `MidiLoader`
 
-- [ ] **Step 6: Create `EventPreProcessor.hpp/.cpp`**
+- [x] **Step 6: Create `EventPreProcessor.hpp/.cpp`** ✅
     - Create a new `EventPreProcessor` class. It will hold the state variables for extracted data (`title_`, `keySignature_`, `verses_`, `introSegments_`, etc.).
     - Create a primary public method: `bool processEvent(cxxmidi::Event& event)`. This method will contain the entire body of the original `MidiLoader::loadCallback`.
     - Move the helper methods (`processTempoEvent`, `processKeySignatureEvent`, etc.) from `MidiLoader` into `EventPreProcessor` as private helper methods.
     - Add public getters to this class for retrieving the extracted data (`getTitle()`, `getVerses()`, etc.).
     - Ensure that custom Meta Events are discarded (Fixes GitHub Issue #21).
 
-- [ ] **Step 7: Refine the `MidiLoader` Class**
+- [x] **Step 7: Refine the `MidiLoader` Class** ✅
     - `MidiLoader` will now have a member variable `std::unique_ptr<EventPreProcessor> eventProcessor_`.
     - The `MidiLoader::loadFile` method will create a new instance of `EventPreProcessor`.
     - The lambda for `midiFile_.SetCallbackLoad` will be simplified to a one-line call: `[this](auto& e){ return eventProcessor_->processEvent(e); }`.
     - After `midiFile_.Load()` completes, `MidiLoader` will expose the extracted data by adding getter methods that simply forward the call to the `eventProcessor_` instance (e.g., `const std::string& MidiLoader::getTitle() const { return eventProcessor_->getTitle(); }`).
     - Remove the data state and processing logic that has been moved to `EventPreProcessor`.
 
-- [ ] **Step 8: Update Consumers**
+- [x] **Step 8: Update Consumers** ✅
     - For consumers like `main()` and `PlaybackOrchestrator`, no significant changes should be needed, as the public interface of `MidiLoader` (its getters) will remain the same. This refactoring is now mostly internal to the MIDI loading subsystem.

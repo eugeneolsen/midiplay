@@ -90,7 +90,7 @@ FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause B
 
 ## License
 
-[MIT](LICENSE.md) 
+MIT - see [LICENSE](LICENSE.md) document.
 
 #### Licensed Dependencies:
 cxxmidi: MIT

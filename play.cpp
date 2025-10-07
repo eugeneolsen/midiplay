@@ -35,27 +35,20 @@ namespace fs = std::filesystem;
 
 using namespace midiplay;
 
-// i18n support
+// Internationalization support
 #include "i18n.hpp"
 
 using cxxmidi::output::Default;
 using cxxmidi::player::PlayerSync;
 
-// Version is now established from the latest git tag at build time
+// Version is established from the latest git tag at build time
 // The git tag takes the form "Version x.y.z"
-
-// Signal handling is now handled by the SignalHandler class
-// Timing is now handled by the TimingManager class
-// Playback orchestration is now handled by the PlaybackEngine class
-
 
 
 int main(int argc, char **argv)
 {
      // Initialize i18n
      MidiPlay::initializeI18n();
-
-     // Signal handler will be set up after startTime is initialized
 
      // Get command line arguments
      //

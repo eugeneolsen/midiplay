@@ -7,6 +7,7 @@
 
 #include "midi_loader.hpp"
 #include "playback_state_machine.hpp"
+#include "midi_markers.hpp"
 
 namespace MidiPlay {
 
@@ -88,11 +89,7 @@ private:
      */
     bool processFineMarker(const cxxmidi::Message& message);
     
-    // === Musical Direction Markers ===
-    static constexpr const char* INTRO_END = "]";
-    static constexpr const char* RITARDANDO_INDICATOR = R"(\)";
-    static constexpr const char* D_C_AL_FINE = "D.C. al Fine";
-    static constexpr const char* FINE_INDICATOR = "Fine";
+    // Note: Musical direction markers now in midi_markers.hpp
 };
 
 } // namespace MidiPlay

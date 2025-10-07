@@ -98,27 +98,27 @@ bool PlaybackEngine::eventCallback(Event& event) {
 
     // Process introduction markers if playing intro
     if (playingIntro_ && midiLoader_.getIntroSegments().size() > 0 && message.IsMeta()) {
-        if (message.IsMeta(Message::MetaType::Marker) && message.GetText() == INTRO_END) {
+        if (message.IsMeta(Message::MetaType::Marker) && message.GetText() == MidiMarkers::INTRO_END) {
             processIntroMarker(message);
         }
     }
     
     // Process ritardando markers (intro or last verse)
-    if ((playingIntro_ || lastVerse_) && message.IsMeta(Message::MetaType::Marker) 
-        && message.GetText() == RITARDANDO_INDICATOR) {
+    if ((playingIntro_ || lastVerse_) && message.IsMeta(Message::MetaType::Marker)
+        && message.GetText() == MidiMarkers::RITARDANDO_INDICATOR) {
         processRitardandoMarker(message);
     }
     
     // Process D.C. al Fine marker (last verse only)
     if (lastVerse_) {
-        if (message.IsMeta(Message::MetaType::Marker) && message.GetText() == D_C_AL_FINE) {
+        if (message.IsMeta(Message::MetaType::Marker) && message.GetText() == MidiMarkers::D_C_AL_FINE) {
             return processDCAlFineMarker(message);
         }
     }
     
     // Process Fine marker (when in al Fine mode)
-    if (alFine_ && message.IsMeta(Message::MetaType::Marker) 
-        && message.GetText() == FINE_INDICATOR) {
+    if (alFine_ && message.IsMeta(Message::MetaType::Marker)
+        && message.GetText() == MidiMarkers::FINE_INDICATOR) {
         return processFineMarker(message);
     }
     

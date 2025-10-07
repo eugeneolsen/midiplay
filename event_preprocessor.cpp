@@ -257,7 +257,7 @@ bool EventPreProcessor::processCustomMetaEvents(const Event& event, const Option
 void EventPreProcessor::processIntroductionMarkers(const Event& event) {
     if (event.IsMeta(Message::MetaType::Marker) && event.size() == 3) {
         std::string text = event.GetText();
-        if (text == INTRO_BEGIN) {    // Beginning of introduction segment
+        if (text == MidiMarkers::INTRO_BEGIN) {    // Beginning of introduction segment
             IntroductionSegment seg;
             seg.start = totalTrackTicks_;
             seg.end = 0;
@@ -265,7 +265,7 @@ void EventPreProcessor::processIntroductionMarkers(const Event& event) {
             introSegments_.push_back(seg);
         }
         
-        if (text == INTRO_END) {    // End of introduction segment
+        if (text == MidiMarkers::INTRO_END) {    // End of introduction segment
             if (!introSegments_.empty()) {
                 introSegments_.back().end = totalTrackTicks_;
             }

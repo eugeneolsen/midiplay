@@ -33,8 +33,6 @@
 
 namespace fs = std::filesystem;
 
-using namespace midiplay;
-
 // Internationalization support
 #include "i18n.hpp"
 

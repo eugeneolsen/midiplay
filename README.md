@@ -75,7 +75,7 @@ Currently supported **event types** are:
 Examples:
 
 `0x00FF7F037D0134` Play 4 verses.<br>
-`0x00FF7F047d020524` Pause for 1,320 ticks between verses.
+`0x00FF7F047d020528` Pause for 1,320 ticks between verses.
 
 #### *The following custom meta events currently work but are deprecated as they may conflict with current and future MIDI specifications:*
 
@@ -87,6 +87,13 @@ FF 0x10 01 <i>n</i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 FF 0x11 02 <i>tttt</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Pause Between Verses</b>
 
 >>*tttt* specifies the number of ticks to pause between verses, including between the introduction and the first verse.
+
+## License
+
+MIT - see [LICENSE](LICENSE.md) document.
+
+#### Licensed Dependencies:
+cxxmidi: MIT
 
 ## Release History
 Version 1.5.7 - 2925.10.02 Move magic strings to internationalization tables, localize.<br>

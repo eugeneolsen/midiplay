@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-06 23:51:25] Implemented centralized internationalization with proper plural handling
+
+## Rationale
+*   The original code had internationalization macros scattered across modules and used manual pluralization (adding 's') which doesn't work for all languages. We centralized all i18n functionality in i18n.hpp and implemented proper ngettext-based plural handling.
+
+## Implementation Details
+*   Created i18n.hpp with centralized macros, updated all modules to use it, fixed plural case in playback_engine.cpp, updated all .po files with proper plural forms, and tested with multiple locales.
+
+---
+## Decision
 *   [2025-10-02 22:17:28] Completed Phase 3: Production-Ready i18n Build Integration
 
 ## Rationale

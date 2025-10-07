@@ -1,10 +1,8 @@
 #include "midi_loader.hpp"
 #include "options.hpp"
+#include "i18n.hpp"
 #include <iostream>
 #include <cmath>
-#include <libintl.h>
-
-#define _(String) gettext(String)
 
 #include "midi_constants.hpp"
 
@@ -83,6 +81,8 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
         
         return false;
     }
+
+    isVerbose_ = options.isVerbose();
     
     // Initialize load callback before loading
     initializeLoadCallback(options);

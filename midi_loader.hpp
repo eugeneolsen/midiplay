@@ -101,6 +101,7 @@ public:
     bool shouldPlayIntro() const { return playIntro_; }
     bool hasPotentialStuckNote() const { return potentialStuckNote_; }
     bool isFirstTempo() const { return firstTempo_; }
+    bool isVerbose() const { return isVerbose_; }
     
     /**
      * Static utility method for file existence checking
@@ -145,6 +146,7 @@ private:
     bool playIntro_;
     bool potentialStuckNote_;
     bool firstTempo_;
+    bool isVerbose_; // For debug output
     
     // Load callback state variables
     int currentTrack_;

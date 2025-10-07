@@ -1,6 +1,7 @@
 #include "device_manager.hpp"
 #include "constants.hpp"
 #include "options.hpp"
+#include "i18n.hpp"
 
 #include <cxxmidi/output/default.hpp>
 #include <cxxmidi/message.hpp>
@@ -12,9 +13,6 @@
 #include <cstdlib>
 #include <pwd.h>
 #include <sys/types.h>
-#include <libintl.h>
-
-#define _(String) gettext(String)
 
 using cxxmidi::Event;
 using cxxmidi::Message;

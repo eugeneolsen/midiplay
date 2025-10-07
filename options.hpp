@@ -4,12 +4,10 @@
 #include <string>
 #include <unistd.h>
 #include <iostream>
-#include <libintl.h>
 
 #include <getopt.h>
 
-#define _(String) gettext(String)
-
+#include "i18n.hpp"
 #include <ecocommon/utility.hpp>
 #include "constants.hpp"
 

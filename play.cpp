@@ -35,10 +35,8 @@ namespace fs = std::filesystem;
 
 using namespace midiplay;
 
-// i18n macros
-#define _(String) gettext(String)
-#define PACKAGE "midiplay"
-#define LOCALEDIR "/usr/share/locale"
+// i18n support
+#include "i18n.hpp"
 
 using cxxmidi::output::Default;
 using cxxmidi::player::PlayerSync;
@@ -55,9 +53,7 @@ using cxxmidi::player::PlayerSync;
 int main(int argc, char **argv)
 {
      // Initialize i18n
-     setlocale(LC_ALL, "");
-     bindtextdomain(PACKAGE, LOCALEDIR);
-     textdomain(PACKAGE);
+     MidiPlay::initializeI18n();
 
      // Signal handler will be set up after startTime is initialized
 

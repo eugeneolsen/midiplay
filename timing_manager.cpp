@@ -1,12 +1,10 @@
 #include "timing_manager.hpp"
 #include "constants.hpp"
+#include "i18n.hpp"
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <libintl.h>
-
-#define _(String) gettext(String)
 
 namespace MidiPlay {
 

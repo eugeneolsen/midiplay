@@ -71,6 +71,7 @@ bool EventPreProcessor::processEvent(cxxmidi::Event& event, const Options& optio
         }
         
         if (0 == totalTrackTicks_) {  // Processing for Time Zero Meta events
+            processTrackNameEvent(event);
             processTimeSignatureEvent(event);
             processTempoEvent(event, options);
             processKeySignatureEvent(event);

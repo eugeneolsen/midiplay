@@ -142,7 +142,7 @@ void EventPreProcessor::processTempoEvent(const Event& event, const Options& opt
         
         if (firstTempo_) {
             bpm_ = options.getBpm();
-            int uSecPerBeat = options.get_uSecPerBeat();
+            int uSecPerBeat = options.getUsecPerBeat();
             float speed = options.getSpeed();
 
             if (uSecPerQuarter_ > 0) {

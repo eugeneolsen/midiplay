@@ -50,7 +50,7 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     playIntro_ = options.isPlayIntro();
     
     // Check for tempo override from command line
-    int tempoOverride = options.get_uSecPerBeat();
+    int tempoOverride = options.getUsecPerBeat();
     
     // Check if file exists (extracted from play.cpp lines 369-378)
     if (!fileExists(path)) {

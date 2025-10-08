@@ -1,40 +1,39 @@
 # Active Context
 ## Current Focus
-Code quality improvements following Phase 3 completion - comprehensive code smell review and critical fixes applied
+Installer infrastructure modernization - implemented automatic version detection from Git tags across all installer scripts
 
 ## Recent Completion
-Completed comprehensive code smell analysis and fixed 6 critical issues (5 High Priority + 1 Medium Priority). Created CODE_SMELLS.md documenting 22 total issues for future refactoring.
+Completed Git tag version automation implementation with SRP/DRY-compliant library architecture. Created 5 single-responsibility libraries, refactored 3 scripts, and fixed translation validation bug.
 
 ## Files Modified
-*   play.cpp (updated to use PlaybackOrchestrator)
-*   .vscode/tasks.json (updated build with new source files)
-*   event_preprocessor.cpp (fixed title extraction and verse override)
-*   event_preprocessor.hpp (added setVersesFromOptions method)
-*   midi_loader.cpp (call setVersesFromOptions after loading)
+*   update-installer-package.sh (refactored to use libraries, 85 lines shorter)
+*   create-installer-archive.sh (added translation validation)
+*   midiplay-installer/install.sh (dynamic version detection)
+*   UPDATE-PACKAGE-GUIDE.md (added script usage guide)
 
 ## Files Created
-*   playback_state_machine.hpp
-*   playback_orchestrator.hpp
-*   playback_orchestrator.cpp
-*   musical_director.hpp
-*   musical_director.cpp
-*   ritardando_effector.hpp
-*   ritardando_effector.cpp
-*   PLAYBACK_ENGINE_REFACTOR_PLAN.md
+*   lib/version.sh (version detection with 4-tier fallback)
+*   lib/translations.sh (translation compilation)
+*   lib/packaging.sh (archive creation)
+*   lib/metadata.sh (metadata updates)
+*   lib/validation.sh (package validation)
+*   lib/README.md (library documentation)
+*   VERSION_AUTOMATION_PLAN.md (implementation plan)
+*   IMPLEMENTATION_SUMMARY.md (complete summary)
 
 ## Major Achievements
-*   Extracted 243 lines of playback logic from play.cpp into PlaybackEngine module
-*   Extracted 52 lines of timing logic from play.cpp into TimingManager module
-*   Reduced play.cpp to ~145 lines of pure orchestration
-*   Eliminated redundant parameters - PlaybackEngine receives only player, semaphore, midiLoader
-*   Improved encapsulation - speed and playback info display moved into appropriate modules
-*   Created comprehensive architectural design document (PLAYBACK_EXTRACTION_PLAN.md)
+*   Eliminated hard-coded version numbers across all installer scripts
+*   Implemented automatic version detection from Git tags (same as build system)
+*   Created SRP/DRY-compliant library architecture (5 single-purpose modules)
+*   Fixed bug: create-installer-archive.sh now validates translations before archiving
+*   Reduced code duplication by ~200+ lines
+*   Achieved version consistency: Git tags → build → installer → distribution
 
 ## Technical Transformation
 {'before': 'Hardcoded device detection in play.cpp, inflexible configuration', 'after': 'Modular DeviceManager with YAML-driven configuration system, external device definition without code changes'}
 
 ## Installer Status
-Production-ready v1.5.0 installer with YAML configuration support - validated by user installation
+Production-ready with automatic version management - version flows from Git tags through entire build and distribution pipeline
 
 ## Next Potential Tasks
 *   Phase 2, Item 3: Extract midi_loader.cpp (next on refactor plan)
@@ -89,12 +88,11 @@ Extract playback control callbacks, intro/verse management, ritardando logic, an
 {'completed_items': ['Task A: Eliminated ALL global variables from play.cpp (outport moved to local, displayWarnings in Options, sem replaced by PlaybackSynchronizer)', 'Task C: Modernized synchronization from POSIX sem_t to C++ std::condition_variable + std::mutex', 'Created PlaybackSynchronizer class with RAII-based resource management', 'Updated PlaybackEngine to use PlaybackSynchronizer reference instead of sem_t', 'Updated SignalHandler to use PlaybackSynchronizer reference instead of sem_t', 'Removed all POSIX semaphore includes and function calls', 'Comprehensive testing: all playback scenarios, signal handling, memory validation'], 'status': '95% COMPLETE', 'remaining_items': ['Task B: Remove namespace pollution (using namespace directives) - 30 min', 'Task E: Eliminate magic strings (create messages.hpp) - 1-2 hours', 'Task D: Document TODO features (optional)'], 'next_steps': ["Task B: Remove 'using namespace cxxmidi' from play.cpp and playback_engine.cpp", 'Task E: Create messages.hpp with constexpr string_view constants for all user messages', 'Update documentation with Phase 3 completion summary']}
 
 ## Technical Improvements
-*   Eliminated last global variable from play.cpp (sem_t → PlaybackSynchronizer)
-*   Improved portability: POSIX-specific → standard C++
-*   Enhanced exception safety through RAII (automatic cleanup)
-*   Better encapsulation: local synchronizer object instead of global
-*   More expressive API: .wait()/.notify() instead of sem_wait/sem_post
-*   Zero runtime overhead: condition_variable has same performance as semaphore
+*   Four-tier version detection: manual override → Git tags → .VERSION file → binary → directory parsing
+*   Semantic version extraction matching options.hpp pattern
+*   All scripts support --version override for edge cases
+*   Translation compilation integrated into update workflow
+*   Package validation prevents incomplete archives
 
 ## Architectural Achievement
 Phase 3 milestone: play.cpp now has ZERO global variables except static version string. All synchronization uses modern C++ standard library primitives.
@@ -104,7 +102,7 @@ Phase 3 milestone: play.cpp now has ZERO global variables except static version 
 *   Verse count override (-n and -x flags) not honored - implemented setVersesFromOptions() to apply command-line overrides with proper priority
 
 ## Testing Results
-{'synchronization_tests': {'simple_playback': 'PASSED ✅', 'multi_verse_playback': 'PASSED ✅', 'introduction_playback': 'PASSED ✅', 'ritardando': 'PASSED ✅', 'dc_al_fine': 'PASSED ✅', 'ctrl_c_during_intro': 'PASSED ✅', 'ctrl_c_during_verse': 'PASSED ✅', 'ctrl_c_during_pause': 'PASSED ✅', 'valgrind_check': 'PASSED ✅ - 0 memory leaks, 0 errors', 'edge_cases': 'NOT PERFORMED (very short/long files, thread sanitizer)'}}
+{'version_detection': 'PASSED ✅ - correctly extracts 1.5.8 from Version-1.5.8-47-gdafb50f', 'manual_override': 'PASSED ✅ - honors --version flag', 'semantic_extraction': 'PASSED ✅ - handles multiple tag formats (v1.2.3, Version-1.2.3)'}
 
 ## Recent Accomplishments
 *   Phase 3: Build System and Installer Integration completed
@@ -141,4 +139,7 @@ Phase 3 milestone: play.cpp now has ZERO global variables except static version 
 
 ## Code Quality Status
 {'high_priority_issues': 'ALL FIXED (5/5 completed)', 'medium_priority_issues': '1/10 fixed', 'low_priority_issues': '0/7 fixed', 'total_remaining': '16 issues documented for future sessions'}
+
+## Architecture Improvements
+{'before': 'Hard-coded versions in 3 scripts, duplicated logic, no translation validation', 'after': 'Dynamic version from Git tags, 5 reusable libraries following SRP, complete validation'}
 

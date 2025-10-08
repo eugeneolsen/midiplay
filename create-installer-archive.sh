@@ -1,108 +1,138 @@
 #!/bin/bash
 # Script to create a distributable archive of the midiplay installer
+# Refactored to use SRP/DRY-compliant library modules
 
 set -e
+
+# Get script directory for sourcing libraries
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source required library modules
+source "$SCRIPT_DIR/lib/version.sh"
+source "$SCRIPT_DIR/lib/validation.sh"
+source "$SCRIPT_DIR/lib/packaging.sh"
+source "$SCRIPT_DIR/lib/metadata.sh"
 
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 ARCHIVE_NAME="midiplay-installer"
-VERSION="1.5.7"
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+print_info() {
+    echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -v, --version VERSION Specify version number (auto-detected if not provided)"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                   # Auto-detect version from Git tags or .VERSION"
+    echo "  $0 -v 1.6.0         # Use specific version"
+}
+
+# Parse command line arguments
+PROVIDED_VERSION=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -v|--version)
+            PROVIDED_VERSION="$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        *)
+            print_error "Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
 
 echo -e "${BLUE}📦 Creating Organ Pi MIDI File Player Installer Archive${NC}"
 echo -e "${BLUE}====================================================${NC}"
 echo ""
 
 # Check if the installer directory exists
-if [[ ! -d "midiplay-installer" ]]; then
-    echo "❌ Error: midiplay-installer directory not found!"
+if [[ ! -d "$ARCHIVE_NAME" ]]; then
+    print_error "Installer directory not found: $ARCHIVE_NAME"
     echo "Please run this script from the project root directory."
     exit 1
 fi
 
-# Check if the play binary exists in the installer
-if [[ ! -f "midiplay-installer/debian-package/usr/local/bin/play" ]]; then
-    echo "❌ Error: play binary not found in installer package!"
-    echo "The installer structure is incomplete."
+# Detect version using library function
+VERSION=$(get_version "$PROVIDED_VERSION")
+if [[ $? -ne 0 ]]; then
+    print_error "Failed to detect version"
+    echo ""
+    echo "Attempted:"
+    echo "  ✗ Git tags (git not available or no tags found)"
+    echo "  ✗ .VERSION file (file not found)"
+    echo "  ✗ Binary extraction (binary not found or no version string)"
+    echo "  ✗ Directory name parsing (directory name doesn't match pattern)"
+    echo ""
+    echo "Solutions:"
+    echo "  1. Provide version manually: $0 --version X.Y.Z"
+    echo "  2. Ensure you're in a Git repository with version tags"
+    echo "  3. Run update-installer-package.sh first to set up the package"
     exit 1
 fi
 
-# Verify all required files are present
-echo "Verifying installer package contents..."
-required_files=(
-    "midiplay-installer/install.sh"
-    "midiplay-installer/uninstall.sh"
-    "midiplay-installer/README.md"
-    "midiplay-installer/debian-package/DEBIAN/control"
-    "midiplay-installer/debian-package/DEBIAN/postinst"
-    "midiplay-installer/debian-package/DEBIAN/prerm"
-    "midiplay-installer/debian-package/usr/local/bin/play"
-    "midiplay-installer/debian-package/etc/midiplay/midi_devices.yaml"
-)
+print_info "Using version: $VERSION"
 
-for file in "${required_files[@]}"; do
-    if [[ ! -f "$file" ]]; then
-        echo "❌ Missing required file: $file"
-        exit 1
-    fi
-done
-
-echo -e "${GREEN}✅ All required files present${NC}"
-
-# Create tar.gz archive
+# Validate package structure using library function
 echo ""
-echo "Creating compressed archive..."
-ARCHIVE_FILE="${ARCHIVE_NAME}-v${VERSION}.tar.gz"
-
-if tar -czf "$ARCHIVE_FILE" midiplay-installer/; then
-    echo -e "${GREEN}✅ Archive created: $ARCHIVE_FILE${NC}"
-else
-    echo "❌ Failed to create archive"
+if ! validate_package_structure "$ARCHIVE_NAME"; then
+    print_error "Package validation failed"
+    echo "Please ensure the package structure is complete."
+    echo "You may need to run: ./update-installer-package.sh"
     exit 1
 fi
 
-# Create zip archive as alternative
-echo "Creating zip archive..."
-ZIP_FILE="${ARCHIVE_NAME}-v${VERSION}.zip"
-
-if zip -r "$ZIP_FILE" midiplay-installer/ > /dev/null; then
-    echo -e "${GREEN}✅ Zip archive created: $ZIP_FILE${NC}"
-else
-    echo "❌ Failed to create zip archive"
+# Update .VERSION file to ensure it's current
+echo ""
+if ! create_version_file "$VERSION"; then
+    print_error "Failed to create .VERSION file"
     exit 1
 fi
 
-# Display archive information
+# Create archives using library function
 echo ""
-echo -e "${BLUE}📊 Archive Information:${NC}"
-echo "----------------------------------------"
-echo "Tar.gz file: $ARCHIVE_FILE"
-echo "Size: $(du -h "$ARCHIVE_FILE" | cut -f1)"
-echo ""
-echo "Zip file: $ZIP_FILE"
-echo "Size: $(du -h "$ZIP_FILE" | cut -f1)"
-echo ""
-
-# Display contents
-echo -e "${BLUE}📋 Archive Contents:${NC}"
-echo "----------------------------------------"
-tar -tzf "$ARCHIVE_FILE" | head -20
-if [[ $(tar -tzf "$ARCHIVE_FILE" | wc -l) -gt 20 ]]; then
-    echo "... and more files"
+if ! create_archives "$VERSION" "$ARCHIVE_NAME"; then
+    print_error "Archive creation failed"
+    exit 1
 fi
 
 echo ""
-echo -e "${GREEN}🎉 Installer archives created successfully!${NC}"
+print_status "Installer archives created successfully!"
 echo ""
-echo -e "${BLUE}Distribution Instructions:${NC}"
-echo "1. Upload $ARCHIVE_FILE or $ZIP_FILE to your distribution platform"
-echo "2. Users should download and extract the archive"
-echo "3. Users run: cd midiplay-installer && ./install.sh"
+print_info "Distribution Instructions:"
+echo "  1. Upload midiplay-installer-v${VERSION}.tar.gz or .zip to your distribution platform"
+echo "  2. Users should download and extract the archive"
+echo "  3. Users run: cd midiplay-installer && ./install.sh"
 echo ""
-echo -e "${BLUE}Testing:${NC}"
-echo "To test the installer locally:"
-echo "  tar -xzf $ARCHIVE_FILE"
-echo "  cd midiplay-installer"
-echo "  ./install.sh"
+print_info "Testing:"
+echo "  To test the installer locally:"
+echo "    tar -xzf midiplay-installer-v${VERSION}.tar.gz"
+echo "    cd midiplay-installer"
+echo "    ./install.sh"

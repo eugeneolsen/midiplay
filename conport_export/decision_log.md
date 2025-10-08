@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-08 20:23:31] Automated version detection from Git tags for installer scripts
+
+## Rationale
+*   Eliminates hard-coded version numbers and ensures consistency between build system and installer. Uses same approach as build system (git describe --tags) with semantic version extraction matching options.hpp pattern. Follows DRY principle by centralizing version logic in reusable libraries.
+
+## Implementation Details
+*   Created 5 SRP-compliant library modules (lib/version.sh, translations.sh, packaging.sh, metadata.sh, validation.sh). Implemented 4-tier version detection: manual override → Git tags → .VERSION file → binary extraction → directory parsing. Refactored update-installer-package.sh, create-installer-archive.sh, and install.sh to use libraries. Fixed bug where archives could be created without translations. Reduced code duplication by ~200+ lines.
+
+---
+## Decision
 *   [2025-10-08 17:47:40] Fixed Issue #16: Standardized Naming Convention in Options Class
 
 ## Rationale

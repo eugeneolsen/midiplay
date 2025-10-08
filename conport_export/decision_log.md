@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-08 00:14:56] Fixed Issue #15: Debug Output Without i18n - Wrapped in _() Macros
+
+## Rationale
+*   Debug output string 'Available MIDI ports:' in device_manager.cpp was not wrapped in _() macro, breaking i18n consistency. While this is DEBUG-only output, wrapping it maintains full i18n coverage and allows for translated debug output in multi-language development environments.
+
+## Implementation Details
+*   Wrapped the debug string at device_manager.cpp:366 in _() macro. Added translations to all four .po files: es.po (Spanish), fr_FR.po (French), fr_CA.po (French Canadian), and pt_BR.po (Portuguese Brazilian). Build completed successfully.
+
+---
+## Decision
 *   [2025-10-07 23:46:40] Fixed Issue #12: Removed Unnecessary TimeSignature Message Size Check
 
 ## Rationale

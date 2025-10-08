@@ -83,9 +83,6 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
             // This will need to be handled by EventPreProcessor
         }
         
-        // Scan Track 0 for meta events (extracted from play.cpp lines 397-413)
-        scanTrackZeroMetaEvents();
-        
         // Apply verse count from command-line options (takes priority over MIDI file)
         eventProcessor_->setVersesFromOptions(options.getVerses());
         
@@ -114,21 +111,14 @@ bool MidiLoader::loadCallback(Event& event, const Options& options) {
     return eventProcessor_->processEvent(event, options);
 }
 
-// Scan Track 0 for meta events (extracted from play.cpp lines 397-413)
-void MidiLoader::scanTrackZeroMetaEvents() {
-    // This method may be simplified or removed since EventPreProcessor handles this
-    // For now, keeping the structure but delegating to EventPreProcessor if needed
-}
 
 // Finalize loading process (extracted from play.cpp lines 415-423)
 void MidiLoader::finalizeLoading() {
-    // Set default verses if not specified - EventPreProcessor handles this
-    // If there are no intro markers in file, can't play intro
+    // If there are no intro markers in the MIDI file, can't play intro
     // regardless of command-line option
-    if (eventProcessor_->getIntroSegments().size() == 0) {
+    if (eventProcessor_->getIntroSegments().size() == 0) { 
         playIntro_ = false;      // Override command line option if no markers
     }
-    // Otherwise playIntro_ retains value from options (set in loadFile)
 }
 
 // Forwarding getter implementations

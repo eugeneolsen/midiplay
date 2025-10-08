@@ -333,3 +333,7 @@ msgstr "Nenhum nome de arquivo fornecido. Você deve fornecer um nome de arquivo
 #: options.hpp:271
 msgid "Unrecognized argument: "
 msgstr "Argumento não reconhecido: "
+
+#: device_manager.cpp:366
+msgid "Available MIDI ports:"
+msgstr "Portas MIDI disponíveis:"

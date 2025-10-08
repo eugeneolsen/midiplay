@@ -363,7 +363,7 @@ namespace MidiPlay {
 
 #if defined(DEBUG)
             // Debug output: show all available ports
-            std::cout << "Available MIDI ports:" << std::endl;
+            std::cout << _("Available MIDI ports:") << std::endl;
             for (size_t j = 0; j < portCount; j++) {
                 std::cout << j << ": " << outport.GetPortName(j) << std::endl;
             }

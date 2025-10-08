@@ -1057,5 +1057,8 @@ context_portal/context.db
 *.pot
 *.po~
 
+# Transitory installer files
+.VERSION
+
 # The application binary
 play

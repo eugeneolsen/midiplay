@@ -1,6 +1,17 @@
 # Progress Log
 
 ## Completed Tasks
+*   [2025-10-08 17:47:49] Issue #16: Inconsistent Naming Convention - RESOLVED
+*   [2025-10-08 00:28:39] Issue #10: Oversized parse() Method - RESOLVED (LAST MEDIUM-PRIORITY ISSUE!)
+*   [2025-10-08 00:15:03] Issue #15: Debug Output Without i18n - RESOLVED
+*   [2025-10-08 00:09:25] Issue #14: Placeholder/TODO Code - RESOLVED (manually fixed by user)
+*   [2025-10-08 00:09:20] Issue #13: Dead Code - Unused Variable Assignment - RESOLVED (manually fixed by user)
+*   [2025-10-07 23:46:46] Issue #12: Magic Number - TimeSignature Message Size - RESOLVED
+*   [2025-10-07 23:21:40] Issue #9: Boolean Flag Instead of std::optional - RESOLVED
+*   [2025-10-07 23:11:58] Issue #8: Inconsistent Error Handling in DeviceManager - RESOLVED
+*   [2025-10-07 22:59:06] Issue #7: Musical Marker Constants Duplicated Across 3 Files - RESOLVED
+*   [2025-10-07 22:44:57] Code Quality Fixes: Applied 6 critical fixes (5 High Priority + 1 Medium Priority) including i18n coverage, modernization, and code duplication elimination
+*   [2025-10-07 22:44:42] Code Smell Review: Comprehensive codebase analysis and CODE_SMELLS.md creation (22 issues documented)
 *   [2025-10-07 15:48:06] Created EventPreProcessor class with proper custom meta event handling to fix GitHub Issue #21
 *   [2025-10-07 15:47:23] Completed ThreadSanitizer VMA range error analysis and MidiLoader refactoring with EventPreProcessor implementation
 *   [2025-10-02 19:24:42] i18n Phase 1: Proof of Concept & Core Integration - COMPLETED: gettext integrated, 4 languages (es, pt_BR, fr_FR, fr_CA) working

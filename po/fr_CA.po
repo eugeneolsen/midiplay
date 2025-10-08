@@ -82,6 +82,14 @@ msgstr ""
 msgid "  Ritardando"
 msgstr "  Ritardando"
 
+#: signal_handler.cpp:60
+msgid "\nElapsed time "
+msgstr "\nTemps écoulé "
+
+#: device_manager.cpp:33
+msgid "Cannot convert unknown device type to key"
+msgstr "Impossible de convertir le type d'appareil inconnu en clé"
+
 #: device_manager.cpp:33
 msgid ""
 "Device connection timeout. No device found. Connect a MIDI device and try "
@@ -89,6 +97,10 @@ msgid ""
 msgstr ""
 "Délai de connexion de l'appareil dépassé. Aucun appareil trouvé. Connectez "
 "un appareil MIDI et réessayez."
+
+#: device_manager.cpp:71
+msgid "Cannot create device for unknown or unsupported device type"
+msgstr "Impossible de créer un appareil pour un type d'appareil inconnu ou non pris en charge"
 
 #: device_manager.cpp:52
 msgid ""
@@ -325,3 +337,7 @@ msgstr "Aucun nom de fichier fourni. Vous devez fournir un nom de fichier à lir
 #: options.hpp:271
 msgid "Unrecognized argument: "
 msgstr "Argument non reconnu : "
+
+#: device_manager.cpp:366
+msgid "Available MIDI ports:"
+msgstr "Ports MIDI disponibles :"

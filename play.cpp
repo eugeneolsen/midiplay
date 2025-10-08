@@ -33,8 +33,6 @@
 
 namespace fs = std::filesystem;
 
-using namespace midiplay;
-
 // Internationalization support
 #include "i18n.hpp"
 
@@ -99,10 +97,10 @@ int main(int argc, char **argv)
    // Use DeviceManager to handle device connection and setup
    MidiPlay::DeviceManager deviceManager(options);
    
-   // Load YAML configuration if available
-   deviceManager.loadDevicePresets();
-   
    try {
+       // Load YAML configuration (mandatory)
+       deviceManager.loadDevicePresets();
+       
        // Connect to device and detect its type
        MidiPlay::DeviceInfo deviceInfo = deviceManager.connectAndDetectDevice(outport);
        
@@ -151,4 +149,5 @@ int main(int argc, char **argv)
      timingManager.displayElapsedTime();
      
      // Note: synchronizer cleanup happens automatically via RAII
+     return EXIT_SUCCESS;
 }

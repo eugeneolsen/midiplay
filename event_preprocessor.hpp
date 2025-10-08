@@ -9,6 +9,7 @@
 #include "ticks.hpp"
 #include "custommessage.hpp"
 #include "constants.hpp"
+#include "midi_markers.hpp"
 
 // Forward declaration
 class Options;
@@ -153,12 +154,7 @@ private:
     static constexpr uint8_t DEPRECATED_META_EVENT_VERSES = 0x10;
     static constexpr uint8_t DEPRECATED_META_EVENT_PAUSE = 0x11;
     
-    // Introduction and musical direction markers
-    static constexpr const char* INTRO_BEGIN = "[";
-    static constexpr const char* INTRO_END = "]";
-    static constexpr const char* RITARDANDO_INDICATOR = R"(\)";
-    static constexpr const char* D_C_AL_FINE = "D.C. al Fine";
-    static constexpr const char* FINE_INDICATOR = "Fine";
+    // Note: Musical direction markers now in midi_markers.hpp
 };
 
 } // namespace MidiPlay

@@ -7,6 +7,7 @@
 
 #include "midi_loader.hpp"
 #include "playback_synchronizer.hpp"
+#include "midi_markers.hpp"
 
 namespace MidiPlay {
 
@@ -158,11 +159,7 @@ private:
     static constexpr float RITARDANDO_DECREMENT = 0.002f;
     static constexpr int VERSE_DISPLAY_OFFSET = 1;
     
-    // Musical direction markers (from MidiLoader but used here)
-    static constexpr const char* INTRO_END = "]";
-    static constexpr const char* RITARDANDO_INDICATOR = R"(\)";
-    static constexpr const char* D_C_AL_FINE = "D.C. al Fine";
-    static constexpr const char* FINE_INDICATOR = "Fine";
+    // Note: Musical direction markers now in midi_markers.hpp
 };
 
 } // namespace MidiPlay

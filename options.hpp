@@ -34,24 +34,85 @@ static struct option long_options[] = {
 
 class Options
 {
-private: 
-    int _argc;
-    char** _argv;
+private:
+    int argc_;
+    char** argv_;
 
-    int _bpm = 0;
-    int _verses;    // Set in constructor
-    int _uSecPerBeat = 0;
+    int bpm_ = 0;
+    int verses_;    // Set in constructor
+    int usec_per_beat_ = 0;
 
-    float _speed = 1.0;
-    bool _staging = false;
-    bool _prepost = false;
-    bool _playIntro = true;
-    bool _verbose = false;
-    bool _displayWarnings = false;
-    std::string _filename;  // Provided as a command line argument
-    std::string _urlName;    // Second command line argument
-    std::string _title;      // Hymn title
+    float speed_ = 1.0;
+    bool staging_ = false;
+    bool prepost_ = false;
+    bool play_intro_ = true;
+    bool verbose_ = false;
+    bool display_warnings_ = false;
+    std::string filename_;  // Provided as a command line argument
+    std::string url_name_;    // Second command line argument
+    std::string title_;      // Hymn title
 
+    // Private helper methods for option handling
+    void displayVersion() const {
+        std::cout << _("Organ Pi play MIDI file command\n");
+        std::cout << _("===============================\n");
+        std::cout << _("  Version ") << getSemanticVersion() << "\n" << std::endl;
+    }
+    
+    void displayHelp() const {
+        std::cout << _("Organ Pi play MIDI file command, version ") << getSemanticVersion() << std::endl;
+        std::cout << _("===============================================\n") << std::endl;
+        std::cout << _("Usage:\n") << std::endl;
+        std::cout << "play <filename> options\n" << std::endl;
+        std::cout << "  --goto=<marker | measure>  -g<marker | measure>   " << _("If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)") << std::endl;
+        std::cout << "  --help -h -? " << _("This text.") << std::endl;
+        std::cout << "  -n<verses> " << _("Play the introduction followed by the specified number of verses.") << std::endl;
+        std::cout << "  --prelude=<speed> -p<speed> " << _("Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>") << std::endl;
+        std::cout << "  --staging   " << _("Play the file from the staging directory, if present.") << std::endl;
+        std::cout << "  --tempo=<bpm> -t<bpm>  " << _("Force tempo to the specified number of beats per minute.") << std::endl;
+        std::cout << "  --version -v  " << _("Version of this command") << std::endl;
+        std::cout << "  -x<verses> " << _("Number of verses to play without introduction.\n") << std::endl;
+    }
+    
+    void handlePreludeOption(const char* optarg) {
+        verses_ = 2;        // Play 2 verses
+        play_intro_ = false; // Don't play introduction
+
+        if (optarg) {
+            // convert 2-digit number to float and divide by 10
+            if (isNumeric(optarg)) {
+                std::string s = optarg;
+                float speedOption = std::stof(s) / PRELUDE_SPEED_DIVISOR;
+
+                if (speedOption < PRELUDE_MIN_SPEED || speedOption > PRELUDE_MAX_SPEED) {
+                    speed_ = 1;
+                } else {
+                    speed_ = speedOption;
+                }
+            }
+        } else {
+            speed_ = DEFAULT_PRELUDE_SPEED;
+        }
+
+        prepost_ = true;
+    }
+    
+    void handleTempoOption(const char* optarg) {
+        if (isNumeric(optarg)) {
+            bpm_ = std::stoi(optarg);
+            usec_per_beat_ = MidiPlay::MICROSECONDS_PER_MINUTE / bpm_;
+        } else {
+            std::cout << _("Tempo must be numeric.  Exiting program.") << std::endl;
+            exit(1);
+        }
+    }
+    
+    void handleVersesOption(const char* optarg, bool playIntro) {
+        if (isNumeric(optarg)) {
+            verses_ = std::stoi(std::string(optarg));
+            play_intro_ = playIntro;
+        }
+    }
 
 public:
     static std::string getSemanticVersion() {
@@ -66,58 +127,58 @@ public:
 
     // Constructor
     Options(int argc, char** argv) {
-        _argc = argc;
-        _argv = argv;
+        argc_ = argc;
+        argv_ = argv;
 
-        _verses = 0;
+        verses_ = 0;
     }
 
     int getBpm() const {
-        return _bpm;
+        return bpm_;
     }
 
     int getVerses() const {
-        return _verses;
+        return verses_;
     }
 
-    int get_uSecPerBeat() const {
-        return _uSecPerBeat;
+    int getUsecPerBeat() const {
+        return usec_per_beat_;
     }
 
     float getSpeed() const {
-        return _speed;
+        return speed_;
     }
 
     bool isStaging() const {
-        return _staging;
+        return staging_;
     }
 
     bool isPrePost() const {
-        return _prepost;
+        return prepost_;
     }
 
     bool isPlayIntro() const {
-        return _playIntro;
+        return play_intro_;
     }
 
     bool isVerbose() const {
-        return _verbose;
+        return verbose_;
     }
 
     bool isDisplayWarnings() const {
-        return _displayWarnings;
+        return display_warnings_;
     }
 
     std::string getFileName() const {
-        return _filename;
+        return filename_;
     }
 
     std::string getUrlName() const {
-        return _urlName;
+        return url_name_;
     }
 
     std::string getTitle() const {
-        return _title;
+        return title_;
     }
 
     int parse()
@@ -126,147 +187,95 @@ public:
         int option_index = 0;
 
         // Loop until there are no more options
-        while ((opt = getopt_long(_argc, _argv, "vVx:g:hn:p::st:W?", long_options, &option_index)) != -1)
+        while ((opt = getopt_long(argc_, argv_, "vVx:g:hn:p::st:W?", long_options, &option_index)) != -1)
         {
             switch (opt)
             {
             case 'g':   // Goto measure or marker
-                if (isNumeric(optarg))
-                {
+                if (isNumeric(optarg)) {
                     // TODO: Go to measure
                 } else {
                     // TODO: Go to marker
                 }
-
                 std::cout << _("Goto option not yet implemented. Starting at the beginning.") << std::endl;
                 break;
-            case 'p':              // Prelude/Postlude
-                _verses = 2;        // Play 2 verses
-                _playIntro = false; // Don't play introduction
-
-                if (optarg)
-                {
-                    // convert 2-digit number to float and divide by 10
-                    if (isNumeric(optarg))
-                    {
-                        std::string s = optarg;
-                        float speedOption = std::stof(s) / PRELUDE_SPEED_DIVISOR;
-
-                        if (speedOption < PRELUDE_MIN_SPEED || speedOption > PRELUDE_MAX_SPEED)
-                        {
-                            _speed = 1;
-                        }
-                        else
-                        {
-                            _speed = speedOption;
-                        }
-                    }
-                }
-                else
-                {
-                    _speed = DEFAULT_PRELUDE_SPEED;
-                }
-
-                _prepost = true;
+                
+            case 'p':   // Prelude/Postlude
+                handlePreludeOption(optarg);
                 break;
+                
             case 'c':   // Channel override: -channel=n where n = 1 or 2 for Swell or Great
                 // TO DO: Implement channel override
                 break;
 
-            case 'n':
-                if (isNumeric(optarg))
-                {
-                    _verses = std::stoi(std::string(optarg));
-                    _playIntro = true;
-                }
+            case 'n':   // Verses with introduction
+                handleVersesOption(optarg, true);
                 break;
-            case 'x':
-                if (isNumeric(optarg))
-                {
-                    _verses = std::stoi(std::string(optarg));
-                    _playIntro = false;
-                }
+                
+            case 'x':   // Verses without introduction
+                handleVersesOption(optarg, false);
                 break;
+                
             case 's':   // Staging
-                _staging = true;
+                staging_ = true;
                 break;
             
             case 'S':   // stops=<file name>
                 // TO DO: implement stops override
                 break;
 
-            case 't':
-                if (isNumeric(optarg))
-                {
-                    _bpm = std::stoi(optarg);
-                    _uSecPerBeat = MidiPlay::MICROSECONDS_PER_MINUTE / _bpm;
-                }
-                else
-                {
-                    std::cout << _("Tempo must be numeric.  Exiting program.") << std::endl;
-                    exit(1);
-                }
+            case 't':   // Tempo
+                handleTempoOption(optarg);
                 break;
-            case 'T':
-                _title = optarg;
+                
+            case 'T':   // Title
+                title_ = optarg;
                 break;
-            case 'v':
-                std::cout << _("Organ Pi play MIDI file command\n");
-                std::cout << _("===============================\n");
-                std::cout << _("  Version ") << getSemanticVersion() << "\n" << std::endl;
+                
+            case 'v':   // Version
+                displayVersion();
                 return -2;
-            case 'V':
-                _verbose = true;
+                
+            case 'V':   // Verbose
+                verbose_ = true;
                 break;
-            case 'W':
-                _displayWarnings = true;
+                
+            case 'W':   // Warnings
+                display_warnings_ = true;
                 break;
-            case 'h':
+                
+            case 'h':   // Help
             case '?':
-                std::cout << _("Organ Pi play MIDI file command, version ") << getSemanticVersion() << std::endl;
-                std::cout << _("===============================================\n") << std::endl;
-                std::cout << _("Usage:\n") << std::endl;
-                std::cout << "play <filename> options\n" << std::endl;
-                std::cout << "  --goto=<marker | measure>  -g<marker | measure>   " << _("If argument is numeric, start at the measure number; if has alpha, start at marker. (not yet implemented)") << std::endl;
-                std::cout << "  --help -h -? " << _("This text.") << std::endl;
-                std::cout << "  -n<verses> " << _("Play the introduction followed by the specified number of verses.") << std::endl;
-                std::cout << "  --prelude=<speed> -p<speed> " << _("Prelude/postlude.  <speed> is optional, default is 9, which is 90%.  10 is 100%.  Plays 2 verses by default; can be modified by -x<verses>") << std::endl;
-                std::cout << "  --staging   " << _("Play the file from the staging directory, if present.") << std::endl;
-                std::cout << "  --tempo=<bpm> -t<bpm>  " << _("Force tempo to the specified number of beats per minute.") << std::endl;
-                std::cout << "  --version -v  " << _("Version of this command") << std::endl;
-                std::cout << "  -x<verses> " << _("Number of verses to play without introduction.\n") << std::endl;
+                displayHelp();
                 return 1;
+                
             default:
                 abort();
             }
         }
 
         // If there are still arguments left, they are positional arguments
-        if (optind < _argc)
-        { // optind is declared in <getopt.h> as the index of the next non-option
-            _filename = _argv[optind];
+        if (optind < argc_) {
+            // optind is declared in <getopt.h> as the index of the next non-option
+            filename_ = argv_[optind];
 #if defined(DEBUG)
-            std::cout << "Filename: " << _argv[optind] << std::endl;
+            std::cout << "Filename: " << argv_[optind] << std::endl;
 #endif
             optind++;
-        }
-        else
-        {
+        } else {
             std::cerr << _("No filename provided. You must pass an file name to play.") << std::endl;
             return 1;
         }
 
         // Get urlName, if present
-        if (optind < _argc)
-        {
-            _urlName = _argv[optind];
+        if (optind < argc_) {
+            url_name_ = argv_[optind];
             optind++;
         }
 
         // Handle any remaining arguments (if necessary)
-        while (optind < _argc)
-        {
-            std::cerr << _("Unrecognized argument: ") << _argv[optind] << std::endl;
+        while (optind < argc_) {
+            std::cerr << _("Unrecognized argument: ") << argv_[optind] << std::endl;
             optind++;
         }
 

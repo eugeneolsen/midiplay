@@ -2,6 +2,86 @@
 
 ---
 ## Decision
+*   [2025-10-08 17:47:40] Fixed Issue #16: Standardized Naming Convention in Options Class
+
+## Rationale
+*   The Options class had inconsistent private member naming - mixing snake_case (_filename) with camelCase (_uSecPerBeat, _playIntro, _displayWarnings, _urlName). This violates C++ Core Guidelines C.131 which recommends consistent naming. Additionally, the getter get_uSecPerBeat() used snake_case while all other getters used camelCase.
+
+## Implementation Details
+*   Standardized all private members to trailing underscore convention (C++ Core Guidelines preference): _argc → argc_, _bpm → bpm_, _uSecPerBeat → usec_per_beat_, _playIntro → play_intro_, _displayWarnings → display_warnings_, _urlName → url_name_, etc. Renamed getter get_uSecPerBeat() → getUsecPerBeat() for consistency with other camelCase getters (getBpm(), getSpeed(), etc.). Updated all usages in options.hpp, midi_loader.cpp:53, and event_preprocessor.cpp:145. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-08 00:28:30] Fixed Issue #10: Refactored Oversized parse() Method in Options Class
+
+## Rationale
+*   The Options::parse() method was 152 lines long, violating the Single Responsibility Principle. It handled all command-line argument parsing logic in one monolithic method, making it hard to test individual option handlers and reducing maintainability. This was the last remaining medium-priority code smell.
+
+## Implementation Details
+*   Extracted four private helper methods from parse(): displayVersion() for version output, displayHelp() for help text display, handlePreludeOption(optarg) for prelude/postlude processing, handleTempoOption(optarg) for tempo validation and setting, and handleVersesOption(optarg, playIntro) for verse count handling. Refactored parse() method to delegate to these helpers, reducing it from 152 lines to ~90 lines. Each handler now has a single, clear responsibility. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-08 00:14:56] Fixed Issue #15: Debug Output Without i18n - Wrapped in _() Macros
+
+## Rationale
+*   Debug output string 'Available MIDI ports:' in device_manager.cpp was not wrapped in _() macro, breaking i18n consistency. While this is DEBUG-only output, wrapping it maintains full i18n coverage and allows for translated debug output in multi-language development environments.
+
+## Implementation Details
+*   Wrapped the debug string at device_manager.cpp:366 in _() macro. Added translations to all four .po files: es.po (Spanish), fr_FR.po (French), fr_CA.po (French Canadian), and pt_BR.po (Portuguese Brazilian). Build completed successfully.
+
+---
+## Decision
+*   [2025-10-07 23:46:40] Fixed Issue #12: Removed Unnecessary TimeSignature Message Size Check
+
+## Rationale
+*   The code had a hardcoded magic number (6) checking the size of TimeSignature MIDI messages. This check was unnecessary since IsMeta(MetaType::TimeSignature) already validates the message type, and the MIDI standard defines the TimeSignature meta event structure. The size check added no value and reduced code clarity.
+
+## Implementation Details
+*   Removed '&& message.size() == 6' from the conditional in event_preprocessor.cpp:125. The check now simply validates message.IsMeta(Message::MetaType::TimeSignature) before extracting time signature data. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-07 23:21:33] Fixed Issue #9: Replaced Boolean Flag with std::optional in DeviceManager
+
+## Rationale
+*   DeviceManager used a yamlConfig struct alongside a separate yamlLoaded bool flag, creating potential for invalid state (yamlConfig exists but yamlLoaded=false). This pattern is error-prone and less expressive than modern C++ alternatives. std::optional provides clearer semantics: either we have valid YAML config or we don't.
+
+## Implementation Details
+*   Replaced 'YamlConfig yamlConfig; bool yamlLoaded;' with 'std::optional<YamlConfig> yamlConfig_'. Updated all yamlLoaded checks to yamlConfig_.has_value(). Changed all yamlConfig accesses to use yamlConfig_-> operator (equivalent to yamlConfig_.value()). Modified parseYamlContent() to create a new YamlConfig, populate it, then assign to optional using std::move. Added <optional> include. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-07 23:11:50] Fixed Issue #8: Standardized Error Handling in DeviceManager
+
+## Rationale
+*   DeviceManager had inconsistent error handling with a mix of bool returns and exceptions. Methods like loadDevicePresets() returned bool but always threw exceptions (never returned false), while parseYamlFile() caught exceptions and returned bool only to have the caller throw on false. This created confusion about the error handling contract and violated the principle of using exceptions for unrecoverable errors.
+
+## Implementation Details
+*   Changed loadDevicePresets(), parseYamlFile(), and parseYamlContent() from bool return to void, making them throw exceptions directly for unrecoverable errors (file not found, parse failures). Updated play.cpp to ensure loadDevicePresets() is called within try/catch block alongside other device operations. Maintained bool return for waitForDeviceConnection() as timeout is an expected operational state. All error messages were already translated in .po files. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-07 22:58:59] Fixed Issue #7: Eliminated Musical Marker Constants Duplication
+
+## Rationale
+*   Musical marker constants (INTRO_BEGIN, INTRO_END, RITARDANDO_INDICATOR, D_C_AL_FINE, FINE_INDICATOR) were duplicated across three header files (event_preprocessor.hpp, musical_director.hpp, playback_engine.hpp), violating the DRY principle and creating maintenance burden.
+
+## Implementation Details
+*   Created new midi_markers.hpp header file containing all marker constants in the MidiPlay::MidiMarkers namespace. Updated all three affected headers to include midi_markers.hpp and removed duplicate definitions. Updated implementation files (event_preprocessor.cpp, musical_director.cpp, playback_engine.cpp) to reference constants via MidiMarkers:: namespace. Build completed successfully with no errors.
+
+---
+## Decision
+*   [2025-10-07 22:44:29] Code Smell Review and Quality Improvements - 6 Critical Fixes Applied
+
+## Rationale
+*   Conducted comprehensive code smell analysis across entire codebase following Phase 3 refactoring completion. Created CODE_SMELLS.md documenting 22 issues categorized by priority (High: 5, Medium: 10, Low: 7). Prioritized and fixed 6 critical issues to improve code quality, internationalization coverage, portability, and modernization.
+
+## Implementation Details
+*   Fixed 5 High Priority issues: (1) Added _() i18n wrapper to signal_handler.cpp elapsed time message, (2) Added _() i18n wrapper to device_manager.cpp exception, (3) Added explicit return EXIT_SUCCESS to play.cpp main(), (4) Replaced deprecated POSIX usleep() with std::this_thread::sleep_for() in playback_orchestrator.cpp, (5) Removed namespace pollution (using namespace midiplay;) from play.cpp. Fixed 1 Medium Priority issue: (6) Eliminated device key string duplication by creating DeviceKeys namespace with constants and helper methods (deviceTypeToKey(), deviceKeyToType()) in device_manager.hpp/cpp. Updated all 4 translation files (es.po, fr_CA.po, fr_FR.po, pt_BR.po) with 3 new strings. Updated po/POTFILES.in to reflect refactored file structure. Created comprehensive CODE_SMELLS.md documentation (696 lines) for future refactoring sessions.
+
+---
+## Decision
 *   [2025-10-07 20:04:18] Bug Fix: Title Not Displaying After EventPreProcessor Refactoring
 
 ## Rationale

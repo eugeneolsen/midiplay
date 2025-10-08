@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <filesystem>
+#include <optional>
 #include <yaml-cpp/yaml.h>
 
 #include "device_constants.hpp"
@@ -17,11 +18,20 @@ class Options;
 namespace MidiPlay {
 
     /**
+     * @brief Device key constants for YAML configuration
+     */
+    namespace DeviceKeys {
+        constexpr const char* CASIO_CTX3000 = "casio_ctx3000";
+        constexpr const char* YAMAHA_PSR_EW425 = "yamaha_psr_ew425";
+        constexpr const char* ALLEN_PROTEGE = "allen_protege";
+    }
+
+    /**
      * @brief Enumeration of supported MIDI device types
      */
     enum class DeviceType {
         CASIO_CTX3000,      ///< Casio CTX-3000 series keyboards
-        YAMAHA_PSR_EW425,   ///< Yamaha PSR-EW425 series keyboards  
+        YAMAHA_PSR_EW425,   ///< Yamaha PSR-EW425 series keyboards
         ALLEN_PROTEGE,      ///< Allen Protege organs
         UNKNOWN             ///< Unknown or unsupported device
     };
@@ -134,9 +144,9 @@ namespace MidiPlay {
          * /etc/midiplay/midi_devices.yaml, ./midi_devices.yaml
          *
          * @param configPath Optional path to specific YAML configuration file
-         * @return true if YAML loaded successfully, false if fallback to defaults
+         * @throws std::runtime_error if YAML file not found or parsing fails
          */
-        bool loadDevicePresets(const std::string& configPath = "");
+        void loadDevicePresets(const std::string& configPath = "");
 
     private:
         /**
@@ -194,16 +204,19 @@ namespace MidiPlay {
         // Options reference for configuration access
         const Options& options_;
         
-        // YAML configuration state
-        YamlConfig yamlConfig;
-        bool yamlLoaded = false;
+        // YAML configuration state (using std::optional for clear semantics)
+        std::optional<YamlConfig> yamlConfig_;
 
         // YAML parsing and file discovery methods
         std::string findConfigFile(const std::string& specifiedPath = "");
-        bool parseYamlFile(const std::string& filePath);
-        bool parseYamlContent(const YAML::Node& config);
+        void parseYamlFile(const std::string& filePath);
+        void parseYamlContent(const YAML::Node& config);
         DeviceType detectDeviceTypeFromYaml(const std::string& portName);
         void configureDeviceFromYaml(const std::string& deviceKey, cxxmidi::output::Default& outport);
+        
+        // Helper methods for device key conversion
+        std::string deviceTypeToKey(DeviceType type) const;
+        DeviceType deviceKeyToType(const std::string& key) const;
     };
 
 } // namespace MidiPlay

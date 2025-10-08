@@ -122,7 +122,7 @@ bool EventPreProcessor::processEvent(cxxmidi::Event& event, const Options& optio
 void EventPreProcessor::processTimeSignatureEvent(const Event& event) {
     Message message = event;
     
-    if (message.IsMeta(Message::MetaType::TimeSignature) && message.size() == 6) {
+    if (message.IsMeta(Message::MetaType::TimeSignature)) {
         timeSignature_.beatsPerMeasure = message[2];
         timeSignature_.denominator = message[3];
         timeSignature_.clocksPerClick = message[4];
@@ -142,7 +142,7 @@ void EventPreProcessor::processTempoEvent(const Event& event, const Options& opt
         
         if (firstTempo_) {
             bpm_ = options.getBpm();
-            int uSecPerBeat = options.get_uSecPerBeat();
+            int uSecPerBeat = options.getUsecPerBeat();
             float speed = options.getSpeed();
 
             if (uSecPerQuarter_ > 0) {
@@ -226,7 +226,7 @@ bool EventPreProcessor::processCustomMetaEvents(const Event& event, const Option
     if (message.IsMeta(Message::MetaType::SequencerSpecific)) {
         int index = 2;
         if (message[index] != midiplay::CustomMessage::Type::Private) {
-            int len = message[index++];
+            index++;    // Some early files have an extra byte here, which is now meaningless.  This is for backward compatibility.
         }
         
         if (message[index++] == midiplay::CustomMessage::Type::Private) {
@@ -257,7 +257,7 @@ bool EventPreProcessor::processCustomMetaEvents(const Event& event, const Option
 void EventPreProcessor::processIntroductionMarkers(const Event& event) {
     if (event.IsMeta(Message::MetaType::Marker) && event.size() == 3) {
         std::string text = event.GetText();
-        if (text == INTRO_BEGIN) {    // Beginning of introduction segment
+        if (text == MidiMarkers::INTRO_BEGIN) {    // Beginning of introduction segment
             IntroductionSegment seg;
             seg.start = totalTrackTicks_;
             seg.end = 0;
@@ -265,7 +265,7 @@ void EventPreProcessor::processIntroductionMarkers(const Event& event) {
             introSegments_.push_back(seg);
         }
         
-        if (text == INTRO_END) {    // End of introduction segment
+        if (text == MidiMarkers::INTRO_END) {    // End of introduction segment
             if (!introSegments_.empty()) {
                 introSegments_.back().end = totalTrackTicks_;
             }

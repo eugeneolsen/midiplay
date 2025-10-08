@@ -4,7 +4,8 @@
 
 #include <cmath>
 #include <iostream>
-#include <unistd.h>
+#include <thread>
+#include <chrono>
 
 #include <ecocommon/utility.hpp>
 
@@ -112,7 +113,7 @@ void PlaybackOrchestrator::playIntroduction() {
     MidiTicks pauseTicks = midiLoader_.getPauseTicks();
     if (pauseTicks.has_value()) {
         int uSecPerTick = midiLoader_.getUSecPerTick();
-        usleep(pauseTicks.getTicks().value() * uSecPerTick);
+        std::this_thread::sleep_for(std::chrono::microseconds(pauseTicks.getTicks().value() * uSecPerTick));
     }
 }
 
@@ -142,7 +143,7 @@ void PlaybackOrchestrator::playVerses() {
             
             // Pause before starting next verse
             if (pauseTicks.has_value()) {
-                usleep(pauseTicks.getTicks().value() * uSecPerTick);
+                std::this_thread::sleep_for(std::chrono::microseconds(pauseTicks.getTicks().value() * uSecPerTick));
             }
         }
         

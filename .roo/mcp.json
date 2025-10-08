@@ -24,7 +24,8 @@
         "get_decisions",
         "get_progress",
         "log_progress",
-        "update_product_context"
+        "update_product_context",
+        "get_recent_activity_summary"
       ]
     }
   }

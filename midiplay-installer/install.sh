@@ -11,15 +11,51 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Package information
-PACKAGE_NAME="midiplay"
-PACKAGE_VERSION="1.5.7"
-PACKAGE_ARCH="arm64"
-DEB_FILE="${PACKAGE_NAME}_${PACKAGE_VERSION}_${PACKAGE_ARCH}.deb"
-
-echo -e "${BLUE}🎹 Organ Pi MIDI File Player - Installation Script${NC}"
-echo -e "${BLUE}=================================================${NC}"
-echo ""
+# Try to source version library if available (development environment)
+# Otherwise use inline fallback (distributed environment)
+if [[ -f "../lib/version.sh" ]]; then
+    source "../lib/version.sh"
+else
+    # Inline version detection for distributed archives
+    get_version() {
+        local provided_version="$1"
+        
+        # Tier 0: Manual override
+        if [[ -n "$provided_version" ]]; then
+            echo "$provided_version"
+            return 0
+        fi
+        
+        # Tier 1: .VERSION file (most common for distributed archives)
+        if [[ -f ".VERSION" ]]; then
+            local version=$(cat ".VERSION" | head -1)
+            if [[ -n "$version" ]]; then
+                echo "$version"
+                return 0
+            fi
+        fi
+        
+        # Tier 2: Extract from binary
+        if [[ -f "debian-package/usr/local/bin/play" ]]; then
+            local version=$(strings "debian-package/usr/local/bin/play" 2>/dev/null | \
+                           grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+            if [[ -n "$version" ]]; then
+                echo "$version"
+                return 0
+            fi
+        fi
+        
+        # Tier 3: Parse from parent directory
+        local parent=$(basename "$(dirname "$(pwd)")")
+        if [[ "$parent" =~ midiplay-installer-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "${BASH_REMATCH[1]}"
+            return 0
+        fi
+        
+        # All fallbacks failed
+        return 1
+    fi
+fi
 
 # Function to print colored output
 print_status() {
@@ -33,6 +69,72 @@ print_warning() {
 print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
+
+print_info() {
+    echo -e "${BLUE}ℹ️  $1${NC}"
+}
+
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -v, --version VERSION Specify version number (auto-detected if not provided)"
+    echo "  -h, --help           Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0                   # Auto-detect version from .VERSION file or binary"
+    echo "  $0 -v 1.6.0         # Use specific version"
+}
+
+# Parse command line arguments
+PROVIDED_VERSION=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -v|--version)
+            PROVIDED_VERSION="$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        *)
+            print_error "Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+echo -e "${BLUE}🎹 Organ Pi MIDI File Player - Installation Script${NC}"
+echo -e "${BLUE}=================================================${NC}"
+echo ""
+
+# Detect version
+PACKAGE_VERSION="1.5.8"
+if [[ $? -ne 0 ]]; then
+    print_error "Unable to detect version automatically"
+    echo ""
+    echo "Attempted:"
+    echo "  ✗ .VERSION file (file not found or empty)"
+    echo "  ✗ Binary extraction (binary not found or no version string)"
+    echo "  ✗ Directory name parsing (directory name doesn't match pattern)"
+    echo ""
+    echo "Solutions:"
+    echo "  1. Provide version manually: ./install.sh --version X.Y.Z"
+    echo "  2. Ensure you're in the midiplay-installer directory"
+    echo "  3. Check that the package structure is complete"
+    exit 1
+fi
+
+print_info "Installing version: $PACKAGE_VERSION"
+
+# Package information
+PACKAGE_NAME="midiplay"
+PACKAGE_ARCH="arm64"
+DEB_FILE="${PACKAGE_NAME}_${PACKAGE_VERSION}_${PACKAGE_ARCH}.deb"
 
 # Check if running as root for installation
 if [[ $EUID -eq 0 ]]; then
@@ -145,7 +247,7 @@ if command -v play &> /dev/null; then
     echo "• Symlink created: /usr/local/bin/p -> /usr/local/bin/play"
     echo "• System config: /etc/midiplay/midi_devices.yaml"
     echo "• User config: ~/.config/midiplay/midi_devices.yaml (optional)"
-    echo "• Version: $(play --version 2>/dev/null || echo '1.5.0')"
+    echo "• Version: $(play --version 2>/dev/null || echo "$PACKAGE_VERSION")"
     if [[ ${#TRANSLATIONS_FOUND[@]} -gt 0 ]]; then
         echo "• Languages: ${#TRANSLATIONS_FOUND[@]} translation(s) installed (${TRANSLATIONS_FOUND[*]})"
         echo "  → Automatic language detection enabled"

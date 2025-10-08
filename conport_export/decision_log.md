@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-08 00:28:30] Fixed Issue #10: Refactored Oversized parse() Method in Options Class
+
+## Rationale
+*   The Options::parse() method was 152 lines long, violating the Single Responsibility Principle. It handled all command-line argument parsing logic in one monolithic method, making it hard to test individual option handlers and reducing maintainability. This was the last remaining medium-priority code smell.
+
+## Implementation Details
+*   Extracted four private helper methods from parse(): displayVersion() for version output, displayHelp() for help text display, handlePreludeOption(optarg) for prelude/postlude processing, handleTempoOption(optarg) for tempo validation and setting, and handleVersesOption(optarg, playIntro) for verse count handling. Refactored parse() method to delegate to these helpers, reducing it from 152 lines to ~90 lines. Each handler now has a single, clear responsibility. Build completed successfully with no errors.
+
+---
+## Decision
 *   [2025-10-08 00:14:56] Fixed Issue #15: Debug Output Without i18n - Wrapped in _() Macros
 
 ## Rationale

@@ -226,7 +226,7 @@ bool EventPreProcessor::processCustomMetaEvents(const Event& event, const Option
     if (message.IsMeta(Message::MetaType::SequencerSpecific)) {
         int index = 2;
         if (message[index] != midiplay::CustomMessage::Type::Private) {
-            int len = message[index++];
+            index++;    // Some early files have an extra byte here, which is now meaningless.  This is for backward compatibility.
         }
         
         if (message[index++] == midiplay::CustomMessage::Type::Private) {

@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-08 17:47:40] Fixed Issue #16: Standardized Naming Convention in Options Class
+
+## Rationale
+*   The Options class had inconsistent private member naming - mixing snake_case (_filename) with camelCase (_uSecPerBeat, _playIntro, _displayWarnings, _urlName). This violates C++ Core Guidelines C.131 which recommends consistent naming. Additionally, the getter get_uSecPerBeat() used snake_case while all other getters used camelCase.
+
+## Implementation Details
+*   Standardized all private members to trailing underscore convention (C++ Core Guidelines preference): _argc → argc_, _bpm → bpm_, _uSecPerBeat → usec_per_beat_, _playIntro → play_intro_, _displayWarnings → display_warnings_, _urlName → url_name_, etc. Renamed getter get_uSecPerBeat() → getUsecPerBeat() for consistency with other camelCase getters (getBpm(), getSpeed(), etc.). Updated all usages in options.hpp, midi_loader.cpp:53, and event_preprocessor.cpp:145. Build completed successfully with no errors.
+
+---
+## Decision
 *   [2025-10-08 00:28:30] Fixed Issue #10: Refactored Oversized parse() Method in Options Class
 
 ## Rationale

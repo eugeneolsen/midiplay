@@ -261,9 +261,13 @@ msgstr ""
 msgid "Goto option not yet implemented. Starting at the beginning."
 msgstr "Opción Goto aún no implementada. Comenzando desde el principio."
 
-#: options.hpp:208
-msgid "Tempo must be numeric.  Exiting program."
-msgstr "El tempo debe ser numérico. Saliendo del programa."
+#: options.hpp:105
+msgid "Tempo must be numeric."
+msgstr "El tempo debe ser numérico."
+
+#: options.hpp:253
+msgid "Invalid option encountered."
+msgstr "Opción inválida encontrada."
 
 #: options.hpp:216
 msgid "Organ Pi play MIDI file command\n"

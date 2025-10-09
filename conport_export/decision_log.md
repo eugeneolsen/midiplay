@@ -2,6 +2,23 @@
 
 ---
 ## Decision
+*   [2025-10-09 23:07:03] Options Class Refactoring - Eliminated all exit() and abort() calls for testability
+
+## Rationale
+*   The Options class was calling exit(1) in handleTempoOption() and abort() in the default case, making error paths untestable. This violated separation of concerns (Options both validates AND terminates) and prevented comprehensive unit testing. The refactoring allows Options to focus on validation while main() decides program fate.
+
+## Implementation Details
+*   1. Changed handleTempoOption() from void to return int error code (INVALID_TEMPO instead of exit(1))
+2. Replaced abort() in parse() default case with return INVALID_OPTION
+3. Added MidiPlay::OptionsParseResult namespace with clear error codes (SUCCESS=0, HELP_DISPLAYED=1, MISSING_FILENAME=2, INVALID_TEMPO=3, INVALID_OPTION=4, VERSION_DISPLAYED=-2)
+4. Fixed critical resetGetopt() bug (was calling itself recursively) - changed to optind=0 for GNU complete reinitialization
+5. Enabled 2 previously disabled tests (missing filename, invalid tempo)
+6. Updated all 4 translation files (es, pt_BR, fr_FR, fr_CA) with corrected error messages
+7. All 32 Options tests now pass (155 total assertions)
+8. Maintained 100% backward compatibility - main() requires zero changes
+
+---
+## Decision
 *   [2025-10-09 17:06:31] Replaced all magic numbers in play.cpp with constexpr constants
 
 ## Rationale

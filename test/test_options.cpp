@@ -8,7 +8,9 @@ using Catch::Approx;
 
 // Helper to reset getopt global state completely
 void resetGetopt() {
-    resetGetopt();    // Reset to start of argv
+    // On GNU systems, setting optind to 0 forces complete reinitialization
+    // including all internal state. Setting to 1 only resets the index.
+    optind = 0;    // Force complete reset (GNU extension)
     opterr = 1;    // Reset error reporting
     optopt = 0;    // Reset option character
 }
@@ -76,35 +78,31 @@ TEST_CASE("Options basic parsing", "[options][unit]") {
         freeArgv(argv, args.size());
     }
     
-    // NOTE: Test disabled - causes segfault due to getopt_long edge case with argc=1
-    // Will be re-enabled after Options refactoring (see OPTIONS_REFACTORING_PLAN.md)
-    // SECTION("missing filename returns error") {
-    //     resetGetopt();  // Reset getopt global state
-    //     auto args = std::vector<std::string>{"play"};
-    //     char** argv = makeArgv(args);
-    //
-    //     Options opts(args.size(), argv);
-    //     REQUIRE(opts.parse() == 1);
-    //
-    //     freeArgv(argv, args.size());
-    // }
+    SECTION("missing filename returns error") {
+        resetGetopt();  // Reset getopt global state
+        auto args = std::vector<std::string>{"play"};
+        char** argv = makeArgv(args);
+
+        Options opts(args.size(), argv);
+        REQUIRE(opts.parse() == MidiPlay::OptionsParseResult::MISSING_FILENAME);
+
+        freeArgv(argv, args.size());
+    }
 }
 
-// NOTE: Invalid tempo test would call exit(1), terminating test runner
-// This test will be added after Options refactoring (see OPTIONS_REFACTORING_PLAN.md)
-// TEST_CASE("Options invalid tempo", "[options][unit]") {
-//     SECTION("non-numeric tempo value") {
-//         resetGetopt();
-//         auto args = std::vector<std::string>{"play", "test.mid", "-tABC"};
-//         char** argv = makeArgv(args);
-//
-//         Options opts(args.size(), argv);
-//         // Currently calls exit(1), should return error code after refactoring
-//         REQUIRE(opts.parse() == 3);  // Future: INVALID_TEMPO
-//
-//         freeArgv(argv, args.size());
-//     }
-// }
+TEST_CASE("Options invalid tempo", "[options][unit]") {
+    SECTION("non-numeric tempo value") {
+        resetGetopt();
+        auto args = std::vector<std::string>{"play", "test.mid", "-tABC"};
+        char** argv = makeArgv(args);
+
+        Options opts(args.size(), argv);
+        REQUIRE(opts.parse() == MidiPlay::OptionsParseResult::INVALID_TEMPO);
+        REQUIRE(opts.getBpm() == 0);  // Should remain unchanged
+
+        freeArgv(argv, args.size());
+    }
+}
 
 TEST_CASE("Options prelude mode", "[options][unit]") {
     SECTION("prelude without speed uses default") {
@@ -376,6 +374,7 @@ TEST_CASE("Options default values", "[options][unit]") {
 
 TEST_CASE("Options filename parsing", "[options][unit][cli]") {
     SECTION("simple filename") {
+        resetGetopt();
         auto args = std::vector<std::string>{"play", "hymn.mid"};
         char** argv = makeArgv(args);
         
@@ -388,6 +387,7 @@ TEST_CASE("Options filename parsing", "[options][unit][cli]") {
     }
     
     SECTION("filename with path") {
+        resetGetopt();
         auto args = std::vector<std::string>{"play", "/path/to/file.mid"};
         char** argv = makeArgv(args);
         
@@ -402,6 +402,7 @@ TEST_CASE("Options filename parsing", "[options][unit][cli]") {
 
 TEST_CASE("Options long format flags", "[options][unit]") {
     SECTION("--version flag") {
+        resetGetopt();
         auto args = std::vector<std::string>{"play", "--version"};
         char** argv = makeArgv(args);
         
@@ -412,6 +413,7 @@ TEST_CASE("Options long format flags", "[options][unit]") {
     }
     
     SECTION("--help flag") {
+        resetGetopt();
         auto args = std::vector<std::string>{"play", "--help"};
         char** argv = makeArgv(args);
         

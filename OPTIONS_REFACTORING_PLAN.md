@@ -216,6 +216,10 @@ Update docstring for [`Options::parse()`](options.hpp:184):
 int parse()
 ```
 
+### Phase 5: Update Localized Language Files
+- If keys have changed, update the keys.
+- Update translations of changed messages.
+
 ---
 
 ## Testing Strategy

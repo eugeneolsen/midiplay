@@ -102,6 +102,119 @@
             },
             "dependsOn": ["Compile Translations"],
             "detail": "Debug build with automatic translation compilation"
+        },
+        {
+            "label": "Build Tests (Catch2)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "APP_VERSION=$(git describe --tags 2>/dev/null || echo 'test-version'); exec g++ -DAPP_VERSION=\\\"$APP_VERSION\\\" \"$@\"",
+                "test-build",
+                "-std=c++20",
+                "-g",
+                "-I${workspaceFolder}",
+                "-I${userHome}/.local/include",
+                
+                // Catch2 files
+                "${workspaceFolder}/test/external/catch_amalgamated.cpp",
+                "${workspaceFolder}/test/test_runner.cpp",
+                
+                // Test files
+                "${workspaceFolder}/test/test_playback_state_machine.cpp",
+                "${workspaceFolder}/test/test_playback_synchronizer.cpp",
+                "${workspaceFolder}/test/test_timing_manager.cpp",
+                "${workspaceFolder}/test/test_options.cpp",
+                
+                // Source files (NO play.cpp - it has main())
+                "${workspaceFolder}/signal_handler.cpp",
+                "${workspaceFolder}/device_manager.cpp",
+                "${workspaceFolder}/midi_loader.cpp",
+                "${workspaceFolder}/event_preprocessor.cpp",
+                "${workspaceFolder}/timing_manager.cpp",
+                "${workspaceFolder}/playback_orchestrator.cpp",
+                "${workspaceFolder}/musical_director.cpp",
+                "${workspaceFolder}/ritardando_effector.cpp",
+                "${workspaceFolder}/playback_synchronizer.cpp",
+                "${userHome}/.local/lib/utility.o",
+                
+                "-o",
+                "${workspaceFolder}/test/run_tests",
+                
+                "-L${userHome}/.local/lib",
+                "-lasound",
+                "-pthread",
+                "-lyaml-cpp"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "Run All Tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/run_tests",
+            "options": {
+                "cwd": "${workspaceFolder}/test"
+            },
+            "dependsOn": ["Build Tests (Catch2)"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "Run Tests (Tagged)",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/run_tests",
+            "args": ["${input:testTag}"],
+            "options": {
+                "cwd": "${workspaceFolder}/test"
+            },
+            "dependsOn": ["Build Tests (Catch2)"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            }
+        },
+        {
+            "label": "Run Tests (Verbose)",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/run_tests",
+            "args": ["-s"],
+            "options": {
+                "cwd": "${workspaceFolder}/test"
+            },
+            "dependsOn": ["Build Tests (Catch2)"],
+            "group": "test"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testTag",
+            "type": "promptString",
+            "description": "Test tag filter (e.g., [state], [sync], [unit])",
+            "default": "[unit]"
         }
     ],
     "version": "2.0.0"

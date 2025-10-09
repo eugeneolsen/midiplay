@@ -1,0 +1,20 @@
+# Compiled test executable
+run_tests
+
+# Object files
+*.o
+
+# Debug symbols
+*.dSYM/
+
+# Coverage data (for future)
+*.gcda
+*.gcno
+*.gcov
+coverage/
+coverage.info
+
+# Temporary files
+*.swp
+*.swo
+*~

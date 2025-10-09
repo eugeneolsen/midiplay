@@ -97,13 +97,14 @@ private:
         prepost_ = true;
     }
     
-    void handleTempoOption(const char* optarg) {
+    int handleTempoOption(const char* optarg) {
         if (isNumeric(optarg)) {
             bpm_ = std::stoi(optarg);
             usec_per_beat_ = MidiPlay::MICROSECONDS_PER_MINUTE / bpm_;
+            return MidiPlay::OptionsParseResult::SUCCESS;
         } else {
-            std::cout << _("Tempo must be numeric.  Exiting program.") << std::endl;
-            exit(1);
+            std::cerr << _("Tempo must be numeric.") << std::endl;
+            return MidiPlay::OptionsParseResult::INVALID_TEMPO;
         }
     }
     
@@ -181,6 +182,20 @@ public:
         return title_;
     }
 
+    /**
+     * @brief Parse command-line arguments
+     *
+     * @return int Parse result code:
+     *   - 0: Success, continue with execution
+     *   - -2: Version flag displayed, caller should exit(0)
+     *   - 1+: Error occurred, caller should exit(rc)
+     *     - 1: Help displayed or missing filename
+     *     - 3: Invalid tempo (non-numeric)
+     *     - 4: Invalid option
+     *
+     * @note This method does NOT call exit() - the caller (main)
+     *       decides whether to terminate the program based on rc.
+     */
     int parse()
     {
         int opt;
@@ -225,7 +240,12 @@ public:
                 break;
 
             case 't':   // Tempo
-                handleTempoOption(optarg);
+                {
+                    int tempoResult = handleTempoOption(optarg);
+                    if (tempoResult != MidiPlay::OptionsParseResult::SUCCESS) {
+                        return tempoResult;
+                    }
+                }
                 break;
                 
             case 'T':   // Title
@@ -250,7 +270,8 @@ public:
                 return 1;
                 
             default:
-                abort();
+                std::cerr << _("Invalid option encountered.") << std::endl;
+                return MidiPlay::OptionsParseResult::INVALID_OPTION;
             }
         }
 
@@ -263,8 +284,8 @@ public:
 #endif
             optind++;
         } else {
-            std::cerr << _("No filename provided. You must pass an file name to play.") << std::endl;
-            return 1;
+            std::cerr << _("No filename provided. You must pass a file name to play.") << std::endl;
+            return MidiPlay::OptionsParseResult::MISSING_FILENAME;
         }
 
         // Get urlName, if present
@@ -279,6 +300,6 @@ public:
             optind++;
         }
 
-        return 0;
+        return MidiPlay::OptionsParseResult::SUCCESS;
     }
 };

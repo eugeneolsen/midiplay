@@ -125,6 +125,7 @@
                 "${workspaceFolder}/test/test_playback_synchronizer.cpp",
                 "${workspaceFolder}/test/test_timing_manager.cpp",
                 "${workspaceFolder}/test/test_options.cpp",
+                "${workspaceFolder}/test/test_midi_loader.cpp",
                 
                 // Source files (NO play.cpp - it has main())
                 "${workspaceFolder}/signal_handler.cpp",

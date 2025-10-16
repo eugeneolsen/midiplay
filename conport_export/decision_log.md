@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-16 22:06:34] Phase 3 Integration Testing: Real PlayerSync Instead of FakePlayerSync
+
+## Rationale
+*   Initially planned to create FakePlayerSync test double to avoid hardware dependencies. However, discovered that real cxxmidi::player::PlayerSync works perfectly for initialization and setup tests without requiring MIDI hardware. Using real PlayerSync avoids type compatibility issues (PlaybackOrchestrator requires cxxmidi::player::PlayerSync& reference) and maintains our 'real components' testing philosophy from Phase 2.
+
+## Implementation Details
+*   Implemented 10 integration test cases using real cxxmidi::player::PlayerSync and cxxmidi::output::Default. Tests verify: component initialization, callback setup, speed/tempo configuration, synchronization, signal handling, and end-to-end scenarios. All tests run fast (<1 second) without hardware. FakePlayerSync was not needed and was removed from the codebase.
+
+---
+## Decision
 *   [2025-10-16 21:33:09] Phase 3 DeviceManager Testing: Real YAML Files Strategy
 
 ## Rationale

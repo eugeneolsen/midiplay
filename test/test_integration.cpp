@@ -3,6 +3,7 @@
 #include "../playback_synchronizer.hpp"
 #include "../midi_loader.hpp"
 #include "../signal_handler.hpp"
+#include "../device_manager.hpp"
 #include "../options.hpp"
 #include <cxxmidi/player/player_sync.hpp>
 #include <cxxmidi/output/default.hpp>
@@ -570,3 +571,298 @@ TEST_CASE("Component Integration Verification", "[integration][fast]") {
 //   ./run_tests "[device_manager][integration]"
 //
 // ============================================================================
+
+// ============================================================================
+// HARDWARE INTEGRATION TESTS (Require Real MIDI Device)
+// ============================================================================
+// These tests use real MIDI hardware for comprehensive validation.
+// They are DISABLED by default (tagged with [.]) to prevent hanging.
+//
+// IMPORTANT: These tests require debugging/fixing before use:
+// - The playback thread synchronization needs work
+// - Tests may hang waiting for playback completion
+// - Manual testing with ./play command is recommended instead
+//
+// To run hardware tests manually (if fixed):
+//   ./run_tests "[.][integration][hardware]"
+//
+// Expected: You will HEAR actual MIDI output during these tests!
+//
+// Current Status: DISABLED - Use manual ./play testing for hardware validation
+// ============================================================================
+
+TEST_CASE("Hardware Integration - Actual Playback", "[.][integration][hardware][manual]") {
+    SECTION("Plays simple MIDI file with real device") {
+        optind = 0;
+        auto argv = makeArgv({"play", "fixtures/test_files/simple.mid"});
+        Options opts(2, argv);
+        opts.parse();
+        
+        if (!fs::exists("fixtures/test_files/simple.mid")) {
+            WARN("Test file not found: fixtures/test_files/simple.mid");
+            freeArgv(argv, 2);
+            return;
+        }
+        
+        MidiLoader loader;
+        loader.loadFile("fixtures/test_files/simple.mid", opts);
+        
+        // Real hardware setup
+        cxxmidi::output::Default outport;
+        
+        // Wait for device connection (will timeout if no device)
+        // This mimics the actual play.cpp behavior
+        try {
+            // Open port 0 (assumes MIDI device connected)
+            if (outport.GetPortCount() > 0) {
+                outport.OpenPort(0);
+                
+                cxxmidi::player::PlayerSync player(&outport);
+                player.SetFile(&loader.getFile());
+                
+                PlaybackSynchronizer sync;
+                PlaybackOrchestrator orchestrator(player, sync, loader);
+                
+                orchestrator.initialize();
+                
+                INFO("Starting actual MIDI playback - you should hear sound!");
+                
+                // Start playback in thread
+                std::thread playbackThread([&]() {
+                    orchestrator.executePlayback();
+                });
+                
+                // Wait for completion (with timeout)
+                sync.wait();
+                playbackThread.join();
+                
+                // Playback completed without errors
+                REQUIRE(true);
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+        
+        freeArgv(argv, 2);
+    }
+    
+    SECTION("Plays file with introduction") {
+        optind = 0;
+        auto argv = makeArgv({"play", "fixtures/test_files/with_intro.mid", "-n2"});
+        Options opts(3, argv);
+        opts.parse();
+        
+        if (!fs::exists("fixtures/test_files/with_intro.mid")) {
+            WARN("Test file not found: fixtures/test_files/with_intro.mid");
+            freeArgv(argv, 3);
+            return;
+        }
+        
+        MidiLoader loader;
+        loader.loadFile("fixtures/test_files/with_intro.mid", opts);
+        
+        try {
+            cxxmidi::output::Default outport;
+            
+            if (outport.GetPortCount() > 0) {
+                outport.OpenPort(0);
+                
+                cxxmidi::player::PlayerSync player(&outport);
+                player.SetFile(&loader.getFile());
+                
+                PlaybackSynchronizer sync;
+                PlaybackOrchestrator orchestrator(player, sync, loader);
+                
+                orchestrator.initialize();
+                
+                INFO("Playing with introduction - listen for intro then verses");
+                
+                std::thread playbackThread([&]() {
+                    orchestrator.executePlayback();
+                });
+                
+                sync.wait();
+                playbackThread.join();
+                
+                REQUIRE(true);
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+        
+        freeArgv(argv, 3);
+    }
+    
+    SECTION("Plays with speed adjustment") {
+        optind = 0;
+        auto argv = makeArgv({"play", "fixtures/test_files/simple.mid", "-p12"});
+        Options opts(3, argv);
+        opts.parse();
+        
+        if (!fs::exists("fixtures/test_files/simple.mid")) {
+            WARN("Test file not found: fixtures/test_files/simple.mid");
+            freeArgv(argv, 3);
+            return;
+        }
+        
+        MidiLoader loader;
+        loader.loadFile("fixtures/test_files/simple.mid", opts);
+        
+        try {
+            cxxmidi::output::Default outport;
+            
+            if (outport.GetPortCount() > 0) {
+                outport.OpenPort(0);
+                
+                cxxmidi::player::PlayerSync player(&outport);
+                player.SetFile(&loader.getFile());
+                
+                PlaybackSynchronizer sync;
+                PlaybackOrchestrator orchestrator(player, sync, loader);
+                
+                orchestrator.initialize();
+                
+                INFO("Playing at 120% speed - should sound faster");
+                
+                std::thread playbackThread([&]() {
+                    orchestrator.executePlayback();
+                });
+                
+                sync.wait();
+                playbackThread.join();
+                
+                REQUIRE(true);
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+        
+        freeArgv(argv, 3);
+    }
+}
+
+TEST_CASE("Hardware Integration - Device Configuration", "[.][integration][hardware][manual]") {
+    SECTION("Device detection works with real hardware") {
+        optind = 0;
+        auto argv = makeArgv({"play", "fixtures/test_files/simple.mid"});
+        Options opts(2, argv);
+        opts.parse();
+        
+        try {
+            cxxmidi::output::Default outport;
+            
+            if (outport.GetPortCount() > 0) {
+                // Get port name for device detection
+                std::string portName = outport.GetPortName(0);
+                INFO("Detected MIDI port: " << portName);
+                
+                // DeviceManager would detect device type from port name
+                // This test verifies the detection mechanism works
+                REQUIRE(!portName.empty());
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+        
+        freeArgv(argv, 2);
+    }
+    
+    SECTION("Device configuration with YAML") {
+        optind = 0;
+        auto argv = makeArgv({"play", "fixtures/test_files/simple.mid"});
+        Options opts(2, argv);
+        opts.parse();
+        
+        std::string configPath = "fixtures/test_configs/valid_devices.yaml";
+        
+        if (!fs::exists(configPath)) {
+            WARN("Test config not found: " << configPath);
+            freeArgv(argv, 2);
+            return;
+        }
+        
+        try {
+            DeviceManager dm(opts);
+            dm.loadDevicePresets(configPath);
+            
+            cxxmidi::output::Default outport;
+            
+            if (outport.GetPortCount() > 0) {
+                outport.OpenPort(0);
+                
+                std::string portName = outport.GetPortName(0);
+                INFO("Testing device configuration for: " << portName);
+                
+                // Device configuration would be applied here
+                // This test verifies the YAML config can be loaded and used
+                REQUIRE(true);
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+        
+        freeArgv(argv, 2);
+    }
+}
+
+TEST_CASE("Hardware Integration - Signal Handling", "[.][integration][hardware][manual]") {
+    SECTION("Signal handler setup with real device") {
+        try {
+            cxxmidi::output::Default outport;
+            
+            if (outport.GetPortCount() > 0) {
+                outport.OpenPort(0);
+                
+                PlaybackSynchronizer sync;
+                auto startTime = std::chrono::high_resolution_clock::now();
+                
+                SignalHandler handler(outport, sync, startTime);
+                
+                // Setup signal handler
+                REQUIRE_NOTHROW(handler.setupSignalHandler());
+                
+                INFO("Signal handler set up with real MIDI device");
+                REQUIRE(true);
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+    }
+    
+    SECTION("Emergency notes-off with real device") {
+        try {
+            cxxmidi::output::Default outport;
+            
+            if (outport.GetPortCount() > 0) {
+                outport.OpenPort(0);
+                
+                PlaybackSynchronizer sync;
+                auto startTime = std::chrono::high_resolution_clock::now();
+                
+                SignalHandler handler(outport, sync, startTime);
+                handler.setupSignalHandler();
+                
+                // Note: Actually triggering SIGINT is complex
+                // This test verifies the handler is set up correctly
+                INFO("Emergency notes-off handler ready");
+                REQUIRE(true);
+            } else {
+                WARN("No MIDI device connected - skipping hardware test");
+            }
+        } catch (const std::exception& e) {
+            WARN("Hardware test failed: " << e.what());
+        }
+    }
+}

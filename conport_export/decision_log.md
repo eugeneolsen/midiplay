@@ -2,6 +2,67 @@
 
 ---
 ## Decision
+*   [2025-10-16 17:38:16] Created CLI11 migration plan to replace getopt()
+
+## Rationale
+*   To eliminate global state issues discovered during testing and modernize command-line parsing with type-safe, object-oriented approach. CLI11 is header-only, modern C++, and eliminates all optind reset requirements in tests.
+
+## Implementation Details
+*   Documented in CLI11_MIGRATION_PLAN.md: Complete 4-phase migration strategy covering preparation, implementation, testing, and integration. Includes detailed code examples for all command-line options, risk assessment, and 1-day timeline. Key benefit: Tests become simpler (no optind resets needed) and code becomes more maintainable.
+
+---
+## Decision
+*   [2025-10-16 17:35:11] Analysis: Should we replace getopt() with a modern C++ command-line parser?
+
+## Rationale
+*   During Phase 2 testing, we discovered getopt() uses global state (optind, optarg, opterr) that pollutes test isolation. This requires manual resets (optind=0) before each test. Modern C++ libraries offer object-oriented, stateless alternatives that would eliminate these issues and provide better type safety, validation, and developer experience.
+
+## Implementation Details
+*   Evaluated alternatives:
+
+**Modern C++ Options:**
+1. **CLI11** - Header-only, modern C++11+, excellent type safety
+2. **cxxopts** - Header-only, similar to getopt but object-oriented
+3. **Boost.Program_options** - Mature, full-featured, requires Boost dependency
+4. **argparse** (C++17) - Python-like API, intuitive
+
+**getopt() Issues:**
+- Global mutable state (optind, optarg, opterr, optopt)
+- Requires manual state resets in tests
+- Not type-safe (everything is char*)
+- Limited validation capabilities
+- GNU extensions (optind=0) vs POSIX (optind=1) inconsistencies
+
+**Migration Effort:**
+- Options class is well-encapsulated (single file)
+- ~200 lines of parsing logic
+- Would need to update tests but testing would be simpler
+- No changes to dependent code (Options API stays same)
+
+**Recommendation:** Worth considering but NOT urgent. Current solution works with proper test isolation. Could be a future refactoring when making other Options changes.
+
+---
+## Decision
+*   [2025-10-16 16:53:43] Fixed test isolation issue by resetting getopt global state
+
+## Rationale
+*   Tests were failing randomly due to getopt()'s global optind variable persisting between test cases. When tests ran in random order, previous test's getopt state affected subsequent tests causing parse failures.
+
+## Implementation Details
+*   Added 'optind = 1;' at the start of each test SECTION to reset getopt's global state. This ensures each test starts with clean state regardless of execution order. Also included <getopt.h> header for the optind declaration.
+
+---
+## Decision
+*   [2025-10-16 16:48:19] Fixed callback dangling reference bug in MidiLoader
+
+## Rationale
+*   The MidiLoader::initializeLoadCallback() captured Options by reference in a lambda, storing it in midiFile_. When Options went out of scope in tests, the callback retained a dangling reference causing segfaults. This was a critical memory safety issue that manifested randomly based on test execution order.
+
+## Implementation Details
+*   Applied multiple defensive fixes: (1) Clear callback in resetState(), (2) Clear callback immediately after midiFile_.Load(), (3) Clear callback in destructor, (4) Clear callback in all error paths, (5) Initialize callback only after file existence check. This ensures the callback never outlives the Options object it references.
+
+---
+## Decision
 *   [2025-10-09 23:07:03] Options Class Refactoring - Eliminated all exit() and abort() calls for testability
 
 ## Rationale

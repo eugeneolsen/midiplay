@@ -1,6 +1,11 @@
 # System Patterns
 
 ---
+## Test Isolation Pattern for getopt-based Options
+*   [2025-10-16 17:41:59]
+When testing code that uses getopt() for command-line parsing, always reset getopt's global state (optind, optarg, opterr) at the start of each test. Use optind=0 for GNU complete reinitialization. This prevents test execution order from affecting results and ensures clean state for each test case. Pattern applies to any code using getopt_long() or related POSIX command-line parsing functions.
+
+---
 ## Phased Modular Extraction Pattern
 *   [2025-10-09 17:06:35]
 *   [2025-09-25 18:36:05]

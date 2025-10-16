@@ -3357,12 +3357,19 @@ mkdir -p test/{external,fixtures/{test_files,test_configs}}
 **Deliverable**: ✅ 40 assertions in 11 test cases covering MIDI file handling
 **Full Test Suite**: ✅ 195 assertions in 43 test cases - 100% pass rate
 
-#### Day 4-5: Playback Components (6 hours)
-1. ✅ [`test/test_musical_director.cpp`](test/test_musical_director.cpp) - Marker interpretation
-2. ✅ [`test/test_ritardando_effector.cpp`](test/test_ritardando_effector.cpp) - Tempo effects
-3. ✅ [`test/test_playback_orchestrator.cpp`](test/test_playback_orchestrator.cpp) - Flow coordination
+#### Day 4-5: Playback Components (6 hours) - ❌ NOT COMPLETE
 
-**Deliverable**: 30-40 tests covering playback behavior
+**Status**: Design complete, implementation pending
+
+**Detailed Test Specifications**: See [`PHASE2_PLAYBACK_TEST_DESIGN.md`](test/PHASE2_PLAYBACK_TEST_DESIGN.md)
+
+1. ❌ [`test/test_musical_director.cpp`](test/test_musical_director.cpp) - Marker interpretation (15 tests planned)
+2. ❌ [`test/test_ritardando_effector.cpp`](test/test_ritardando_effector.cpp) - Tempo effects (8 tests planned)
+3. ❌ [`test/test_playback_orchestrator.cpp`](test/test_playback_orchestrator.cpp) - Flow coordination (15 tests planned)
+
+**Deliverable**: 38 tests covering playback behavior (~95-110 assertions)
+
+**Testing Strategy**: Hybrid approach with mock-based unit tests + optional hardware integration tests
 
 ### Phase 3: Integration & Device (Week 3 - 8 hours)
 

@@ -57,6 +57,8 @@ cd test
 | `test_ritardando_effector.cpp` | RitardandoEffector | 7 | 21 | `[ritardando][unit][integration]` |
 | `test_musical_director.cpp` | MusicalDirector | 5 | 19 | `[musical_director][unit][integration]` |
 | `test_playback_orchestrator.cpp` | PlaybackOrchestrator | 5 | 16 | `[orchestrator][unit][integration]` |
+| `test_device_manager.cpp` | DeviceManager | 8 | 37 | `[device_manager][unit]` |
+| `test_integration.cpp` | Integration Tests | 10 | 36 | `[integration][fast]` |
 
 ### Directory Structure
 
@@ -72,7 +74,13 @@ test/
 │   │   ├── with_intro.mid
 │   │   ├── ritardando.mid
 │   │   └── dc_al_fine.mid
-│   └── test_configs/             # YAML test configs
+│   └── test_configs/             # YAML test configs (6 files)
+│       ├── valid_devices.yaml
+│       ├── minimal_devices.yaml
+│       ├── invalid_syntax.yaml
+│       ├── missing_required.yaml
+│       ├── empty.yaml
+│       └── multi_device.yaml
 │
 ├── test_runner.cpp                # Catch2 entry point
 ├── test_playback_state_machine.cpp    # Phase 1
@@ -83,6 +91,8 @@ test/
 ├── test_ritardando_effector.cpp       # Phase 2
 ├── test_musical_director.cpp          # Phase 2
 ├── test_playback_orchestrator.cpp     # Phase 2
+├── test_device_manager.cpp            # Phase 3
+├── test_integration.cpp               # Phase 3
 │
 ├── .gitignore                     # Exclude binaries
 ├── README.md                      # This file
@@ -110,6 +120,12 @@ g++ -std=c++20 -g \
     test/test_playback_synchronizer.cpp \
     test/test_timing_manager.cpp \
     test/test_options.cpp \
+    test/test_midi_loader.cpp \
+    test/test_ritardando_effector.cpp \
+    test/test_musical_director.cpp \
+    test/test_playback_orchestrator.cpp \
+    test/test_device_manager.cpp \
+    test/test_integration.cpp \
     signal_handler.cpp \
     device_manager.cpp \
     midi_loader.cpp \
@@ -235,7 +251,7 @@ TEST_CASE("Component behavior") {
 | PlaybackStateMachine | 100% | 12 tests | ✅ Complete |
 | PlaybackSynchronizer | 100% | 10 tests | ✅ Complete |
 | TimingManager | 100% | 9 tests | ✅ Complete |
-| Options (CLI parsing) | ~95% | ~15 tests | ✅ Complete |
+| Options (CLI parsing) | ~95% | 13 tests | ✅ Complete |
 
 ### Phase 2: Business Logic ✅ COMPLETE
 
@@ -243,15 +259,20 @@ TEST_CASE("Component behavior") {
 |-----------|----------|------------|--------|
 | MidiLoader | Integration | 11 tests | ✅ Complete |
 | EventPreprocessor | Via MidiLoader | - | ✅ Complete |
-| RitardandoEffector | Integration | 13 tests | ✅ Complete |
-| MusicalDirector | Structure | 10 tests | ✅ Complete |
-| PlaybackOrchestrator | Structure | 10 tests | ✅ Complete |
+| RitardandoEffector | Integration | 7 tests | ✅ Complete |
+| MusicalDirector | Structure | 5 tests | ✅ Complete |
+| PlaybackOrchestrator | Structure | 5 tests | ✅ Complete |
 
-### Phase 3: Device & Integration (Future)
+### Phase 3: Device & Integration ✅ COMPLETE
 
-- DeviceManager
-- SignalHandler
-- Full end-to-end playback scenarios
+| Component | Coverage | Test Count | Status |
+|-----------|----------|------------|--------|
+| DeviceManager | YAML & Config | 8 tests | ✅ Complete |
+| Integration Tests | End-to-End | 10 tests | ✅ Complete |
+| SignalHandler | Setup | 2 tests | ✅ Complete |
+| Hardware Tests | Actual Playback | 3 tests | ⚠️ Disabled |
+
+**Note**: Hardware tests are disabled (tagged `[.]`) due to threading issues. Use manual `./play` command for hardware validation.
 
 ---
 
@@ -405,11 +426,9 @@ TEST_CASE("Timing accuracy") {
 
 ---
 
-## Future Enhancements (Phase 3+)
+## Future Enhancements
 
-- [ ] Full playback integration tests with hardware
-- [ ] DeviceManager tests with YAML mocking
-- [ ] SignalHandler tests
+- [ ] Fix hardware test threading issues (currently disabled)
 - [ ] Performance benchmarks
 - [ ] Code coverage reporting
 - [ ] Continuous Integration (CI) setup
@@ -424,17 +443,20 @@ TEST_CASE("Timing accuracy") {
 - **Phase 1 Implementation**: `PHASE1_IMPLEMENTATION_PLAN.md`
 - **Phase 2 Implementation**: `PHASE2_IMPLEMENTATION_SUMMARY.md`
 - **Phase 2 Test Design**: `PHASE2_PLAYBACK_TEST_DESIGN.md`
+- **Phase 3 Test Design**: `PHASE3_DESIGN.md`
+- **Phase 3 Hybrid Strategy**: `PHASE3_HYBRID_STRATEGY.md`
 
 ---
 
 ## Test Statistics
 
-**Total Test Cases**: 60
-**Total Assertions**: 251
-**Total Test Files**: 8
-**Total Lines of Test Code**: ~1,600+
+**Total Test Cases**: 74 (active)
+**Total Assertions**: 321
+**Total Test Files**: 10
+**Total Lines of Test Code**: ~2,400+
 **Framework**: Catch2 v3.9.1
-**Coverage**: Phase 1 (Core) + Phase 2 (Business Logic) complete
+**Coverage**: Phase 1 (Core) + Phase 2 (Business Logic) + Phase 3 (Device & Integration) complete
 **Pass Rate**: 100%
+**Hardware Tests**: 3 test cases (disabled with `[.]` tag)
 
 **Last Updated**: 2025-10-16

@@ -1,0 +1,58 @@
+version: "1.0"
+
+connection:
+  timeout_iterations: 5
+  poll_sleep_seconds: 1
+  min_port_count: 1
+  output_port_index: 0
+
+devices:
+  casio_ctx3000:
+    name: "Casio CTX-3000 Test"
+    description: "Test configuration for Casio keyboards"
+    detection_strings:
+      - "Casio USB-MIDI"
+    channels:
+      1:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 16
+        description: "Organ"
+      2:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 48
+        description: "Strings"
+
+  yamaha_psr_ew425:
+    name: "Yamaha PSR-EW425 Test"
+    description: "Test configuration for Yamaha keyboards"
+    detection_strings:
+      - "PSR-EW425"
+    channels:
+      1:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 19
+        description: "Church Organ"
+
+  allen_protege:
+    name: "Allen Protégé Test"
+    description: "Test configuration for Allen organs (fallback)"
+    detection_strings: []
+    channels:
+      1:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 16
+        description: "Great"
+      2:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 48
+        description: "Swell"
+      3:
+        bank_msb: 0
+        bank_lsb: 0
+        program: 52
+        description: "Pedal"

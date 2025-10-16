@@ -2,6 +2,16 @@
 
 ---
 ## Decision
+*   [2025-10-16 21:33:09] Phase 3 DeviceManager Testing: Real YAML Files Strategy
+
+## Rationale
+*   Following Phase 2's successful pattern of using real MIDI files, we implemented DeviceManager tests using real YAML configuration files rather than mocks. This approach provides authentic testing of yaml-cpp library integration, file I/O, and error handling. Created 6 test fixture YAML files covering valid configs, minimal configs, syntax errors, missing fields, empty files, and multi-device scenarios.
+
+## Implementation Details
+*   Created test/test_device_manager.cpp with 8 test cases (37 assertions) covering: construction, YAML file discovery, parsing valid/invalid configs, device type names, multi-device configs, and Options integration. All test fixtures in test/fixtures/test_configs/. Fixed path consistency issue in test/test_midi_loader.cpp (changed 'test/fixtures/' to 'fixtures/' for consistency). All 68 tests passing (285 assertions total).
+
+---
+## Decision
 *   [2025-10-16 17:38:16] Created CLI11 migration plan to replace getopt()
 
 ## Rationale

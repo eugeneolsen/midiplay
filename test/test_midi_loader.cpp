@@ -15,8 +15,8 @@ namespace fs = std::filesystem;
 TEST_CASE("MidiLoader: File Existence Checking", "[business_logic][midi_loader]") {
     SECTION("fileExists utility detects existing files") {
         // Test the static utility method
-        if (fs::exists("fixtures/test_files/simple.mid")) {
-            REQUIRE(MidiLoader::fileExists("fixtures/test_files/simple.mid") == true);
+        if (fs::exists("test/fixtures/test_files/simple.mid")) {
+            REQUIRE(MidiLoader::fileExists("test/fixtures/test_files/simple.mid") == true);
         }
         
         REQUIRE(MidiLoader::fileExists("nonexistent_file.mid") == false);
@@ -85,7 +85,7 @@ TEST_CASE("MidiLoader: API Availability", "[business_logic][midi_loader]") {
 // ============================================================================
 
 TEST_CASE("MidiLoader: Load Simple MIDI File", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/simple.mid";
+    std::string testFile = "test/fixtures/test_files/simple.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);
@@ -145,7 +145,7 @@ TEST_CASE("MidiLoader: Load Simple MIDI File", "[business_logic][midi_loader][in
 }
 
 TEST_CASE("MidiLoader: Load File with Introduction", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/with_intro.mid";
+    std::string testFile = "test/fixtures/test_files/with_intro.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);
@@ -205,7 +205,7 @@ TEST_CASE("MidiLoader: Load File with Introduction", "[business_logic][midi_load
 }
 
 TEST_CASE("MidiLoader: Load File with Ritardando", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/ritardando.mid";
+    std::string testFile = "test/fixtures/test_files/ritardando.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);
@@ -242,7 +242,7 @@ TEST_CASE("MidiLoader: Load File with Ritardando", "[business_logic][midi_loader
 }
 
 TEST_CASE("MidiLoader: Load File with DC al Fine", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/dc_al_fine.mid";
+    std::string testFile = "test/fixtures/test_files/dc_al_fine.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);
@@ -284,7 +284,7 @@ TEST_CASE("MidiLoader: Error Handling", "[business_logic][midi_loader][error_han
         optind = 0;  // Reset getopt global state (GNU: complete reinitialization)
         MidiLoader loader;
         // Use a file that exists for Options, but try to load a different file
-        std::string validFile = "fixtures/test_files/simple.mid";
+        std::string validFile = "test/fixtures/test_files/simple.mid";
         if (!fs::exists(validFile)) {
             WARN("Cannot test error handling without valid fixture file");
             return;
@@ -302,7 +302,7 @@ TEST_CASE("MidiLoader: Error Handling", "[business_logic][midi_loader][error_han
     SECTION("Handles empty file path") {
         optind = 0;  // Reset getopt global state (GNU: complete reinitialization)
         MidiLoader loader;
-        std::string validFile = "fixtures/test_files/simple.mid";
+        std::string validFile = "test/fixtures/test_files/simple.mid";
         if (!fs::exists(validFile)) {
             WARN("Cannot test error handling without valid fixture file");
             return;
@@ -320,7 +320,7 @@ TEST_CASE("MidiLoader: Error Handling", "[business_logic][midi_loader][error_han
 
 
 TEST_CASE("MidiLoader: Key Signature Extraction", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/simple.mid";
+    std::string testFile = "test/fixtures/test_files/simple.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);
@@ -345,7 +345,7 @@ TEST_CASE("MidiLoader: Key Signature Extraction", "[business_logic][midi_loader]
 }
 
 TEST_CASE("MidiLoader: Time Signature Extraction", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/simple.mid";
+    std::string testFile = "test/fixtures/test_files/simple.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);
@@ -372,7 +372,7 @@ TEST_CASE("MidiLoader: Time Signature Extraction", "[business_logic][midi_loader
 }
 
 TEST_CASE("MidiLoader: Verse Counting", "[business_logic][midi_loader][integration]") {
-    std::string testFile = "fixtures/test_files/simple.mid";
+    std::string testFile = "test/fixtures/test_files/simple.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);

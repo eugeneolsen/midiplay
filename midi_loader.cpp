@@ -19,11 +19,17 @@ MidiLoader::MidiLoader() {
 }
 
 // Destructor - defined here for pimpl pattern
-MidiLoader::~MidiLoader() = default;
+MidiLoader::~MidiLoader() {
+    // Clear callback to prevent any potential dangling reference issues
+    midiFile_.SetCallbackLoad(nullptr);
+}
 
 // Reset all state variables to initial values
 void MidiLoader::resetState() {
     eventProcessor_->reset();
+    
+    // Clear the load callback to prevent dangling references
+    midiFile_.SetCallbackLoad(nullptr);
     
     uSecPerTick_ = 0;
     speed_ = 0.0f;
@@ -52,7 +58,10 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     // Check for tempo override from command line
     int tempoOverride = options.getUsecPerBeat();
     
-    // Check if file exists (extracted from play.cpp lines 369-378)
+    isVerbose_ = options.isVerbose();
+    
+    // Check if file exists BEFORE setting up callback
+    // (extracted from play.cpp lines 369-378)
     if (!fileExists(path)) {
         std::cout << _("Hymn ") << options.getFileName() << _(" was not found");
         
@@ -64,15 +73,16 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
         
         return false;
     }
-
-    isVerbose_ = options.isVerbose();
     
-    // Initialize load callback before loading
+    // Initialize load callback only after confirming file exists
     initializeLoadCallback(options);
     
     try {
         // Load the MIDI file (extracted from play.cpp line 381)
         midiFile_.Load(path.c_str());
+        
+        // Clear the callback immediately after loading to prevent dangling references
+        midiFile_.SetCallbackLoad(nullptr);
         
         // Calculate timing values (extracted from play.cpp lines 383-390)
         uint16_t ppq = midiFile_.TimeDivision();
@@ -93,6 +103,8 @@ bool MidiLoader::loadFile(const std::string& path, const Options& options) {
     }
     catch (const std::exception& e) {
         std::cerr << _("Error loading MIDI file: ") << e.what() << std::endl;
+        // Clear callback before returning to prevent dangling reference
+        midiFile_.SetCallbackLoad(nullptr);
         return false;
     }
 }

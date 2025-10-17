@@ -129,6 +129,8 @@
                 "${workspaceFolder}/test/test_ritardando_effector.cpp",
                 "${workspaceFolder}/test/test_musical_director.cpp",
                 "${workspaceFolder}/test/test_playback_orchestrator.cpp",
+                "${workspaceFolder}/test/test_device_manager.cpp",
+                "${workspaceFolder}/test/test_integration.cpp",
                 
                 // Source files (NO play.cpp - it has main())
                 "${workspaceFolder}/signal_handler.cpp",

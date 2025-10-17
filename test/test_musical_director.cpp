@@ -100,7 +100,7 @@ TEST_CASE("MusicalDirector with loaded MIDI file", "[musical_director][integrati
     PlayerSync player(&outport);
     PlaybackStateMachine stateMachine;
     
-    std::string testFile = "test/fixtures/test_files/with_intro.mid";
+    std::string testFile = "fixtures/test_files/with_intro.mid";
     
     if (!fs::exists(testFile)) {
         WARN("Test file not found: " << testFile);

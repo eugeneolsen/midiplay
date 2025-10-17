@@ -8,7 +8,7 @@ graph LR
     A --> C[device_manager.cpp]
     A --> E[timing_manager.cpp]
     A --> F[playback_synchronizer.cpp]
-    A --> D[playback_engine.cpp]
+    A --> D[playback_orchestrator.cpp]
     A --> G[signal_handler.cpp]
     
     %% Configuration
@@ -33,7 +33,7 @@ graph LR
     F[playback_synchronizer.cpp<br/>Thread Sync] -->|Synchronizes| A
     
     %% Playback Engine (called fifth)
-    D[playback_engine.cpp<br/>Playback Orchestration] -->|Controls Playback| A
+    D[playback_orchestrator.cpp<br/>Playback Orchestration] -->|Controls Playback| A
     
     %% Signal Handling (called last)
     G[signal_handler.cpp<br/>Graceful Shutdown] -->|Handles Signals| A
@@ -58,7 +58,7 @@ graph LR
 
 ### Core Components (.cpp files)
 - **device_manager.cpp**: Handles MIDI device detection, connection, and configuration
-- **playback_engine.cpp**: Orchestrates MIDI playback including introduction, verses, and musical directions
+- **playback_orchestrator.cpp**: Orchestrates MIDI playback including introduction, verses, and musical directions
 - **timing_manager.cpp**: Tracks elapsed time and provides timing information
 - **playback_synchronizer.cpp**: Provides thread synchronization for playback control
 - **signal_handler.cpp**: Manages graceful shutdown on SIGINT (Ctrl+C) with emergency notes-off

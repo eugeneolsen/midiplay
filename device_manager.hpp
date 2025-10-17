@@ -50,33 +50,6 @@ namespace MidiPlay {
     };
 
     /**
-     * @brief Base interface for all MIDI device implementations
-     * 
-     * This interface provides a common contract for all supported MIDI devices.
-     * Existing device classes (ctx3000, psr_ew425, protege) will eventually
-     * inherit from this interface to enable polymorphic usage.
-     */
-    class BaseDevice {
-    public:
-        virtual ~BaseDevice() = default;
-        
-        /**
-         * @brief Configure device with default settings
-         * 
-         * This method should set up the device with appropriate
-         * bank selections, program changes, and volume settings
-         * for optimal hymn playback.
-         */
-        virtual void SetDefaults() = 0;
-        
-        /**
-         * @brief Get the device type
-         * @return DeviceType enumeration value
-         */
-        virtual DeviceType GetDeviceType() const = 0;
-    };
-
-    /**
      * @brief Manager class for MIDI device detection, connection, and creation
      * 
      * The DeviceManager encapsulates all device-related operations including:

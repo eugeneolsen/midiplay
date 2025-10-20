@@ -188,7 +188,7 @@ void EventPreProcessor::processKeySignatureEvent(const Event& event) {
             }
             else
             {
-                keySignature_ = "Unknown";  // TODO: i18n
+                keySignature_ = _("Unknown");
             }
         }
         else {
@@ -196,7 +196,7 @@ void EventPreProcessor::processKeySignatureEvent(const Event& event) {
             if (index >= 0 && index < static_cast<int>(sizeof(keys_)/sizeof(keys_[0]))) {
                 keySignature_ = keys_[index];
             } else {
-                keySignature_ = "Unknown";  // TODO: i18n
+                keySignature_ = _("Unknown");
             }
 
             keySignature_ += _(" minor");   // TODO: i18n

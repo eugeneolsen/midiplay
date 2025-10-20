@@ -71,6 +71,7 @@ MIT - see [LICENSE](LICENSE.md) document.
 cxxmidi: MIT
 
 ## Release History
+Version 1.5.9 - 2025.10.20 Unit tests, minor bug fixes, more code cleanup.  
 Version 1.5.8 - 2025.10.08 Various code cleanup changes.  No user-facing changes.  
 Version 1.5.7 - 2025.10.02 Move magic strings to internationalization tables, localize.<br>
 Version 1.5.6 - 2025.10.02 Remove namespace pollution from .cpp files<br>

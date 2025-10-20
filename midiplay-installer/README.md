@@ -39,7 +39,7 @@ midiplay-installer/
 
 1. **Extract the package** (if downloaded as archive):
    ```bash
-   tar -xzf midiplay-installer-v1.5.7.tar.gz
+   tar -xzf midiplay-installer-v1.5.9.tar.gz
    ```
 
 2. **Navigate to the installer directory**:
@@ -271,6 +271,17 @@ After installation:
 4. French (France)
 5. French (Canada)
 - ✅ **Many internal changes to enhance reliability and extensibility.**
+
+### Upgrading to v1.5.9
+
+**✅ No Breaking Changes**
+
+**What's New in v1.5.9:**
+- Minor bug fixes
+- Code cleanup
+- Add unit tests
+- Automate user acceptance testing
+
 
 ### General Updates
 

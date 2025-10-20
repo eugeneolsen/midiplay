@@ -1045,8 +1045,12 @@ dkms.conf
 # Raspberry Pi Pico disassembler file
 *.dis
 
-# Context Portal Database
+
+# ConPort local database and vector data
 context_portal/context.db
+context_portal/conport_vector_data/
+context_portal/*.sqlite3
+
 
 # MIDI files
 *.mid

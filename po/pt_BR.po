@@ -341,3 +341,7 @@ msgstr "Argumento não reconhecido: "
 #: device_manager.cpp:366
 msgid "Available MIDI ports:"
 msgstr "Portas MIDI disponíveis:"
+
+#: event_preprocessor.cpp:191 event_preprocessor.cpp:199
+msgid "Unknown"
+msgstr "Desconhecido"

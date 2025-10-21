@@ -49,7 +49,7 @@ midiplay-installer/
 
 3. **Run the installation script**:
    ```bash
-   ./install.sh
+   sudo ./install.sh
    ```
 
 The script will:

@@ -19,7 +19,8 @@ display_elapsed_time() {
 # Ensure timing is displayed on exit (success or error)
 trap display_elapsed_time EXIT
 
-echo "Running test cases for the music player..."
+echo "Running test cases for the MIDI player..."
+../play --version
 echo ""
 echo "Test Case 1: Simple playback"
 echo "  Expected: No introduction, 2 measures in 4 seconds"
@@ -58,3 +59,13 @@ sleep 2
 echo "Test Case 8: Playback with ritardando"
 echo "  Expected: Introduction, 1 verse with dramatic ritardando effect in last half to end"
 ../play -s ritardando
+
+echo "Test Case 9: Display help with Spanish locale"
+echo "  Expected: Help text displayed in Spanish"
+LANG=es_ES.UTF-8 ../play --help
+
+sleep 2
+echo "Test Case 10: Simple playback"
+echo "  Expected: Plays simple song with Portuguese (Brazil) locale with verbose output"
+LANG=pt_BR.UTF-8 ../play -s simple -V
+

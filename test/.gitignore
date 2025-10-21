@@ -14,6 +14,10 @@ run_tests
 coverage/
 coverage.info
 
+# Test Files
+!fixtures/test_files/
+!fixtures/test_files/*.mid
+
 # Temporary files
 *.swp
 *.swo

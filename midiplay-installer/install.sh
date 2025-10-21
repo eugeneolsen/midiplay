@@ -54,7 +54,7 @@ else
         
         # All fallbacks failed
         return 1
-    fi
+    }
 fi
 
 # Function to print colored output
@@ -113,7 +113,7 @@ echo -e "${BLUE}=================================================${NC}"
 echo ""
 
 # Detect version
-PACKAGE_VERSION="1.5.8"
+PACKAGE_VERSION="1.5.9"
 if [[ $? -ne 0 ]]; then
     print_error "Unable to detect version automatically"
     echo ""

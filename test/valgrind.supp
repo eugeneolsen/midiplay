@@ -1,0 +1,122 @@
+# Valgrind suppression file for midiplay
+# Suppresses known memory issues in third-party libraries
+
+# ALSA library leaks
+{
+   ignore_libasound_leak
+   Memcheck:Leak
+   ...
+   obj:*/libasound.so*
+}
+
+{
+   ignore_libasound_conditional
+   Memcheck:Cond
+   ...
+   obj:*/libasound.so*
+}
+
+{
+   ignore_libasound_value
+   Memcheck:Value8
+   ...
+   obj:*/libasound.so*
+}
+
+# PulseAudio library leaks
+{
+   ignore_libpulse_leak
+   Memcheck:Leak
+   ...
+   obj:*/libpulse*.so*
+}
+
+{
+   ignore_libpulsecommon_leak
+   Memcheck:Leak
+   ...
+   obj:*/libpulsecommon*.so*
+}
+
+{
+   ignore_pulse_conditional
+   Memcheck:Cond
+   ...
+   obj:*/libpulse*.so*
+}
+
+# Dynamic loader (dlopen) leaks
+{
+   ignore_dlopen_leak
+   Memcheck:Leak
+   ...
+   fun:*dlopen*
+}
+
+{
+   ignore_dl_init_leak
+   Memcheck:Leak
+   ...
+   fun:_dl_init
+}
+
+{
+   ignore_dl_catch_error
+   Memcheck:Leak
+   ...
+   fun:_dl_catch_error
+}
+
+# GLib/GObject leaks (if used by audio libraries)
+{
+   ignore_glib_leak
+   Memcheck:Leak
+   ...
+   obj:*/libglib*.so*
+}
+
+{
+   ignore_gobject_leak
+   Memcheck:Leak
+   ...
+   obj:*/libgobject*.so*
+}
+
+# DBus leaks (often used by PulseAudio)
+{
+   ignore_dbus_leak
+   Memcheck:Leak
+   ...
+   obj:*/libdbus*.so*
+}
+
+# X11/XCB leaks (if any GUI components)
+{
+   ignore_x11_leak
+   Memcheck:Leak
+   ...
+   obj:*/libX11*.so*
+}
+
+{
+   ignore_xcb_leak
+   Memcheck:Leak
+   ...
+   obj:*/libxcb*.so*
+}
+
+# System C library initialization
+{
+   ignore_libc_init
+   Memcheck:Leak
+   ...
+   fun:__libc_*
+}
+
+# Thread-related leaks in system libraries
+{
+   ignore_pthread_leak
+   Memcheck:Leak
+   ...
+   obj:*/libpthread*.so*
+}

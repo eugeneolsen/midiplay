@@ -146,14 +146,14 @@ void EventPreProcessor::processTempoEvent(const Event& event, const Options& opt
             float speed = options.getSpeed();
 
             if (uSecPerQuarter_ > 0) {
-                int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerQuarter_;  // Quarter notes per minute
-                fileTempo_ = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
+                double qpm = static_cast<double>(MidiPlay::MICROSECONDS_PER_MINUTE) / uSecPerQuarter_;
+                fileTempo_ = static_cast<int>(qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR));
             }
             else {
-                uSecPerQuarter_ = Midi::DEFAULT_TEMPO_USEC_PER_QUARTER;  // Default to 120 bpm if no tempo specified
+                uSecPerQuarter_ = Midi::DEFAULT_TEMPO_USEC_PER_QUARTER; // Default to 120 bpm if no tempo specified
                 fileTempo_ = Midi::DEFAULT_TEMPO_BPM;
             }
-            
+
             if (bpm_ > 0) {
                 int qpm = MidiPlay::MICROSECONDS_PER_MINUTE / uSecPerBeat;  // Quarter notes per minute
                 bpm_ = qpm * (std::pow(2.0, timeSignature_.denominator) / MidiPlay::QUARTER_NOTE_DENOMINATOR);
@@ -178,13 +178,28 @@ void EventPreProcessor::processKeySignatureEvent(const Event& event) {
     if (message.IsMeta(Message::MetaType::KeySignature)) {
         int sf = static_cast<int8_t>(static_cast<uint8_t>(message[2]));
         int mi = (uint8_t)message[3];
-        
-        if (mi == 0) {
-            keySignature_ = keys_[sf + MAJOR_KEY_OFFSET];
+
+        // TODO: DRY up the following code.
+        if (mi == 0)
+        {
+            int index = sf + MAJOR_KEY_OFFSET;
+            if (index >= 0 && index < static_cast<int>(sizeof(keys_) / sizeof(keys_[0]))) {
+                keySignature_ = keys_[index];
+            }
+            else
+            {
+                keySignature_ = _("Unknown");
+            }
         }
         else {
-            keySignature_ = keys_[sf + MINOR_KEY_OFFSET];
-            keySignature_ += _(" minor");
+            int index = sf + MINOR_KEY_OFFSET;
+            if (index >= 0 && index < static_cast<int>(sizeof(keys_)/sizeof(keys_[0]))) {
+                keySignature_ = keys_[index];
+            } else {
+                keySignature_ = _("Unknown");
+            }
+
+            keySignature_ += _(" minor");   // TODO: i18n
         }
     }
 }

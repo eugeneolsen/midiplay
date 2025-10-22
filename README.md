@@ -1,8 +1,8 @@
-# 🎹 Organ Pi<sup style="font-size: smaller">TM</sup> 🎜 MIDI File Player
+# 🎹 Organ Pi:tm: 🎜 MIDI File Player
 ## C++ (gnu++20 standard), customized fork of [cxxmidi](https://github.com/eugeneolsen/cxxmidi), standard library.
 ## 👉🏽 See a demo video in the <a href="https://www.raspberrypi.com/news/raspberry-pi-is-this-churchs-new-organist/" target="_blank">Raspberry Pi News</a>
 ## Description
-The Organ Pi<sup style="font-size: smaller">TM</sup> MIDI file player is a software MIDI sequencer that plays a MIDI file through MIDI OUT port 1 through a USB-to-MIDI converter.  This program was developed specifically to run on a Raspberry Pi 4B (or better) running Raspberry Pi OS 64-bit (or any Debian Linux derivative, such as Ubuntu) through a USB to MIDI adapter to an Allen Protégé-16 organ.  Other organs may be supported in the future.
+The Organ Pi:tm: MIDI file player is a software MIDI sequencer that plays a MIDI file through MIDI OUT port 1 through a USB-to-MIDI converter.  This program was developed specifically to run on a Raspberry Pi 4B (or better) running Raspberry Pi OS 64-bit (or any Debian Linux derivative, such as Ubuntu) through a USB to MIDI adapter to an Allen Protégé-16 organ.  Other organs may be supported in the future.
 
 Casio and Yamaha consumer keyboards are also supported for testing.
 

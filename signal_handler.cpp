@@ -1,5 +1,6 @@
 #include "signal_handler.hpp"
 #include "constants.hpp"
+#include "i18n.hpp"
 #include <cxxmidi/channel.hpp>
 #include <iostream>
 #include <iomanip>
@@ -57,8 +58,8 @@ void SignalHandler::displayElapsedTime() const {
     int minutes = static_cast<int>(elapsed.count()) / SECONDS_PER_MINUTE;
     int seconds = static_cast<int>(elapsed.count()) % SECONDS_PER_MINUTE;
     
-    std::cout << "\nElapsed time " << minutes << ":" 
-              << std::setw(2) << std::setfill('0') << seconds 
+    std::cout << _("\nElapsed time ") << minutes << ":"
+              << std::setw(2) << std::setfill('0') << seconds
               << std::endl << std::endl;
 }
 

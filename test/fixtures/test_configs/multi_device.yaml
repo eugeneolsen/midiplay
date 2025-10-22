@@ -1,0 +1,26 @@
+version: "1.0"
+
+devices:
+  casio_ctx3000:
+    name: "Casio"
+    detection_strings:
+      - "Casio"
+    channels:
+      1:
+        program: 16
+
+  yamaha_psr_ew425:
+    name: "Yamaha"
+    detection_strings:
+      - "Yamaha"
+      - "PSR"
+    channels:
+      1:
+        program: 19
+
+  allen_protege:
+    name: "Allen"
+    detection_strings: []
+    channels:
+      1:
+        program: 16

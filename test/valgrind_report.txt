@@ -1,0 +1,193 @@
+==16706== Memcheck, a memory error detector
+==16706== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==16706== Using Valgrind-3.19.0-8d3c8034b8-20220411 and LibVEX; rerun with -h for copyright info
+==16706== Command: ../play -s with_intro
+==16706== Parent PID: 16705
+==16706== 
+--16706-- 
+--16706-- Valgrind options:
+--16706--    --leak-check=full
+--16706--    --track-origins=yes
+--16706--    --verbose
+--16706--    --log-file=valgrind_report.txt
+--16706--    --show-leak-kinds=definite,possible
+--16706--    --suppressions=/home/eugene/.config/valgrind/default.supp
+--16706-- Contents of /proc/version:
+--16706--   Linux version 6.12.47+rpt-rpi-2712 (serge@raspberrypi.com) (aarch64-linux-gnu-gcc-12 (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40) #1 SMP PREEMPT Debian 1:6.12.47-1+rpt1~bookworm (2025-09-16)
+--16706-- 
+--16706-- Arch and hwcaps: ARM64, LittleEndian, v8-dpcvap-rdm-atomics-fp16-vfp16
+--16706-- Page sizes: currently 16384, max supported 65536
+--16706-- Valgrind library directory: /usr/libexec/valgrind
+--16706-- Reading syms from /home/eugene/src/midiplay/play
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1
+--16706--   Considering /usr/lib/debug/.build-id/0d/4643d8aa7e95611678910c44717997ad0a01a1.debug ..
+--16706--   .. build-id is valid
+--16706-- Reading syms from /usr/libexec/valgrind/memcheck-arm64-linux
+--16706--   Considering /usr/lib/debug/.build-id/56/a59999ddd26df5722054bdbb2bc18f93b1b0b7.debug ..
+--16706--   .. build-id is valid
+--16706--    object doesn't have a dynamic symbol table
+--16706-- Scheduler: using generic scheduler lock implementation.
+--16706-- Reading suppressions file: /home/eugene/.config/valgrind/default.supp
+--16706-- Reading suppressions file: /usr/libexec/valgrind/default.supp
+==16706== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-16706-by-eugene-on-???
+==16706== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-16706-by-eugene-on-???
+==16706== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-16706-by-eugene-on-???
+==16706== 
+==16706== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==16706== don't want to do, unless you know exactly what you're doing,
+==16706== or are doing some strange experiment):
+==16706==   /usr/bin/vgdb --pid=16706 ...command...
+==16706== 
+==16706== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==16706==   /path/to/gdb ../play
+==16706== and then give GDB the following command
+==16706==   target remote | /usr/bin/vgdb --pid=16706
+==16706== --pid is optional if only one valgrind process is running
+==16706== 
+--16706-- REDIR: 0x401d2c0 (ld-linux-aarch64.so.1:strlen) redirected to 0x580bb9f4 (vgPlain_arm64_linux_REDIR_FOR_strlen)
+--16706-- REDIR: 0x401c1c0 (ld-linux-aarch64.so.1:strcmp) redirected to 0x580bba48 (vgPlain_arm64_linux_REDIR_FOR_strcmp)
+--16706-- REDIR: 0x401c100 (ld-linux-aarch64.so.1:index) redirected to 0x580bba1c (vgPlain_arm64_linux_REDIR_FOR_index)
+--16706-- Reading syms from /usr/libexec/valgrind/vgpreload_core-arm64-linux.so
+--16706--   Considering /usr/lib/debug/.build-id/a6/94d341f1b6fdec288f609a18009bf95a3af9b6.debug ..
+--16706--   .. build-id is valid
+--16706-- Reading syms from /usr/libexec/valgrind/vgpreload_memcheck-arm64-linux.so
+--16706--   Considering /usr/lib/debug/.build-id/26/d22c221bfeaba7d7c4d5fb6f90ce3ef01fd4dd.debug ..
+--16706--   .. build-id is valid
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libasound.so.2.0.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libyaml-cpp.so.0.7.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.30
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libm.so.6
+--16706--   Considering /usr/lib/debug/.build-id/b0/7dbd095f01a1fd56f1d4c274229ed690f8e6fa.debug ..
+--16706--   .. build-id is valid
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libgcc_s.so.1
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libc.so.6
+--16706--   Considering /usr/lib/debug/.build-id/b1/37cc75666ed2c6d9c820c48c240a1900c29a4e.debug ..
+--16706--   .. build-id is valid
+==16706== WARNING: new redirection conflicts with existing -- ignoring it
+--16706--     old: 0x04e03250 (memalign            ) R-> (1011.0) 0x0488a560 memalign
+--16706--     new: 0x04e03250 (memalign            ) R-> (1017.0) 0x0488a540 aligned_alloc
+==16706== WARNING: new redirection conflicts with existing -- ignoring it
+--16706--     old: 0x04e03250 (memalign            ) R-> (1011.0) 0x0488a560 memalign
+--16706--     new: 0x04e03250 (memalign            ) R-> (1017.0) 0x0488a520 aligned_alloc
+--16706-- REDIR: 0x4e05e80 (libc.so.6:memchr) redirected to 0x4850710 (_vgnU_ifunc_wrapper)
+--16706-- REDIR: 0x4e09410 (libc.so.6:strlen) redirected to 0x4850710 (_vgnU_ifunc_wrapper)
+--16706-- REDIR: 0x4e06090 (libc.so.6:memcpy) redirected to 0x4850710 (_vgnU_ifunc_wrapper)
+--16706-- REDIR: 0x4e067f0 (libc.so.6:memmove) redirected to 0x4850710 (_vgnU_ifunc_wrapper)
+--16706-- REDIR: 0x4e069c0 (libc.so.6:memset) redirected to 0x4850710 (_vgnU_ifunc_wrapper)
+--16706-- REDIR: 0x4e09940 (libc.so.6:rindex) redirected to 0x488ac60 (rindex)
+--16706-- REDIR: 0x4e02240 (libc.so.6:malloc) redirected to 0x4885050 (malloc)
+--16706-- REDIR: 0x4e0e200 (libc.so.6:__GI_memset) redirected to 0x488eed0 (memset)
+--16706-- REDIR: 0x4e0e800 (libc.so.6:__GI_strlen) redirected to 0x488b2c0 (__GI_strlen)
+--16706-- REDIR: 0x4e05ec0 (libc.so.6:bcmp) redirected to 0x488e660 (bcmp)
+--16706-- REDIR: 0x4e078c0 (libc.so.6:strcmp) redirected to 0x488c2d0 (strcmp)
+--16706-- REDIR: 0x4e0e6c0 (libc.so.6:__strlen_asimd) redirected to 0x488b294 (strlen)
+--16706-- REDIR: 0x4e0d100 (libc.so.6:__GI_memcpy) redirected to 0x488cf20 (__GI_memcpy)
+--16706-- REDIR: 0x4b02c90 (libstdc++.so.6:operator new(unsigned long)) redirected to 0x48857b4 (operator new(unsigned long))
+--16706-- REDIR: 0x4e03380 (libc.so.6:calloc) redirected to 0x4889ef0 (calloc)
+--16706-- REDIR: 0x4e095a4 (libc.so.6:strncmp) redirected to 0x488ba40 (strncmp)
+--16706-- REDIR: 0x4e07740 (libc.so.6:index) redirected to 0x488ae40 (index)
+--16706-- REDIR: 0x4e0cb80 (libc.so.6:__GI_memchr) redirected to 0x488c490 (__GI_memchr)
+--16706-- REDIR: 0x4e07800 (libc.so.6:strchrnul) redirected to 0x488f9a4 (strchrnul)
+--16706-- REDIR: 0x4e029c4 (libc.so.6:free) redirected to 0x4887ad0 (free)
+--16706-- REDIR: 0x4e0a170 (libc.so.6:strstr) redirected to 0x48901f0 (strstr)
+--16706-- REDIR: 0x4e09440 (libc.so.6:strncasecmp) redirected to 0x488bc80 (strncasecmp)
+--16706-- REDIR: 0x4b00cb0 (libstdc++.so.6:operator delete(void*, unsigned long)) redirected to 0x48882f0 (operator delete(void*, unsigned long))
+--16706-- REDIR: 0x4b00ca0 (libstdc++.so.6:operator delete(void*)) redirected to 0x4888070 (operator delete(void*))
+--16706-- REDIR: 0x4b02d30 (libstdc++.so.6:operator new[](unsigned long)) redirected to 0x4886ae4 (operator new[](unsigned long))
+--16706-- REDIR: 0x4e0d240 (libc.so.6:__GI_memmove) redirected to 0x488f2b4 (__GI_memmove)
+--16706-- REDIR: 0x4b00cd0 (libstdc++.so.6:operator delete[](void*)) redirected to 0x48890b0 (operator delete[](void*))
+--16706-- REDIR: 0x4e089b0 (libc.so.6:strcspn) redirected to 0x48903d0 (strcspn)
+--16706-- REDIR: 0x4e06d40 (libc.so.6:strcasecmp) redirected to 0x488bba0 (strcasecmp)
+--16706-- REDIR: 0x4e02c70 (libc.so.6:realloc) redirected to 0x488a144 (realloc)
+--16706-- REDIR: 0x4e08880 (libc.so.6:strcpy) redirected to 0x488b3e0 (strcpy)
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/alsa-lib/libasound_module_conf_pulse.so
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libpulse.so.0.24.2
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/pulseaudio/libpulsecommon-16.1.so
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libdbus-1.so.3.32.4
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libsndfile.so.1.0.35
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libX11-xcb.so.1.0.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libX11.so.6.4.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libsystemd.so.0.35.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libasyncns.so.0.3.1
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libFLAC.so.12.0.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libvorbis.so.0.4.9
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libvorbisenc.so.2.0.12
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libopus.so.0.8.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libogg.so.0.8.5
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libmpg123.so.0.47.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libmp3lame.so.0.0.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libXau.so.6.0.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libcap.so.2.66
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libgcrypt.so.20.4.1
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/liblzma.so.5.4.1
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libzstd.so.1.5.4
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/liblz4.so.1.9.4
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libbsd.so.0.11.7
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libgpg-error.so.0.33.1
+--16706--    object doesn't have a symbol table
+--16706-- Reading syms from /usr/lib/aarch64-linux-gnu/libmd.so.0.0.5
+--16706--    object doesn't have a symbol table
+--16706-- REDIR: 0x4e09bb0 (libc.so.6:strspn) redirected to 0x48904e0 (strspn)
+--16706-- REDIR: 0x4e09900 (libc.so.6:strpbrk) redirected to 0x4890370 (strpbrk)
+--16706-- REDIR: 0x4e06b80 (libc.so.6:stpcpy) redirected to 0x488e780 (stpcpy)
+--16706-- REDIR: 0x4e06da0 (libc.so.6:strcasecmp_l) redirected to 0x488be50 (strcasecmp_l)
+--16706-- WARNING: Serious error when reading debug info
+--16706-- When reading debug info from /memfd:pulseaudio (deleted):
+--16706-- failed to stat64/stat this file
+--16706-- Discarding syms at 0x5b008f0-0x5b00afc in /usr/lib/aarch64-linux-gnu/alsa-lib/libasound_module_conf_pulse.so (have_dinfo 1)
+--16706-- REDIR: 0x4e09790 (libc.so.6:strncpy) redirected to 0x488b5a0 (strncpy)
+==16706== 
+==16706== HEAP SUMMARY:
+==16706==     in use at exit: 137,016 bytes in 2,290 blocks
+==16706==   total heap usage: 7,775 allocs, 5,485 frees, 699,363 bytes allocated
+==16706== 
+==16706== Searching for pointers to 2,290 not-freed blocks
+==16706== Checked 1,037,888 bytes
+==16706== 
+==16706== LEAK SUMMARY:
+==16706==    definitely lost: 0 bytes in 0 blocks
+==16706==    indirectly lost: 0 bytes in 0 blocks
+==16706==      possibly lost: 0 bytes in 0 blocks
+==16706==    still reachable: 35,157 bytes in 77 blocks
+==16706==         suppressed: 101,859 bytes in 2,213 blocks
+==16706== Reachable blocks (those to which a pointer was found) are not shown.
+==16706== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==16706== 
+==16706== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 108 from 108)
+--16706-- 
+--16706-- used_suppression:    122 ignore_libasound_leak /home/eugene/.config/valgrind/default.supp:6 suppressed: 74,916 bytes in 2,163 blocks
+--16706-- used_suppression:      3 ignore_dlopen_leak /home/eugene/.config/valgrind/default.supp:50 suppressed: 5,381 bytes in 27 blocks
+--16706-- used_suppression:     23 ignore_libpulsecommon_leak /home/eugene/.config/valgrind/default.supp:35 suppressed: 21,562 bytes in 23 blocks
+==16706== 
+==16706== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 108 from 108)

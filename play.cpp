@@ -7,6 +7,8 @@
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <libintl.h>
+#include <locale.h>
 
 #include <iostream>
 #include <iomanip>
@@ -23,7 +25,7 @@
 #include "device_manager.hpp"
 #include "midi_loader.hpp"
 #include "timing_manager.hpp"
-#include "playback_engine.hpp"
+#include "playback_orchestrator.hpp"
 #include "playback_synchronizer.hpp"
 
 #include <cmath>
@@ -31,23 +33,20 @@
 
 namespace fs = std::filesystem;
 
-using namespace midiplay;
+// Internationalization support
+#include "i18n.hpp"
 
 using cxxmidi::output::Default;
 using cxxmidi::player::PlayerSync;
 
-// Version is now established from the latest git tag at build time
+// Version is established from the latest git tag at build time
 // The git tag takes the form "Version x.y.z"
-
-// Signal handling is now handled by the SignalHandler class
-// Timing is now handled by the TimingManager class
-// Playback orchestration is now handled by the PlaybackEngine class
-
 
 
 int main(int argc, char **argv)
 {
-     // Signal handler will be set up after startTime is initialized
+     // Initialize i18n
+     MidiPlay::initializeI18n();
 
      // Get command line arguments
      //
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
          path = getFullPath(filename, options.isStaging());
      }
      catch (const std::runtime_error& e) {
-         std::cout << "Error: " << e.what() << std::endl;
+         std::cout << _("Error: ") << e.what() << std::endl;
          exit(MidiPlay::EXIT_ENVIRONMENT_ERROR);
      }
 
@@ -85,7 +84,7 @@ int main(int argc, char **argv)
      size_t portCount = outport.GetPortCount();
 
      if (options.isVerbose()) {
-        std::cout << "Detected " << portCount << " MIDI output ports:" << std::endl;
+        std::cout << _("Detected ") << portCount << _(" MIDI output ports:") << std::endl;
 
         for (size_t i = 0; i < portCount; i++)
         {
@@ -98,10 +97,10 @@ int main(int argc, char **argv)
    // Use DeviceManager to handle device connection and setup
    MidiPlay::DeviceManager deviceManager(options);
    
-   // Load YAML configuration if available
-   deviceManager.loadDevicePresets();
-   
    try {
+       // Load YAML configuration (mandatory)
+       deviceManager.loadDevicePresets();
+       
        // Connect to device and detect its type
        MidiPlay::DeviceInfo deviceInfo = deviceManager.connectAndDetectDevice(outport);
        
@@ -110,7 +109,7 @@ int main(int argc, char **argv)
        
        if (options.isVerbose()) {
             // Display device information
-            std::cout << "Connected to: " << deviceManager.getDeviceTypeName(deviceInfo.type)
+            std::cout << _("Connected to: ") << deviceManager.getDeviceTypeName(deviceInfo.type)
                         << " (" << deviceInfo.portName << ")" << std::endl;
         }
 
@@ -130,24 +129,25 @@ int main(int argc, char **argv)
      // Create modern C++ synchronization primitive (replaces POSIX semaphore)
      MidiPlay::PlaybackSynchronizer synchronizer;
      
-     // Create playback engine with dependencies
-     MidiPlay::PlaybackEngine playbackEngine(player, synchronizer, midiLoader);
-     playbackEngine.initialize();
-     playbackEngine.setDisplayWarnings(options.isDisplayWarnings());
+     // Create playback orchestrator with dependencies
+     MidiPlay::PlaybackOrchestrator playbackOrchestrator(player, synchronizer, midiLoader);
+     playbackOrchestrator.initialize();
+     playbackOrchestrator.setDisplayWarnings(options.isDisplayWarnings());
      
      // Display what we're about to play
-     playbackEngine.displayPlaybackInfo();
+     playbackOrchestrator.displayPlaybackInfo();
      
      // Set up signal handler now that all dependencies are available
      MidiPlay::SignalHandler signalHandler(outport, synchronizer, timingManager.getStartTime());
      signalHandler.setupSignalHandler();
 
      // Execute complete playback sequence (intro + verses)
-     playbackEngine.executePlayback();
+     playbackOrchestrator.executePlayback();
 
      // Display elapsed time
      timingManager.endTimer();
      timingManager.displayElapsedTime();
      
      // Note: synchronizer cleanup happens automatically via RAII
+     return EXIT_SUCCESS;
 }

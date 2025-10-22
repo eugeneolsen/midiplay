@@ -1,5 +1,6 @@
 #include "timing_manager.hpp"
 #include "constants.hpp"
+#include "i18n.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -36,8 +37,8 @@ void TimingManager::displayElapsedTime() const {
     int minutes = totalSeconds / MidiPlay::SECONDS_PER_MINUTE;
     int seconds = totalSeconds % MidiPlay::SECONDS_PER_MINUTE;
     
-    std::cout << "Fine - elapsed time " << minutes << ":" 
-              << std::setw(2) << std::setfill('0') << seconds 
+    std::cout << _("Fine - elapsed time ") << minutes << ":"
+              << std::setw(2) << std::setfill('0') << seconds
               << std::endl << std::endl;
 }
 

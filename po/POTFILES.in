@@ -1,0 +1,10 @@
+# List of source files which contain translatable strings
+play.cpp
+playback_orchestrator.cpp
+musical_director.cpp
+event_preprocessor.cpp
+device_manager.cpp
+signal_handler.cpp
+timing_manager.cpp
+midi_loader.cpp
+options.hpp

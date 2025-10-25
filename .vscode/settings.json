@@ -8,6 +8,8 @@
         "utility": "cpp",
         "optional": "cpp",
         "cstdlib": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "iostream": "cpp",
+        "iomanip": "cpp"
     }
 }

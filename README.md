@@ -1,17 +1,17 @@
-# 🎹 Organ Pi 🎜 MIDI File Player
-## C++ (gnu++20 standard), customized fork of [cxxmidi](https://github.com/eugeneolsen/cxxmidi), standard library.
+# 🎹 Organ Pi<sup style="font-size: smaller">TM</sup> 🎜 MIDI File Player
+## C++ (gnu++20 standard), customized fork of [cxxmidi](https://github.com/eugeneolsen/cxxmidi), Standard Library.
 ## 👉🏽 See a demo video in the <a href="https://www.raspberrypi.com/news/raspberry-pi-is-this-churchs-new-organist/" target="_blank">Raspberry Pi News</a>
 ## Description
-The Organ Pi MIDI file player is a software MIDI sequencer that plays a MIDI file through MIDI OUT port 1 through a USB-to-MIDI converter.  This program was developed specifically to run on a Raspberry Pi 4B (or better) running Raspberry Pi OS 64-bit (or any Debian Linux derivative, such as Ubuntu) through a USB to MIDI adapter to an Allen Protégé-16 organ.  Other organs may be supported in the future.
+The Organ Pi<sup style="font-size: smaller">TM</sup> MIDI file player is a software MIDI sequencer that plays a MIDI file through MIDI OUT port 1 through a USB-to-MIDI converter.  This program was developed specifically to run on a Raspberry Pi 4B (or better) running Raspberry Pi OS 64-bit (or any Debian Linux derivative, such as Ubuntu) through a USB to MIDI adapter to an Allen Protégé-16 organ.  Other organs may be supported in the future.
 
-Currently, Casio and Yamaha consumer keyboards are also supported for testing.
+Casio and Yamaha consumer keyboards are also supported for testing.
 
 This project was created for people with technical aptitude.  A more user-friendly touch-screen interface is in the works.
 
 ## Features
 ✅ Simple Linux command line syntax.<br>
 ✅ Define an introduction using MIDI markers.<br>
-✅ Play the number of verses defined in the MIDI file or overridden on the command line. For implementation details, see the [Meta Events document](meta_events.md)  
+✅ Play the number of verses defined in the MIDI file or overridden on the command line.  
 ✅ Command line flags for prelude and postlude without playing the introduction.<br>
 ✅ Localized to five languages: English, Spanish, Brazilian Portuguese, and French for both France and Canada.<br>
 
@@ -25,36 +25,37 @@ This project was created for people with technical aptitude.  A more user-friend
 ## Installation
 For installation instructions, see the [installer documentation](midiplay-installer/README.md).
 
-## Usage 
-On the Linux or SSH command line, type:
-
-`play` *<filename\>* *options*
-
-*filename* need not include the extension ".mid".  The extension ".mid" is appended if not present in the *filename.*
-
 It is recommended that aliases be added to `~/.bash_aliases` as follows:
 
 `alias p='play'`
 
 For Spanish and Portuguese:
 
-`alias toque='play'`<br>
-`alias toq='play'`<br>
+`alias toque='play'`  
+`alias toq='play'`  
 `alias t='play'`
 
 
+## Usage 
+On the Linux or SSH command line, type:
+
+`play` *<filename\>* *options*
+
+*filename* need not include the extension ".mid".  The extension ".mid" is appended if not present in the *filename.*  
+
+The player will play files residing in the directory defined in the `HYMN_PLAY` environment variable.
 
 ### Options
 `-v --version`  Display the version number of this command.
 
-`-p`*n* `--prelude=`*n* play two verses *without* the introduction as prelude or postlude where *n* indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 8, which is 80% of the tempo in the MIDI file.
+`-p`*n* `--prelude=`*n* play two verses *without* the introduction as prelude or postlude where *n* indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 9, which is 90% of the tempo in the MIDI file.
 
-`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (see below).
+`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (if you're curious about details,see [Meta Events document](meta_events.md)).  
 
 `-t`*bpm*` --tempo=`*bpm*  overrides the tempo specified in the MIDI file,
 where *bpm* is beats per minute.
 
-`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (see below).
+`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (for details, see [Meta Events document](meta_events.md)).  
 
 
 ## Planned Enhancements

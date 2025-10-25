@@ -5,11 +5,13 @@
 
 ### Test Files
 
-- 1.mid - One long verse, which includes the introduction and 5 verses.  No marked introduction.
-- 19.mid - Introduction + 3 verses
-- 209.mid - Introduction + 2 verses
-- 242.mid - Introduction + 1 verse
-- 1202.mid - Introduction + 3 verses + D.C. al Fine
+- simple.mid - A 4-second single verse file.  No marked introduction.
+- with_intro - Introduction + 2 verses
+- dc_al_fine.mid - One verse, no introduction + D.C. al Fine
+- ritardando.mid - Single verse, no introduction, with a dramatic ritardando at end.  
+
+The above files can be run from the staging directory with the -s flag.
+Additional command line flags can be used to modify number of verses, tempo, etc.
 
 ### 1. Unit Testing Approach
 

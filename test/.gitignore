@@ -18,3 +18,6 @@ coverage.info
 *.swp
 *.swo
 *~
+
+# Test Files
+!fixtures/test_files/

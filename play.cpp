@@ -1,23 +1,12 @@
 #include <cxxmidi/player/player_sync.hpp>
-#include <cxxmidi/file.hpp>
 #include <cxxmidi/output/default.hpp>
-#include <cxxmidi/note.hpp>
-#include <signal.h>
 #include <cstdlib>
 #include <string>
 #include <unistd.h>
-#include <sys/stat.h>
-#include <libintl.h>
-#include <locale.h>
-
 #include <iostream>
 #include <iomanip>
 
-#include <ecocommon/timer.hpp>
-
 #include "options.hpp"
-#include "ticks.hpp"
-#include "custommessage.hpp"
 
 #include "constants.hpp"
 #include "device_constants.hpp"
@@ -27,8 +16,6 @@
 #include "timing_manager.hpp"
 #include "playback_orchestrator.hpp"
 #include "playback_synchronizer.hpp"
-
-#include <cmath>
 
 
 namespace fs = std::filesystem;

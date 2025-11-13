@@ -77,6 +77,7 @@ Play the hymn at `<bpm>` beats per minute. Overrides the tempo specified in the 
 
 Play the number of verses specified in `<verses>` *without* an introduction. Overrides the default number of verses specified in the MIDI file.
 
+---
 
 ## Planned Enhancements
 1. Proper handling of **melodic variations** such as the extra pickup note at the beginning of the first verse of "O Come All Ye Faithful."

@@ -46,22 +46,36 @@ On the Linux or SSH command line, type:
 The player will play files residing in the directory defined in the `HYMN_PLAY` environment variable.
 
 ### Options
-`-v`, `--version`  
+
+**`-v`, `--version`**  
+
 Display the version number of this command.
 
-`-p<relative speed>`, `--prelude=<relative speed>`  
+---
+  
+**`-p<relative speed>`, `--prelude=<relative speed>`**  
+
 Play two verses *without* the introduction as prelude or postlude where `<relative speed>` indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 9, which is 90% of the tempo in the MIDI file.
 
-The number of verses played for prelude or postlude using this option can be overridden by the -x option, described below.  
+The number of verses played for prelude or postlude using this option can be overridden by the `-x` option, described below.
 
-`-n<verses>`  
-Play the introduction and then play the number of verses specified in `<verses>`. Overrides the default number of verses specified in the MIDI file.  
+---
 
-`-t<bpm>`, `--tempo=<bpm>`  
+**`-n<verses>`**  
+
+Play the introduction and then play the number of verses specified in `<verses>`. Overrides the default number of verses specified in the MIDI file.
+
+---
+
+**`-t<bpm>`, `--tempo=<bpm>`**  
+
 Play the hymn at `<bpm>` beats per minute. Overrides the tempo specified in the MIDI file.
 
-`-x<verses>`  
-Play the number of verses specified in `<verses>` *without* an introduction.  Overrides the default number of verses specified in the MIDI file.  
+---
+
+**`-x<verses>`**  
+
+Play the number of verses specified in `<verses>` *without* an introduction. Overrides the default number of verses specified in the MIDI file.
 
 
 ## Planned Enhancements

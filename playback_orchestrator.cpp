@@ -149,8 +149,15 @@ void PlaybackOrchestrator::playVerses() {
         
         // Handle D.C. al Fine (Da Capo al Fine - return to beginning until Fine)
         if (stateMachine_.isAlFine()) {
-            player_.Rewind();
+            player_.Rewind();   // D.C. - go back to start
+
+            // Pause before playing al Fine
+            if (pauseTicks.has_value()) {
+                std::this_thread::sleep_for(std::chrono::microseconds(pauseTicks.getTicks().value() * uSecPerTick));
+            }
+
             player_.Play();
+
             synchronizer_.wait();
         }
     }

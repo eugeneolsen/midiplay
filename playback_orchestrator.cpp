@@ -12,6 +12,10 @@
 using cxxmidi::Event;
 using cxxmidi::player::PlayerSync;
 
+namespace {
+    static constexpr int THIRTY_SECOND_NOTE_DIVISOR = 32; // divisor for a 32nd note
+}
+
 namespace MidiPlay {
 
 PlaybackOrchestrator::PlaybackOrchestrator(PlayerSync& player,
@@ -154,6 +158,10 @@ void PlaybackOrchestrator::playVerses() {
             // Pause before playing al Fine
             if (pauseTicks.has_value()) {
                 std::this_thread::sleep_for(std::chrono::microseconds(pauseTicks.getTicks().value() * uSecPerTick));
+            } else {
+                uint16_t ppq = midiLoader_.getFile().TimeDivision();
+                uint16_t thirtySecondNoteDuration = ppq / THIRTY_SECOND_NOTE_DIVISOR;                          // 32nd note
+                std::this_thread::sleep_for(std::chrono::milliseconds(thirtySecondNoteDuration * uSecPerTick)); // 32nd note pause default
             }
 
             player_.Play();

@@ -1,4 +1,4 @@
-# 🎹 Organ Pi MIDI File Player - Installation Package
+# 🎹 Organ Pi<sup style="font-size: smaller">TM</sup> 🎜 MIDI File Player - Installation Package
 
 This package contains everything needed to install the Organ Pi MIDI File Player on your Raspberry Pi or compatible ARM64 Linux system.
 
@@ -39,7 +39,7 @@ midiplay-installer/
 
 1. **Extract the package** (if downloaded as archive):
    ```bash
-   tar -xzf midiplay-installer-v1.5.9.tar.gz
+   tar -xzf midiplay-installer-v1.6.0.tar.gz
    ```
 
 2. **Navigate to the installer directory**:
@@ -282,6 +282,14 @@ After installation:
 - Add unit tests
 - Automate user acceptance testing
 
+### Upgrading to v1.6.0
+
+**✅ No Breaking Changes**
+
+**What's New in v1.6.0:**
+- D.C. al Fine uses the between-verse pause before starting *al fine*
+- Improved readability and clarity for command line options
+
 
 ### General Updates
 
@@ -305,8 +313,8 @@ This software is distributed under the terms specified in the original project l
 
 The Organ Pi MIDI File Player is designed specifically for church organists and musicians who need a reliable, simple MIDI file player for live performance. It supports custom MIDI markers for introductions, multiple verses, and various playback options optimized for liturgical use.
 
-**Version**: 1.5.7<br>
-**Architecture**: ARM64<br>
+**Version**: 1.6.0  
+**Architecture**: ARM64  
 **Target Platform**: Raspberry Pi 4B+ with Debian 12
 
 ---

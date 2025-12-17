@@ -55,7 +55,7 @@ Display the version number of this command.
   
 **`-p<relative speed>`, `--prelude=<relative speed>`**  
 
-Play two verses *without* the introduction as prelude or postlude where `<relative speed>` indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 9, which is 90% of the tempo in the MIDI file.
+Play two verses *without* the introduction as prelude or postlude where `<relative speed>` (optional) indicates the speed at which to play, 10 being the tempo in the MIDI file.  If no  `<relative speed>` number is provided for the option, the default is 9, which is 90% of the tempo in the MIDI file.
 
 The number of verses played for prelude or postlude using this option can be overridden by the `-x` option, described below.
 

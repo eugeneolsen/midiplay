@@ -13,7 +13,7 @@ using cxxmidi::Event;
 using cxxmidi::player::PlayerSync;
 
 namespace {
-    static constexpr int THIRTY_SECOND_NOTE_DIVISOR = 32; // divisor for a 32nd note
+    static constexpr int THIRTY_SECOND_NOTE_DIVISOR = 8; // divisor for a 32nd note (quarter note / 8)
 }
 
 namespace MidiPlay {

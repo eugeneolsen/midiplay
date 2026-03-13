@@ -113,7 +113,7 @@ echo -e "${BLUE}=================================================${NC}"
 echo ""
 
 # Detect version
-PACKAGE_VERSION="1.5.9"
+PACKAGE_VERSION="1.6.0"
 if [[ $? -ne 0 ]]; then
     print_error "Unable to detect version automatically"
     echo ""

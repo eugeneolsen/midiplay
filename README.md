@@ -46,17 +46,38 @@ On the Linux or SSH command line, type:
 The player will play files residing in the directory defined in the `HYMN_PLAY` environment variable.
 
 ### Options
-`-v --version`  Display the version number of this command.
 
-`-p`*n* `--prelude=`*n* play two verses *without* the introduction as prelude or postlude where *n* indicates the speed at which to play, 10 being the tempo in the MIDI file.  The default if no number is provided for the option is 9, which is 90% of the tempo in the MIDI file.
+**`-v`, `--version`**  
 
-`-n`*n* where *n* is the number of verses to play *after* the introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (if you're curious about details,see [Meta Events document](meta_events.md)).  
+Display the version number of this command.
 
-`-t`*bpm*` --tempo=`*bpm*  overrides the tempo specified in the MIDI file,
-where *bpm* is beats per minute.
+---
+  
+**`-p<relative speed>`, `--prelude=<relative speed>`**  
 
-`-x`*n* where *n* is the number of verses to play *without* an introduction.  Overrides the default number of verses specified in the MIDI file with player-specific meta event type 0x01 (for details, see [Meta Events document](meta_events.md)).  
+Play two verses *without* the introduction as prelude or postlude where `<relative speed>` (optional) indicates the speed at which to play, 10 being the tempo in the MIDI file.  If no  `<relative speed>` number is provided for the option, the default is 9, which is 90% of the tempo in the MIDI file.
 
+The number of verses played for prelude or postlude using this option can be overridden by the `-x` option, described below.
+
+---
+
+**`-n<verses>`**  
+
+Play the introduction and then play the number of verses specified in `<verses>`. Overrides the default number of verses specified in the MIDI file.
+
+---
+
+**`-t<bpm>`, `--tempo=<bpm>`**  
+
+Play the hymn at `<bpm>` beats per minute. Overrides the tempo specified in the MIDI file.
+
+---
+
+**`-x<verses>`**  
+
+Play the number of verses specified in `<verses>` *without* an introduction. Overrides the default number of verses specified in the MIDI file.
+
+---
 
 ## Planned Enhancements
 1. Proper handling of **melodic variations** such as the extra pickup note at the beginning of the first verse of "O Come All Ye Faithful."
@@ -72,6 +93,7 @@ MIT - see [LICENSE](LICENSE.md) document.
 cxxmidi: MIT
 
 ## Release History
+Version 1.6.0 - 2025.12.16 Add between-verse pause to D.C. al Fine.
 Version 1.5.9 - 2025.10.20 Unit tests, minor bug fixes, more code cleanup.  
 Version 1.5.8 - 2025.10.08 Various code cleanup changes.  No user-facing changes.  
 Version 1.5.7 - 2025.10.02 Move magic strings to internationalization tables, localize.<br>

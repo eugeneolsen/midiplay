@@ -788,6 +788,7 @@ _pkginfo.txt
 
 # Others
 ClientBin/
+snippets/
 ~$*
 *~
 *.dbmdl
@@ -850,6 +851,24 @@ node_modules/
 
 # Visual Studio 6 auto-generated workspace file (contains which files were open etc.)
 *.vbw
+
+# =========================================================================
+# Kilo Code Configuration
+# =========================================================================
+
+# IGNORE: Local session persistence, cached files, and logs
+.kilo/*.log
+.kilo/.local/
+
+# IGNORE: Agent Manager worktrees (generated, large)
+.kilo/worktrees/
+
+# IGNORE: Project-level codebase indices (prevents bloated commits)
+.kilocode/snapshots/
+.kilocode/index/
+lancedb/
+qdrant/
+
 
 # Visual Studio LightSwitch build output
 **/*.HTMLClient/GeneratedArtifacts
